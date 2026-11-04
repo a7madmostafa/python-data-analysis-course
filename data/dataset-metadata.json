@@ -129,7 +129,7 @@
           {
             "name": "order_date",
             "type": "datetime",
-            "description": "Date of the order, 2024-01-01 to 2025-12-31."
+            "description": "Date of the order, 2024-01-01 to 2025-12-31 (one is dated 2031 by mistake)."
           },
           {
             "name": "customer_id",
@@ -144,22 +144,22 @@
           {
             "name": "quantity",
             "type": "numeric",
-            "description": "Number of units in the order line."
+            "description": "Number of units in the order line. 30 are missing, one is -2 and one is 500."
           },
           {
             "name": "unit_price",
             "type": "numeric",
-            "description": "Price of one unit in EGP, within 5% of the list price."
+            "description": "Price of one unit in EGP, within 5% of the list price. One is 0."
           },
           {
             "name": "discount",
             "type": "numeric",
-            "description": "Discount as a fraction: 0, 0.05, 0.10 or 0.20."
+            "description": "Discount as a fraction: 0, 0.05, 0.10 or 0.20. 40 are missing."
           },
           {
             "name": "status",
             "type": "string",
-            "description": "completed, shipped, cancelled or returned."
+            "description": "completed, shipped, cancelled or returned. 10 are missing."
           }
         ]
       }

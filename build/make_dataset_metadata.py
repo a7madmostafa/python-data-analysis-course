@@ -79,6 +79,13 @@ ORDER_FIELDS = [
     ("status", "string", "completed, shipped, cancelled or returned."),
 ]
 RAW_ORDER = {n: (t, d) for n, t, d in ORDER_FIELDS}
+RAW_NOTES = {   # what is different in the raw orders.csv
+    "order_date": "Date of the order, 2024-01-01 to 2025-12-31 (one is dated 2031 by mistake).",
+    "quantity": "Number of units in the order line. 30 are missing, one is -2 and one is 500.",
+    "unit_price": "Price of one unit in EGP, within 5% of the list price. One is 0.",
+    "discount": "Discount as a fraction: 0, 0.05, 0.10 or 0.20. 40 are missing.",
+    "status": "completed, shipped, cancelled or returned. 10 are missing.",
+}
 
 RESOURCES = [
     ("sales.csv",
@@ -103,7 +110,7 @@ RESOURCES = [
       ("status", "string", "completed, shipped, cancelled, returned, or unknown when it was missing.")]),
     ("orders.csv",
      "Raw orders with planted data-quality problems: missing values, impossible quantities, a zero price, a 2031 date, a duplicate, unknown customers.",
-     [(n, t, d) for n, t, d in ORDER_FIELDS]),
+     [(n, t, RAW_NOTES.get(n, d)) for n, t, d in ORDER_FIELDS]),
     ("customers.csv",
      "Raw customers with messy text (extra spaces, capitals, inconsistent governorate names).",
      [("customer_id", "integer", "Customer id, 1 to 200."),
