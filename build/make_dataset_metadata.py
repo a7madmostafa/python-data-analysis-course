@@ -208,7 +208,7 @@ def make_cover():
     ax.text(W / 2, 362, "ZERO GRAD  ·  DATA ANALYSIS", color="#fbbf24", fontsize=9.5, fontweight="bold",
             ha="center", zorder=9)
     ax.text(W / 2, 300, "NileCart", color="#fff7e6", fontsize=40, fontweight="bold", ha="center", zorder=9, **shade)
-    ax.text(W / 2, 270, "Sales  ·  Cairo  ·  2024–2025  ·  EGP", color="#fff7e6", fontsize=12, ha="center",
+    ax.text(W / 2, 270, "Online shop in Cairo", color="#fff7e6", fontsize=14, ha="center",
             zorder=9, **shade)
 
     COVER.parent.mkdir(parents=True, exist_ok=True)
