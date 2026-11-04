@@ -206,17 +206,28 @@ def make_cover():
     for i in range(4):                                                                          # its reflection
         ax.plot([fx - 36 + i * 8, fx + 42 - i * 8], [fy - 8 - i * 7] * 2, color="#140c08", lw=2, alpha=.5,
                 solid_capstyle="round", zorder=5)
+    for bx, by, bw, bh in [(fx - 34, fy + 10, 16, 12), (fx - 17, fy + 10, 14, 10), (fx - 30, fy + 22, 13, 10)]:
+        ax.add_patch(plt.Rectangle((bx, by), bw, bh, facecolor="#b45309", edgecolor="#140c08", lw=1, zorder=6))
+        ax.plot([bx + bw / 2] * 2, [by, by + bh], color="#fde68a", lw=1, alpha=.8, zorder=6)    # parcel tape
 
     # palms in front, at both edges
     for x, h, lean in [(25, 150, 22), (60, 120, 30), (770, 160, -24), (740, 115, -30)]:
         palm(ax, x, 0, h, lean, "#0a0604", z=7)
 
-    # title: Kaggle's thumbnail is a square cut from somewhere around the middle, so only the name,
-    # small, in the exact centre (the sun sits right under it)
-    black = matplotlib.font_manager.FontProperties(fname=Path("C:/Windows/Fonts") / "seguibl.ttf")
-    shade = dict(path_effects=[matplotlib.patheffects.withStroke(linewidth=5, foreground="#101f4088")])
-    ax.text(W / 2, 262, "NileCart", color="#fff7e6", fontsize=26, fontproperties=black, ha="center", va="center",
-            zorder=9, **shade)
+    # a shopping cart in the sky over the sun, in the exact centre: Kaggle's thumbnail is a square cut
+    # from somewhere around the middle, so the cart survives any crop
+    cx, cy, s = W / 2, 262, 1.0
+    line = dict(color="#fff7e6", lw=3.2, solid_capstyle="round", solid_joinstyle="round", zorder=9,
+                path_effects=[matplotlib.patheffects.withStroke(linewidth=7, foreground="#101f4066")])
+    P = lambda pts: ([cx + x * s for x, _ in pts], [cy + y * s for _, y in pts])
+    ax.plot(*P([(-62, 30), (-48, 30), (-36, -14), (34, -14), (44, 20), (-41, 20)]), **line)     # handle + basket
+    ax.plot(*P([(-36, -14), (-40, -26), (36, -26)]), **line)                                 # bottom frame
+    for x in (-14, 10):                                                                      # basket grid
+        ax.plot(*P([(x, 20), (x + 1, -14)]), **{**line, "lw": 1.6, "path_effects": []})
+    ax.plot(*P([(-38, 3), (39, 3)]), **{**line, "lw": 1.6, "path_effects": []})
+    for x in (-30, 28):                                                                      # wheels
+        ax.add_patch(plt.Circle((cx + x * s, cy - 34 * s), 5.5 * s, facecolor="#fff7e6", edgecolor="#101f4066",
+                                lw=1.5, zorder=9))
 
     COVER.parent.mkdir(parents=True, exist_ok=True)
     tmp = COVER.with_suffix(".big.png")
