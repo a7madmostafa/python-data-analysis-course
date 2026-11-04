@@ -13,8 +13,6 @@ from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
-import matplotlib.font_manager
-import matplotlib.patheffects
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -213,21 +211,6 @@ def make_cover():
     # palms in front, at both edges
     for x, h, lean in [(25, 150, 22), (60, 120, 30), (770, 160, -24), (740, 115, -30)]:
         palm(ax, x, 0, h, lean, "#0a0604", z=7)
-
-    # a shopping cart in the sky over the sun, in the exact centre: Kaggle's thumbnail is a square cut
-    # from somewhere around the middle, so the cart survives any crop
-    cx, cy, s = W / 2, 262, 1.0
-    line = dict(color="#fff7e6", lw=3.2, solid_capstyle="round", solid_joinstyle="round", zorder=9,
-                path_effects=[matplotlib.patheffects.withStroke(linewidth=7, foreground="#101f4066")])
-    P = lambda pts: ([cx + x * s for x, _ in pts], [cy + y * s for _, y in pts])
-    ax.plot(*P([(-62, 30), (-48, 30), (-36, -14), (34, -14), (44, 20), (-41, 20)]), **line)     # handle + basket
-    ax.plot(*P([(-36, -14), (-40, -26), (36, -26)]), **line)                                 # bottom frame
-    for x in (-14, 10):                                                                      # basket grid
-        ax.plot(*P([(x, 20), (x + 1, -14)]), **{**line, "lw": 1.6, "path_effects": []})
-    ax.plot(*P([(-38, 3), (39, 3)]), **{**line, "lw": 1.6, "path_effects": []})
-    for x in (-30, 28):                                                                      # wheels
-        ax.add_patch(plt.Circle((cx + x * s, cy - 34 * s), 5.5 * s, facecolor="#fff7e6", edgecolor="#101f4066",
-                                lw=1.5, zorder=9))
 
     COVER.parent.mkdir(parents=True, exist_ok=True)
     tmp = COVER.with_suffix(".big.png")
