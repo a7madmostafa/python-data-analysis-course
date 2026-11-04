@@ -169,7 +169,7 @@ def make_cover():
 
     # sky: night at the top, sunset at the horizon
     gradient(HORIZON, H, [(0, "#fbbf24"), (.18, "#f97316"), (.45, "#be185d"), (.75, "#3b1f5e"), (1, "#101f40")])
-    sun = (575, HORIZON + 26)
+    sun = (W / 2, HORIZON + 26)
     for r, a in [(70, .10), (55, .16), (44, .9)]:
         ax.add_patch(plt.Circle(sun, r, color="#fde68a", alpha=a, zorder=1, lw=0))
 
@@ -191,7 +191,7 @@ def make_cover():
                 solid_capstyle="round", zorder=4)
 
     # a felucca
-    fx, fy = 300, 70
+    fx, fy = 560, 70
     ax.fill([fx - 46, fx + 50, fx + 36, fx - 34], [fy + 10, fy + 10, fy, fy], color="#140c08", zorder=6, lw=0)
     ax.plot([fx + 4, fx + 4], [fy + 10, fy + 92], color="#140c08", lw=1.8, zorder=6)          # mast
     ax.fill([fx - 30, fx + 74, fx + 52], [fy + 16, fy + 134, fy + 16], color="#1c1009", zorder=6, lw=0)  # lateen sail
@@ -204,16 +204,12 @@ def make_cover():
     for x, h, lean in [(25, 150, 22), (60, 120, 30), (770, 160, -24), (740, 115, -30)]:
         palm(ax, x, 0, h, lean, "#0a0604", z=7)
 
-    # title: Kaggle's square thumbnail is the LEFT 400 x 400 of the cover, so the text lives there
-    fonts = Path("C:/Windows/Fonts")
-    black = matplotlib.font_manager.FontProperties(fname=fonts / "seguibl.ttf")
-    semi = matplotlib.font_manager.FontProperties(fname=fonts / "seguisb.ttf")
-    label = matplotlib.font_manager.FontProperties(fname=fonts / "bahnschrift.ttf")
+    # title: Kaggle's thumbnail is a square cut from somewhere around the middle, so only the name,
+    # small, in the exact centre (the sun sits right under it)
+    black = matplotlib.font_manager.FontProperties(fname=Path("C:/Windows/Fonts") / "seguibl.ttf")
     shade = dict(path_effects=[matplotlib.patheffects.withStroke(linewidth=5, foreground="#101f4088")])
-    ax.text(38, 352, "Z E R O   G R A D   ·   D A T A   A N A L Y S I S", color="#fbbf24", fontsize=7.5,
-            fontproperties=label, zorder=9)
-    ax.text(34, 288, "NileCart", color="#fff7e6", fontsize=36, fontproperties=black, zorder=9, **shade)
-    ax.text(38, 260, "Online shop in Cairo", color="#fde68a", fontsize=13, fontproperties=semi, zorder=9, **shade)
+    ax.text(W / 2, 262, "NileCart", color="#fff7e6", fontsize=26, fontproperties=black, ha="center", va="center",
+            zorder=9, **shade)
 
     COVER.parent.mkdir(parents=True, exist_ok=True)
     tmp = COVER.with_suffix(".big.png")
