@@ -58,8 +58,8 @@ plt.rcParams["figure.figsize"] = (9, 4)
 pd.options.display.float_format = "{:,.1f}".format
 
 # On Kaggle the data lives under /kaggle/input, locally in the repo's data/ folder
-KAGGLE = Path("/kaggle/input/nilecart-sales/sales.csv")
-DATA = KAGGLE if KAGGLE.exists() else Path("../../data/sales.csv")
+on_kaggle = sorted(Path("/kaggle/input").glob("**/sales.csv"))
+DATA = on_kaggle[0] if on_kaggle else Path("../../data/sales.csv")
 
 sales = pd.read_csv(DATA, parse_dates=["order_date"])
 orders = sales[sales["status"] == "completed"].copy()   # money that actually came in
