@@ -1,0 +1,201 @@
+customer_id,name,email,governorate,segment,signup_date
+1,  MONA MOSTAFA ,mona.mostafa1@example.com,Gharbia,Consumer,2024-09-07
+2,  DINA FAROUK ,dina.farouk2@example.com,Luxor,Small Business,2023-12-01
+3,  LAILA ABDELRAHMAN ,laila.abdelrahman3@example.com,Alexandria,Corporate,2024-11-20
+4,  MAHMOUD GAMAL ,mahmoud.gamal4@example.com,cairo,Consumer,2024-06-17
+5,  MAHMOUD ABDELRAHMAN ,mahmoud.abdelrahman5@example.com,Cairo,Small Business,2024-03-31
+6,  REEM EL-SAYED ,REEM.ELSAYED6@EXAMPLE.COM,Cairo,Small Business,2024-09-24
+7,  MONA SALEH ,MONA.SALEH7@EXAMPLE.COM,Cairo,Consumer,2023-12-27
+8,  LAILA FAROUK ,LAILA.FAROUK8@EXAMPLE.COM,Dakahlia,Corporate,2024-05-19
+9,  OMAR EL-SAYED ,OMAR.ELSAYED9@EXAMPLE.COM,Cairo,Consumer,2023-07-19
+10,  MONA SALEH ,mona.saleh10@example.com,Alexandria,Small Business,2024-11-05
+11,Mostafa El-Sayed,mostafa.elsayed11@example.com,Dakahlia,Corporate,2024-03-12
+12,Mariam Saleh,mariam.saleh12@example.com,Alexandria,Corporate,2024-07-01
+13,Tarek Saleh,tarek.saleh13@example.com,Cairo,Consumer,2023-11-19
+14,Dina Abdelrahman,dina.abdelrahman14@example.com,Gharbia,Small Business,2024-08-29
+15,Tarek Saleh,tarek.saleh15@example.com,Sharqia,Consumer,2023-02-21
+16,Dina El-Sayed,dina.elsayed16@example.com,GIZA ,Consumer,2023-03-21
+17,Mostafa Hassan,mostafa.hassan17@example.com,Cairo,Consumer,2023-12-21
+18,Youssef Hassan,youssef.hassan18@example.com,Cairo,Corporate,2024-05-27
+19,Amr Abdelrahman,amr.abdelrahman19@example.com,Assiut,Consumer,2024-07-20
+20,Fatma Farouk,fatma.farouk20@example.com,Giza,Small Business,2023-11-05
+21,Mostafa Ibrahim,mostafa.ibrahim21@example.com,Giza,Corporate,2024-03-30
+22,Hana Abdelrahman,hana.abdelrahman22@example.com,Alexandria,Consumer,2024-01-23
+23,Nour Saleh,nour.saleh23@example.com,Dakahlia,Consumer,2024-11-04
+24,Hossam El-Sayed,hossam.elsayed24@example.com,Sohag,Consumer,2024-04-02
+25,Dina Saleh,dina.saleh25@example.com,Giza,Corporate,2023-10-19
+26,Khaled Mostafa,khaled.mostafa26@example.com,Assiut,Corporate,2024-11-09
+27,Mahmoud Nabil,mahmoud.nabil27@example.com,Cairo,Consumer,2023-03-17
+28,Amr Fawzy,amr.fawzy28@example.com,Alexandria,Corporate,2024-11-20
+29,Mostafa Fawzy,mostafa.fawzy29@example.com,Beheira,Consumer,2023-04-18
+30,Mahmoud Ibrahim,mahmoud.ibrahim30@example.com,Cairo,Corporate,2023-07-21
+31,Fatma Abdelrahman,fatma.abdelrahman31@example.com,Cairo,Small Business,2024-07-29
+32,Omar Nabil,omar.nabil32@example.com,Giza,Corporate,2024-05-28
+33,Mona Hassan,mona.hassan33@example.com,Luxor,Corporate,2024-11-10
+34,Yasmin Saleh,yasmin.saleh34@example.com,Alexandria,Corporate,2024-06-08
+35,Reem Abdelrahman,reem.abdelrahman35@example.com,Assiut,Consumer,2024-03-21
+36,Mona Saleh,mona.saleh36@example.com,Gharbia,Consumer,2023-08-31
+37,Reem Gamal,reem.gamal37@example.com,Qalyubia,Consumer,2023-01-04
+38,Amr Abdelrahman,amr.abdelrahman38@example.com,Gharbia,Consumer,2023-03-28
+39,Salma Mostafa,salma.mostafa39@example.com,Cairo,Corporate,2023-07-28
+40,Khaled Gamal,khaled.gamal40@example.com,Cairo,Corporate,2023-01-29
+41,Nour Ibrahim,nour.ibrahim41@example.com, alexandria,Small Business,2023-12-22
+42,Dina Fawzy,dina.fawzy42@example.com,Gharbia,Consumer,2024-06-28
+43,Tarek Hassan,tarek.hassan43@example.com,Cairo,Corporate,2024-11-05
+44,Hana Gamal,hana.gamal44@example.com,Alexandria,Consumer,2023-12-09
+45,Mona Gamal,mona.gamal45@example.com,Alexandria,Consumer,2024-09-04
+46,Mariam Hassan,mariam.hassan46@example.com,Port Said,Corporate,2024-11-20
+47,Mahmoud Saleh,mahmoud.saleh47@example.com,Alexandria,Small Business,2024-08-24
+48,Reem Abdelrahman,reem.abdelrahman48@example.com,Giza,Corporate,2023-11-22
+49,Laila Saleh,laila.saleh49@example.com,Giza,Consumer,2023-08-16
+50,Dina Hassan,dina.hassan50@example.com,Qalyubia,Corporate,2024-11-15
+51,Dina Ibrahim,dina.ibrahim51@example.com,Dakahlia,Consumer,2023-06-19
+52,Nour Abdelrahman,nour.abdelrahman52@example.com,Port Said,Small Business,2023-10-16
+53,Hana Ibrahim,hana.ibrahim53@example.com,Qalyubia,Corporate,2023-02-21
+54,Fatma Mostafa,fatma.mostafa54@example.com,Cairo,Consumer,2024-07-09
+55,Fatma Gamal,fatma.gamal55@example.com,Cairo,Consumer,2024-03-30
+56,Ahmed Ibrahim,ahmed.ibrahim56@example.com,Sharqia,Consumer,2023-03-01
+57,Mostafa Gamal,mostafa.gamal57@example.com,Monufia,Small Business,2023-06-05
+58,Nour Ibrahim,nour.ibrahim58@example.com,Cairo,Consumer,2024-01-24
+59,Tarek Ibrahim,tarek.ibrahim59@example.com,Cairo,Corporate,2024-01-14
+60,Laila Fawzy,laila.fawzy60@example.com,Alexandria,Corporate,2024-07-15
+61,Hossam Saleh,hossam.saleh61@example.com,Cairo,Consumer,2023-07-06
+62,Tarek Ibrahim,tarek.ibrahim62@example.com,Monufia,Consumer,2024-10-09
+63,Hana El-Sayed,hana.elsayed63@example.com,Giza,Small Business,2023-11-08
+64,Mariam Farouk,mariam.farouk64@example.com,Cairo,Consumer,2024-07-29
+65,Mahmoud Farouk,mahmoud.farouk65@example.com,Assiut,Consumer,2023-06-16
+66,Karim Fawzy,karim.fawzy66@example.com,Cairo,Corporate,2023-01-26
+67,Hossam Abdelrahman,hossam.abdelrahman67@example.com,Giza,Corporate,2023-02-08
+68,Hana Mostafa,hana.mostafa68@example.com,Cairo,Small Business,2023-09-18
+69,Mona Gamal,mona.gamal69@example.com,Cairo,Consumer,2024-10-29
+70,Fatma Fawzy,fatma.fawzy70@example.com,Cairo,Consumer,2023-02-04
+71,Dina El-Sayed,dina.elsayed71@example.com,Cairo,Consumer,2023-09-16
+72,Nour Hassan,nour.hassan72@example.com,Cairo,Consumer,2023-03-18
+73,Fatma Ibrahim,fatma.ibrahim73@example.com,Cairo,Consumer,2024-10-14
+74,Youssef Farouk,youssef.farouk74@example.com,Alexandria,Consumer,2024-04-17
+75,Laila Abdelrahman,laila.abdelrahman75@example.com,Dakahlia,Consumer,2024-06-17
+76,Fatma Abdelrahman,fatma.abdelrahman76@example.com,Giza,Consumer,2024-05-14
+77,Karim Abdelrahman,karim.abdelrahman77@example.com,Giza,Consumer,2024-04-04
+78,Omar Saleh,omar.saleh78@example.com,Alexandria,Corporate,2024-06-25
+79,Yasmin Hassan,yasmin.hassan79@example.com,Ismailia,Corporate,2023-01-06
+80,Laila Hassan,laila.hassan80@example.com,Port Said,Consumer,2024-08-28
+81,Hossam El-Sayed,hossam.elsayed81@example.com,Cairo,Consumer,2024-06-01
+82,Mahmoud Abdelrahman,mahmoud.abdelrahman82@example.com,Cairo,Consumer,2024-06-01
+83,Nour Gamal,nour.gamal83@example.com,Cairo,Consumer,2023-10-03
+84,Amr Abdelrahman,amr.abdelrahman84@example.com,Cairo,Consumer,2024-07-14
+85,Khaled Abdelrahman,khaled.abdelrahman85@example.com,Alexandria,Consumer,2023-09-25
+86,Tarek Farouk,tarek.farouk86@example.com,Giza,Consumer,2023-02-04
+87,Mona Ibrahim,mona.ibrahim87@example.com,Cairo,Consumer,2024-09-27
+88,Karim Fawzy,karim.fawzy88@example.com,Giza,Consumer,2023-06-14
+89,Dina Fawzy,dina.fawzy89@example.com,Alexandria,Consumer,2023-03-13
+90,Amr Abdelrahman,amr.abdelrahman90@example.com,Cairo,Consumer,2024-03-11
+91,Mahmoud Nabil,mahmoud.nabil91@example.com,Monufia,Corporate,2023-06-13
+92,Amr El-Sayed,amr.elsayed92@example.com,Cairo,Corporate,2024-08-23
+93,Amr Farouk,amr.farouk93@example.com,Assiut,Corporate,2023-11-07
+94,Hana Mostafa,hana.mostafa94@example.com,Cairo,Consumer,2023-01-04
+95,Reem Fawzy,reem.fawzy95@example.com,Port Said,Corporate,2024-10-28
+96,Salma Fawzy,salma.fawzy96@example.com,Suez,Consumer,2023-12-27
+97,Omar Nabil,omar.nabil97@example.com,Luxor,Consumer,2023-07-04
+98,Laila Abdelrahman,laila.abdelrahman98@example.com,Gharbia,Corporate,2024-04-19
+99,Khaled El-Sayed,khaled.elsayed99@example.com,Gharbia,Consumer,2024-01-07
+100,Youssef Hassan,youssef.hassan100@example.com,Dakahlia,Consumer,2023-01-21
+101,Amr Mostafa,amr.mostafa101@example.com,Gharbia,Corporate,2024-06-15
+102,Nour Nabil,nour.nabil102@example.com,Cairo,Small Business,2023-10-08
+103,Amr Hassan,amr.hassan103@example.com,Alexandria,Small Business,2024-05-04
+104,Ahmed Nabil,ahmed.nabil104@example.com,Alexandria,Consumer,2024-09-18
+105,Dina Fawzy,dina.fawzy105@example.com,Port Said,Consumer,2024-03-03
+106,Dina Ibrahim,dina.ibrahim106@example.com,Qalyubia,Corporate,2024-04-15
+107,Dina Mostafa,dina.mostafa107@example.com,Giza,Consumer,2023-06-28
+108,Laila Fawzy,laila.fawzy108@example.com,Beheira,Corporate,2023-06-16
+109,Fatma Mostafa,fatma.mostafa109@example.com,Cairo,Consumer,2023-10-18
+110,Tarek Ibrahim,tarek.ibrahim110@example.com,Cairo,Consumer,2024-08-19
+111,Salma Gamal,salma.gamal111@example.com,Alexandria,Consumer,2024-01-02
+112,Dina Gamal,dina.gamal112@example.com,Giza,Corporate,2023-09-01
+113,Yasmin Ibrahim,yasmin.ibrahim113@example.com,Cairo,Consumer,2024-06-29
+114,Fatma El-Sayed,fatma.elsayed114@example.com,Giza,Consumer,2024-08-20
+115,Mostafa El-Sayed,mostafa.elsayed115@example.com,Giza,Consumer,2024-09-23
+116,Yasmin Gamal,yasmin.gamal116@example.com,Giza,Consumer,2023-07-29
+117,Ahmed Saleh,ahmed.saleh117@example.com,Giza,Consumer,2024-05-11
+118,Youssef Saleh,youssef.saleh118@example.com,Dakahlia,Corporate,2024-02-18
+119,Omar Farouk,omar.farouk119@example.com,Giza,Consumer,2023-11-11
+120,Youssef Saleh,youssef.saleh120@example.com,Sohag,Corporate,2023-10-05
+121,Mahmoud Mostafa,mahmoud.mostafa121@example.com,Assiut,Small Business,2023-03-22
+122,Laila Ibrahim,laila.ibrahim122@example.com,Alexandria,Consumer,2023-07-12
+123,Laila Gamal,laila.gamal123@example.com,Giza,Consumer,2024-01-20
+124,Fatma Farouk,fatma.farouk124@example.com,Alexandria,Corporate,2024-09-12
+125,Reem Farouk,reem.farouk125@example.com,Port Said,Consumer,2024-08-29
+126,Yasmin El-Sayed,yasmin.elsayed126@example.com,Dakahlia,Consumer,2023-05-12
+127,Mona El-Sayed,mona.elsayed127@example.com,Gharbia,Small Business,2024-04-20
+128,Dina Hassan,dina.hassan128@example.com,Alexandria,Small Business,2023-03-01
+129,Yasmin Ibrahim,yasmin.ibrahim129@example.com,Beheira,Corporate,2024-04-17
+130,Khaled Fawzy,khaled.fawzy130@example.com,Giza,Consumer,2023-08-28
+131,Yasmin Fawzy,yasmin.fawzy131@example.com,Sharqia,Corporate,2023-11-11
+132,Yasmin Mostafa,yasmin.mostafa132@example.com,Cairo,Corporate,2024-05-17
+133,Mona Mostafa,mona.mostafa133@example.com,Dakahlia,Consumer,2023-10-25
+134,Yasmin Nabil,yasmin.nabil134@example.com,Port Said,Corporate,2024-07-19
+135,Dina Abdelrahman,dina.abdelrahman135@example.com,Cairo,Consumer,2024-01-09
+136,Karim Nabil,karim.nabil136@example.com,Beheira,Consumer,2024-11-30
+137,Khaled Farouk,khaled.farouk137@example.com,Cairo,Consumer,2024-03-22
+138,Ahmed Mostafa,ahmed.mostafa138@example.com,Sharqia,Consumer,2023-07-27
+139,Karim El-Sayed,karim.elsayed139@example.com,Cairo,Consumer,2024-06-26
+140,Mahmoud Farouk,mahmoud.farouk140@example.com,Assiut,Corporate,2023-10-13
+141,Mariam Gamal,mariam.gamal141@example.com,Cairo,Small Business,2024-01-09
+142,Omar El-Sayed,omar.elsayed142@example.com,Sohag,Consumer,2023-04-06
+143,Salma Gamal,salma.gamal143@example.com,Gharbia,Corporate,2023-03-25
+144,Mahmoud Fawzy,mahmoud.fawzy144@example.com,Alexandria,Small Business,2024-02-07
+145,Mariam Farouk,mariam.farouk145@example.com,Gharbia,Consumer,2023-05-11
+146,Reem El-Sayed,reem.elsayed146@example.com,Gharbia,Consumer,2024-11-29
+147,Ahmed Farouk,ahmed.farouk147@example.com,Sohag,Consumer,2024-08-21
+148,Omar Farouk,omar.farouk148@example.com,Cairo,Consumer,2024-05-05
+149,Amr Ibrahim,amr.ibrahim149@example.com,Alexandria,Corporate,2024-05-29
+150,Mona Ibrahim,mona.ibrahim150@example.com,Cairo,Consumer,2024-02-21
+151,Reem Fawzy,reem.fawzy151@example.com,Beheira,Consumer,2023-02-12
+152,Salma Hassan,salma.hassan152@example.com,Cairo,Consumer,2023-10-02
+153,Hossam El-Sayed,hossam.elsayed153@example.com,Alexandria,Consumer,2023-12-14
+154,Salma Abdelrahman,salma.abdelrahman154@example.com,Alexandria,Small Business,2024-10-02
+155,Mahmoud Farouk,mahmoud.farouk155@example.com,Qalyubia,Consumer,2023-06-03
+156,Laila Farouk,laila.farouk156@example.com,Alexandria,Consumer,2023-12-14
+157,Youssef Ibrahim,youssef.ibrahim157@example.com,Gharbia,Consumer,2023-08-29
+158,Yasmin Nabil,yasmin.nabil158@example.com,Gharbia,Consumer,2023-04-05
+159,Mostafa Hassan,mostafa.hassan159@example.com,Alexandria,Consumer,2023-03-14
+160,Dina Saleh,dina.saleh160@example.com,Alexandria,Consumer,2023-09-13
+161,Mariam Nabil,mariam.nabil161@example.com,Assiut,Consumer,2023-02-27
+162,Laila Nabil,laila.nabil162@example.com,Cairo,Consumer,2023-02-17
+163,Mahmoud El-Sayed,mahmoud.elsayed163@example.com,Cairo,Corporate,2023-09-03
+164,Mahmoud Nabil,mahmoud.nabil164@example.com,Cairo,Corporate,2023-05-22
+165,Mahmoud Ibrahim,mahmoud.ibrahim165@example.com,Dakahlia,Corporate,2024-01-24
+166,Amr Fawzy,amr.fawzy166@example.com,Giza,Corporate,2023-01-13
+167,Karim Abdelrahman,karim.abdelrahman167@example.com,Gharbia,Corporate,2023-07-31
+168,Nour Mostafa,nour.mostafa168@example.com,Dakahlia,Consumer,2023-11-14
+169,Karim Hassan,karim.hassan169@example.com,Giza,Consumer,2024-11-05
+170,Ahmed Saleh,ahmed.saleh170@example.com,Suez,Consumer,2024-03-20
+171,Youssef Mostafa,youssef.mostafa171@example.com,Gharbia,Consumer,2024-09-08
+172,Mona Gamal,mona.gamal172@example.com,Cairo,Corporate,2023-08-29
+173,Dina Abdelrahman,dina.abdelrahman173@example.com,Giza,Consumer,2023-11-11
+174,Tarek Mostafa,tarek.mostafa174@example.com,Giza,Corporate,2023-10-22
+175,Laila Nabil,laila.nabil175@example.com,Cairo,Small Business,2024-09-13
+176,Fatma Hassan,fatma.hassan176@example.com,Cairo,Consumer,2024-11-02
+177,Tarek Saleh,tarek.saleh177@example.com,Assiut,Small Business,2024-11-04
+178,Nour Saleh,nour.saleh178@example.com,Qalyubia,Consumer,2024-06-10
+179,Hossam Mostafa,hossam.mostafa179@example.com,Giza,Small Business,2023-12-19
+180,Mostafa El-Sayed,mostafa.elsayed180@example.com,Sharqia,Consumer,2024-01-14
+181,Hossam Hassan,hossam.hassan181@example.com,Alexandria,Consumer,2024-11-17
+182,Nour Farouk,nour.farouk182@example.com,Assiut,Consumer,2023-07-19
+183,Fatma Farouk,fatma.farouk183@example.com,Gharbia,Consumer,2023-08-31
+184,Laila El-Sayed,laila.elsayed184@example.com,Alexandria,Consumer,2024-09-19
+185,Fatma Hassan,fatma.hassan185@example.com,Giza,Small Business,2023-09-28
+186,Mahmoud Ibrahim,mahmoud.ibrahim186@example.com,Aswan,Corporate,2023-06-14
+187,Nour Hassan,nour.hassan187@example.com,Sharqia,Consumer,2024-01-28
+188,Hana Nabil,hana.nabil188@example.com,Sohag,Consumer,2023-08-16
+189,Omar Nabil,omar.nabil189@example.com,Cairo,Consumer,2024-09-15
+190,Karim Ibrahim,karim.ibrahim190@example.com,Port Said,Consumer,2024-09-28
+191,Laila Saleh,laila.saleh191@example.com,Beheira,Small Business,2023-08-03
+192,Khaled Ibrahim,khaled.ibrahim192@example.com,Cairo,Consumer,2024-01-06
+193,Khaled Mostafa,khaled.mostafa193@example.com,Alexandria,Consumer,2024-11-19
+194,Hana Fawzy,hana.fawzy194@example.com,Dakahlia,Consumer,2024-06-03
+195,Mariam Saleh,mariam.saleh195@example.com,Cairo,Consumer,2023-05-31
+196,Mona Nabil,mona.nabil196@example.com,Qalyubia,Consumer,2024-02-18
+197,Karim Hassan,karim.hassan197@example.com,Monufia,Corporate,2024-03-09
+198,Youssef Ibrahim,youssef.ibrahim198@example.com,Giza,Corporate,2024-04-02
+199,Karim El-Sayed,karim.elsayed199@example.com,Qalyubia,Small Business,2023-01-18
+200,Mariam Mostafa,mariam.mostafa200@example.com,Qalyubia,Corporate,2023-07-29

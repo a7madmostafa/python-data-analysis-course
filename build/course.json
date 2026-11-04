@@ -1,0 +1,13 @@
+{
+  "site_base": "/courses/da",
+  "kaggle_user": "KAGGLE_USERNAME",
+  "kaggle_dataset": "nilecart-sales",
+  "lessons": {
+    "distribution": {
+      "title": "Distribution Charts",
+      "title_ar": "شكل الأرقام: Distribution",
+      "notebook": "notebooks/distribution/distribution.ipynb",
+      "kaggle_slug": "zero-grad-da-distribution-charts"
+    }
+  }
+}

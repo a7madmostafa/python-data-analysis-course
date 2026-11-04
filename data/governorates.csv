@@ -1,0 +1,18 @@
+governorate,region,delivery_fee
+Cairo,Greater Cairo,50
+Giza,Greater Cairo,50
+Qalyubia,Greater Cairo,60
+Alexandria,Alexandria & Coast,70
+Beheira,Alexandria & Coast,80
+Matrouh,Alexandria & Coast,120
+Dakahlia,Delta,75
+Sharqia,Delta,75
+Gharbia,Delta,75
+Monufia,Delta,75
+Port Said,Canal,90
+Ismailia,Canal,90
+Suez,Canal,90
+Assiut,Upper Egypt,110
+Sohag,Upper Egypt,120
+Luxor,Upper Egypt,130
+Aswan,Upper Egypt,140

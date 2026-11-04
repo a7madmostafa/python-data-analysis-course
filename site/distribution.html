@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Distribution Charts</title>
+<meta name="description" content="درس الـ Distribution في كورس Data Analysis: الـ Histogram والـ Bins والـ Log scale والـ KDE والـ Box plot والـ Violin والـ ECDF، إمتى نستخدم كل واحد وإزاي نقراه، على داتا NileCart.">
+<meta property="og:title" content="شكل الأرقام: Distribution Charts · Zero Grad">
+<meta property="og:description" content="درس الـ Distribution في كورس Data Analysis، بالعربي.">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/distribution/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/distribution/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ea; --surface:#fffdf8; --surface-2:#efeadf; --ink:#1c1e22; --muted:#5b616b; --line:#ddd6c6;
+  --accent:#101f40; --on-accent:#f5f2ea; --chalk-g:#15803d; --chalk-o:#c2410c; --add:#2563eb; --bad:#dc2626;
+  --c1:#0f766e; --c2:#2563eb; --c3:#b45309; --c4:#9333ea;
+  --board:#232323; --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+    --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+    --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+  --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+  --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--add)}
+html,body{overflow-x:clip}
+@media (max-width:520px){.brand{font-size:.8rem}.seg button{padding:.2rem .55rem;font-size:.8rem}.topbar-in{gap:.4rem}.top-actions{gap:.3rem}.iconbtn{width:30px;height:30px}}
+code,pre{font-family:"JetBrains Mono",monospace}
+.en{direction:ltr;unicode-bidi:isolate}
+code.i{font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .35rem;direction:ltr;unicode-bidi:isolate}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;right:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .1s}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:auto;padding:.55rem 16px;display:flex;gap:.75rem;align-items:center;justify-content:space-between}
+.top-actions{display:flex;gap:.5rem;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.25rem .8rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+
+/* layout */
+.wrap{max-width:1180px;margin:auto;padding:0 16px;display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media (min-width:1100px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:72px;align-self:start;padding-top:2.5rem;font-size:.9rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+  nav.toc a{display:block;padding:.3rem .9rem;color:var(--muted);text-decoration:none;margin-inline-start:-2px;border-inline-start:2px solid transparent;line-height:1.5}
+  nav.toc a.active{color:var(--ink);border-color:var(--accent);font-weight:500}
+}
+main{min-width:0;padding-bottom:6rem}
+
+/* hero */
+.hero{padding:3rem 0 1.5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.hero h1{font-family:"Caveat",cursive;font-size:clamp(3rem,9vw,5.2rem);line-height:1;margin:.5rem 0 .75rem;color:var(--accent);direction:ltr;text-align:right;font-weight:700}
+.lead{font-size:1.15rem;max-width:62ch;margin:0}
+
+/* notebook links */
+.nb-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.nb-btn{display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4rem 1rem;text-decoration:none}
+.nb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.nb-btn:hover{border-color:var(--accent)}
+
+/* sections */
+section.sec{padding-top:2.5rem;scroll-margin-top:64px}
+.sec-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:1.25rem}
+.sec-head h2{margin:0;font-size:1.55rem;line-height:1.35;display:flex;gap:.7rem;align-items:baseline}
+.num{font-family:"Caveat",cursive;color:var(--accent);font-size:2rem;line-height:1}
+h3.sub{font-size:1.15rem;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+.chalk{font-family:"Caveat",cursive;font-size:1.35em;color:var(--accent);direction:ltr;unicode-bidi:isolate;font-weight:700;line-height:1.2}
+.voice{margin:1.25rem 0;padding:.9rem 1.2rem;border-radius:var(--radius);background:var(--board);color:#f2c94c;font-family:"Caveat",cursive;font-size:1.9rem;direction:ltr;text-align:center;line-height:1.3}
+.voice small{display:block;font-family:"Noto Sans Arabic",sans-serif;font-size:.8rem;color:#a1a1a1;direction:rtl;margin-top:.25rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;line-height:1.6}
+.card b{display:block;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr;gap:1rem;margin:1rem 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.path{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem}
+.path h4{margin:0 0 .25rem;font-size:1.05rem}
+.path .sub{color:var(--muted);font-size:.85rem}
+.path.good{border-color:color-mix(in srgb,var(--chalk-g) 55%,var(--line))}
+.path.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.path.good h4{color:var(--chalk-g)}
+.path.bad h4{color:var(--bad)}
+
+/* the "use it when" box every chart gets */
+.when{display:grid;grid-template-columns:1fr;gap:.75rem;margin:1rem 0}
+@media(min-width:760px){.when{grid-template-columns:repeat(3,1fr)}}
+.when .card{border-top:3px solid var(--accent)}
+.when .card:nth-child(2){border-top-color:var(--chalk-g)}
+.when .card:nth-child(3){border-top-color:var(--chalk-o)}
+
+/* callouts */
+.callout{border-radius:var(--radius);padding:.9rem 1.1rem;margin:1.25rem 0;border:1px solid;font-size:.97rem}
+.callout .ttl{font-weight:700;font-size:.85rem;display:flex;gap:.4rem;align-items:center;margin-bottom:.15rem}
+.callout.add{border-color:color-mix(in srgb,var(--add) 45%,transparent);background:color-mix(in srgb,var(--add) 7%,var(--surface))}
+.callout.add .ttl{color:var(--add)}
+.callout.warn{border-color:color-mix(in srgb,var(--chalk-o) 55%,transparent);background:color-mix(in srgb,var(--chalk-o) 8%,var(--surface))}
+.callout.warn .ttl{color:var(--chalk-o)}
+.callout.insight{border-color:color-mix(in srgb,var(--chalk-g) 50%,transparent);background:color-mix(in srgb,var(--chalk-g) 8%,var(--surface))}
+.callout.insight .ttl{color:var(--chalk-g)}
+details.callout summary{cursor:pointer;list-style:none}
+details.callout summary::-webkit-details-marker{display:none}
+details.callout summary .ttl::after{content:"＋";margin-inline-start:auto}
+details.callout[open] summary .ttl::after{content:"－"}
+
+/* tables & code */
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.tbl th,.tbl td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.tbl thead th{background:var(--surface-2);font-size:.85rem}
+.tbl tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+pre{direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;padding:1rem 1.1rem;border-radius:var(--radius);overflow-x:auto;font-size:.85rem;line-height:1.65;margin:1rem 0}
+pre .c{color:#8a8a8a}
+pre .k{color:#f2c94c}
+pre .s{color:#4ade80}
+.codetabs{margin:1rem 0}
+.codetabs .seg{margin-bottom:-.4rem}
+.codetabs pre{margin-top:.6rem}
+.codetabs pre[hidden]{display:none}
+
+/* figures */
+figure.fig{margin:1.25rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.fig-scroll{overflow-x:auto}
+figure.fig svg{width:100%;min-width:520px;height:auto;display:block;direction:ltr}
+figure.fig svg text{font-family:Inter,"Noto Sans Arabic",sans-serif;fill:var(--ink)}
+figure.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+
+/* widgets */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.widget-head{display:flex;gap:.6rem;align-items:center;margin-bottom:.2rem}
+.widget-head .badge{font-size:.72rem;font-weight:700;color:var(--bg);background:var(--chalk-g);border-radius:999px;padding:.1rem .6rem;white-space:nowrap}
+.widget-head h3{margin:0;font-size:1.1rem}
+.widget .hint{color:var(--muted);font-size:.9rem;margin:.1rem 0 .8rem}
+.wgrid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:820px){.wgrid.cols{grid-template-columns:1.6fr 1fr}}
+canvas{width:100%;display:block;border-radius:10px;background:var(--surface-2);touch-action:none}
+.controls{display:grid;gap:.7rem;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;gap:.5rem}
+.ctl label output{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.4rem .85rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk.off{opacity:.45;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem}
+.stat{background:var(--surface-2);border-radius:10px;padding:.45rem .7rem;line-height:1.35}
+.stat span{display:block;font-size:.75rem;color:var(--muted)}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;unicode-bidi:isolate}
+.status{font-size:.9rem;min-height:1.6em;color:var(--muted);white-space:pre-line}
+.keys{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.5rem}
+.keys span{display:inline-flex;gap:.35rem;align-items:center}
+.keys i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+
+/* summary */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem}
+.sheet .card{padding:1rem}
+.sheet .card h4{margin:0 0 .3rem;font-size:.95rem;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding:1.5rem 0;margin-top:3rem}
+.muted{color:var(--muted);font-size:.9em}
+
+/* lesson navigation */
+.crumbs{display:flex;align-items:center;gap:.45rem;font-size:.9rem;white-space:nowrap;min-width:0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{color:var(--line)}
+.crumbs .here{font-weight:700;color:var(--ink)}
+a.iconbtn{display:grid;place-items:center;text-decoration:none;font-size:.95rem}
+.iconbtn.off{opacity:.3;pointer-events:none;display:grid;place-items:center}
+.pager{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;margin-top:3rem}
+.pg{display:flex;flex-direction:column;gap:.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);text-decoration:none;line-height:1.5}
+.pg span{font-size:.82rem;color:var(--muted)}
+.pg b{font-size:1rem;color:var(--accent)}
+a.pg:hover{border-color:var(--accent)}
+.pg.next{text-align:left}
+.pg.all{justify-content:center;text-align:center}
+.pg.off{border-style:dashed;background:transparent}
+.pg.off b{color:var(--muted)}
+@media (max-width:640px){.pager{grid-template-columns:1fr}.pg.next{text-align:right}.pg.all{order:3}}
+@media (max-width:520px){.crumbs .home,.crumbs .home+.sep{display:none}}
+@media (max-width:400px){.crumbs .course+.sep,.crumbs .here{display:none}}
+@media print{.topbar,nav.toc,#progress,.widget{display:none!important}body{background:#fff;color:#000;font-size:12pt}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here">Distribution</span></nav>
+    <div class="top-actions">
+      <span class="iconbtn off" aria-hidden="true">→</span><span class="iconbtn off" aria-hidden="true">←</span>
+      <button class="iconbtn" id="themeBtn" aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="المحتوى"><ol id="tocList"></ol></nav>
+  <main>
+    <div class="hero">
+      <div class="kicker">Zero Grad · كورس Data Analysis · Visualization</div>
+      <h1>Distribution</h1>
+      <p class="lead">الأرقام اللي في عمود واحد شكلها إيه؟<br>
+        فين أغلبها، وقد إيه متفرقة، وفيه حاجة غريبة ولا لأ؟<br>
+        هنشوف كل chart بيجاوب على السؤال ده: إمتى نستخدمه، وإزاي نقراه، ونطلع منه بإيه.<br>
+        وكل ده على داتا حقيقية من <b>NileCart</b>.</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" id="kaggleLink" href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebooks/distribution.html">👀 اعرض النوت بوك هنا</a>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <section class="sec" id="question">
+      <div class="sec-head"><h2><span class="num">1</span>السؤال: الأوردر العادي بيجيب كام؟</h2></div>
+      <p><b>NileCart</b> متجر أونلاين في القاهرة، بيبيع إلكترونيات وإكسسوارات وفرش مكاتب وأدوات مكتبية، وبيوصّل لكل مصر.<br>
+        عندنا <bdi>1,074</bdi> أوردر اتسلّموا (completed).<br>
+        والمدير سأل سؤال بسيط: <b>الأوردر العادي بيجيب كام جنيه؟</b></p>
+      <p>أول حاجة بنعملها كلنا: نحسب المتوسط.</p>
+      <div class="stats" style="max-width:520px">
+        <div class="stat"><span>المتوسط (mean)</span><b>18,075 EGP</b></div>
+        <div class="stat"><span>الوسيط (median)</span><b>3,600 EGP</b></div>
+        <div class="stat"><span>أصغر أوردر</span><b>46 EGP</b></div>
+        <div class="stat"><span>أكبر أوردر</span><b>336,000 EGP</b></div>
+      </div>
+      <p>المتوسط <b>5 أضعاف</b> الوسيط. 😮<br>
+        يعني رقم واحد مش كفاية يوصف الأوردرات دي.<br>
+        محتاجين نشوف <b>كل</b> الأرقام مرة واحدة، ونعرف شكلها.<br>
+        والشكل ده اسمه <b>Distribution</b>.</p>
+      <p>وأي distribution بنسأل عنه 4 أسئلة:</p>
+      <div class="cards">
+        <div class="card"><b>Shape · الشكل</b>متماثل؟ ولا ليه long tail ناحية؟ ولا فيه أكتر من peak؟</div>
+        <div class="card"><b>Center · المركز</b>فين القيمة "العادية"؟ الـ mean ولا الـ median؟</div>
+        <div class="card"><b>Spread · الانتشار</b>الأرقام قريبة من بعض ولا متفرقة جدًا؟</div>
+        <div class="card"><b>Outliers · القيم الشاذة</b>فيه قيم بعيدة عن الباقي؟ وهل هي غلط ولا حقيقية؟</div>
+      </div>
+      <p>كل chart في الدرس ده بيجاوب على الأسئلة دي، بس كل واحد بيبيّن حاجة ويخبّي حاجة.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="sec" id="histogram">
+      <div class="sec-head"><h2><span class="num">2</span>Histogram</h2></div>
+      <p>الـ Histogram هو أول chart نرسمه لأي عمود أرقام.<br>
+        الفكرة بسيطة:<br>
+        بنقسم المدى بتاع الأرقام لصناديق متساوية اسمها <b>bins</b>.<br>
+        وبنعدّ كام قيمة وقعت في كل صندوق.<br>
+        وطول العمود = عدد القيم اللي في الصندوق ده.</p>
+      <div class="widget" id="wBuild"></div>
+      <div class="when">
+        <div class="card"><b>إمتى نستخدمه؟</b>عمود أرقام واحد (continuous)، وعايز تشوف شكله: فين الـ peak، وفين الـ tail.</div>
+        <div class="card"><b>إزاي نقراه؟</b>المحور الأفقي هو القيم، والرأسي هو العدد.<br>العمود العالي = قيم كتير في المدى ده.</div>
+        <div class="card"><b>إمتى لأ؟</b>لو العمود فيه أرقام قليلة صحيحة (1، 2، 3…).<br>أو لو عايز تقارن جروبات كتير مرة واحدة.</div>
+      </div>
+      <p>دلوقتي جرّب بنفسك على الداتا الحقيقية.<br>
+        ابدأ بالـ revenue، وبص على الخطين: الـ mean والـ median.</p>
+      <div class="widget" id="wHist"></div>
+      <div class="callout insight"><div class="ttl">💡 الـ Insight</div>
+        الـ <b>peak</b> على الشمال، والـ <b>long tail</b> ناحية اليمين.<br>
+        أغلب الأوردرات صغيرة، وشوية أوردرات ضخمة (لابتوبات بالجملة لشركات) شادّة المتوسط لفوق.<br>
+        يبقى لو المدير سأل "الأوردر العادي بيجيب كام؟"، الإجابة الأقرب هي الـ <b>median</b>، مش الـ mean.</div>
+    </section>
+
+    <!-- 3 -->
+    <section class="sec" id="shapes">
+      <div class="sec-head"><h2><span class="num">3</span>أشكال الـ Distribution</h2></div>
+      <p>لما تبص على histogram، أول سؤال: شكله إيه؟<br>
+        وفيه 5 أشكال هتقابلهم كتير:</p>
+      <figure class="fig"><div class="fig-scroll" id="shapesFig"></div>
+        <figcaption>الخط البرتقالي هو الـ mean، والأخضر المتقطع هو الـ median. لاحظ الـ mean بيروح فين في كل شكل.</figcaption></figure>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الشكل</th><th>الـ mean والـ median</th><th>مثال من الحياة</th></tr></thead>
+        <tbody>
+          <tr><td><b>Symmetric</b> (متماثل)</td><td>قريبين من بعض</td><td>أطوال الناس، درجات امتحان متوسط الصعوبة</td></tr>
+          <tr><td><b>Right-skewed</b> (tail يمين)</td><td>الـ mean أكبر من الـ median</td><td>المرتبات، قيمة الأوردرات، أسعار الشقق</td></tr>
+          <tr><td><b>Left-skewed</b> (tail شمال)</td><td>الـ mean أصغر من الـ median</td><td>درجات امتحان سهل، عمر المنتج قبل ما يبوظ</td></tr>
+          <tr><td><b>Bimodal</b> (2 peaks)</td><td>ممكن الاتنين يقعوا في حتة مفيهاش حد!</td><td>جروبين مختلفين متخلطين في عمود واحد</td></tr>
+          <tr><td><b>Uniform</b> (مسطّح)</td><td>قريبين من بعض</td><td>أرقام عشوائية، تواريخ موزعة بالتساوي</td></tr>
+        </tbody>
+      </table></div>
+      <p>ليه الـ mean بيجري ورا الـ tail، والـ median لأ؟<br>
+        الـ mean بيجمع كل القيم، فأي قيمة ضخمة بتشدّه.<br>
+        والـ median هو القيمة اللي في النص بعد الترتيب، فمش فارق معاه القيمة الأخيرة كبيرة قد إيه.<br>
+        جرّب:</p>
+      <div class="widget" id="wMean"></div>
+      <div class="voice">skewed data → report the median<small>لو الداتا ليها long tail، الـ median بيوصف "العادي" أحسن من الـ mean</small></div>
+      <details class="callout add">
+        <summary><div class="ttl">➕ إضافة: الـ Skewness كرقم</div></summary>
+        <p>فيه رقم بيقيس الـ skew اسمه <b>skewness</b>.<br>
+          لو صفر يبقى متماثل، ولو موجب يبقى الـ tail يمين، ولو سالب يبقى الـ tail شمال.<br>
+          في pandas: <code class="i">df["revenue"].skew()</code>.<br>
+          الـ revenue بتاع NileCart الـ skewness بتاعه <bdi>3.69</bdi>، وده skew قوي جدًا.<br>
+          بس الرقم مش بديل عن الرسمة: رقم واحد مش هيقولك إن فيه 2 peaks مثلًا.</p>
+      </details>
+    </section>
+
+    <!-- 4 -->
+    <section class="sec" id="bins">
+      <div class="sec-head"><h2><span class="num">4</span>الـ Bins بتغيّر القصة</h2></div>
+      <p>عدد الـ bins مش تفصيلة.<br>
+        نفس الداتا ممكن تحكي 3 قصص مختلفة حسب الرقم ده.<br>
+        ارجع للـ widget اللي فوق، واختار <b>profit</b>، وغيّر الـ bins:</p>
+      <div class="cards">
+        <div class="card"><b>bins قليلة (5)</b>الصورة مضغوطة.<br>الأوردرات اللي خسرت فلوس بتختفي جوّه عمود واحد كبير.</div>
+        <div class="card"><b>bins معقولة (30)</b>الشكل واضح، والخسارة باينة كجروب صغير لوحده على شمال الصفر.</div>
+        <div class="card"><b>bins كتير (200)</b>دوشة.<br>كل عمود فيه أوردرين تلاتة، ومش باين أي شكل.</div>
+      </div>
+      <div class="callout insight"><div class="ttl">💡 الـ Insight</div>
+        مع 30 bin، ظهر جروب صغير تحت الصفر: <bdi>16</bdi> أوردر <b>خسروا فلوس</b>.<br>
+        ولما فتّشنا عليهم في النوت بوك، طلعوا كلهم Electronics بخصم <bdi>20%</bdi>.<br>
+        الخصم ده أكبر من هامش الربح.<br>
+        وده دور الـ distribution chart: بيوريك <b>تدوّر فين</b> بعد كده.</div>
+      <div class="callout warn"><div class="ttl">⚠️ خلي بالك</div>
+        جرّب كذا رقم للـ bins قبل ما تصدّق أي histogram.<br>
+        الـ default بتاع المكتبة بداية كويسة، مش الإجابة النهائية.</div>
+    </section>
+
+    <!-- 5 -->
+    <section class="sec" id="log">
+      <div class="sec-head"><h2><span class="num">5</span>الـ Log Scale: لما الأرقام بعيدة جدًا عن بعض</h2></div>
+      <p>الـ revenue بيبدأ من <bdi>46</bdi> جنيه ويوصل لـ <bdi>336,000</bdi>.<br>
+        على محور عادي، كل اللي تحت <bdi>20,000</bdi> بيتكبس في أول عمودين.<br>
+        وده أغلب الأوردرات!</p>
+      <p>الـ <b>Log scale</b> بيغيّر طريقة المحور:<br>
+        بدل ما كل خطوة <b>+10,000</b>، كل خطوة بقت <b>×10</b>.</p>
+      <figure class="fig"><div class="fig-scroll"><svg viewBox="0 0 640 150" role="img" aria-label="محور عادي ومحور log">
+        <text x="20" y="28" font-size="14" font-weight="700" style="fill:var(--muted)">linear: every step is +100,000</text>
+        <line x1="40" y1="52" x2="610" y2="52" style="stroke:var(--line);stroke-width:2"/>
+        <g font-size="12" text-anchor="middle"><line x1="40" y1="46" x2="40" y2="58" style="stroke:var(--muted)"/><text x="40" y="75">0</text><line x1="210" y1="46" x2="210" y2="58" style="stroke:var(--muted)"/><text x="210" y="75">100k</text><line x1="380" y1="46" x2="380" y2="58" style="stroke:var(--muted)"/><text x="380" y="75">200k</text><line x1="550" y1="46" x2="550" y2="58" style="stroke:var(--muted)"/><text x="550" y="75">300k</text></g>
+        <rect x="40" y="40" width="34" height="12" rx="3" style="fill:var(--chalk-o);opacity:.8"/>
+        <text x="80" y="38" font-size="12" text-anchor="start" style="fill:var(--chalk-o)">75% of the orders live here</text>
+        <text x="20" y="108" font-size="14" font-weight="700" style="fill:var(--muted)">log: every step is ×10</text>
+        <line x1="40" y1="128" x2="610" y2="128" style="stroke:var(--line);stroke-width:2"/>
+        <g font-size="12" text-anchor="middle"><line x1="40" y1="122" x2="40" y2="134" style="stroke:var(--muted)"/><text x="40" y="148">10</text><line x1="183" y1="122" x2="183" y2="134" style="stroke:var(--muted)"/><text x="183" y="148">100</text><line x1="326" y1="122" x2="326" y2="134" style="stroke:var(--muted)"/><text x="326" y="148">1,000</text><line x1="469" y1="122" x2="469" y2="134" style="stroke:var(--muted)"/><text x="469" y="148">10,000</text><line x1="610" y1="122" x2="610" y2="134" style="stroke:var(--muted)"/><text x="600" y="148">100,000</text></g>
+        <rect x="252" y="116" width="274" height="12" rx="3" style="fill:var(--chalk-o);opacity:.8"/>
+      </svg></div><figcaption>نفس الـ 75% من الأوردرات (لحد <bdi>18,900</bdi> جنيه): على المحور العادي واخدين حتة صغيرة، وعلى الـ log واخدين نص المحور.</figcaption></figure>
+      <p>ارجع للـ widget بتاع الـ histogram، واختار <b>revenue</b>، وعلّم على <b>log scale</b>.<br>
+        وبعدين علّم على <b>لوّن بالـ category</b>.</p>
+      <div class="callout insight"><div class="ttl">💡 الـ Insight</div>
+        على الـ log ظهر <b>كذا peak</b> بدل peak واحد.<br>
+        وأكتر من peak غالبًا معناه أكتر من جروب متخلطين.<br>
+        ولما لوّنّا بالـ category: كل category عايشة في رينج لوحدها.<br>
+        Stationery بالمئات، وAccessories بالآلاف، وElectronics بعشرات الآلاف.<br>
+        يعني <b>مفيش "أوردر عادي" واحد</b> في NileCart، فيه 4 أنواع أوردرات.<br>
+        والإجابة الصح للمدير: median لكل category.</div>
+      <div class="when">
+        <div class="card"><b>إمتى نستخدمه؟</b>الأرقام بتفرق عن بعض بأضعاف (×10، ×100): فلوس، عدد متابعين، مساحات، أعداد سكان.</div>
+        <div class="card"><b>إزاي نقراه؟</b>المسافات المتساوية = نسب متساوية.<br>من 100 لـ 1,000 زي من 1,000 لـ 10,000.</div>
+        <div class="card"><b>إمتى لأ؟</b>لو فيه أصفار أو قيم سالبة (زي الـ profit): الـ log مش متعرّف عليهم.</div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="sec" id="kde">
+      <div class="sec-head"><h2><span class="num">6</span>KDE: histogram ناعم</h2></div>
+      <p>الـ <b>KDE</b> (Kernel Density Estimate) بيرسم الشكل كخط ناعم بدل أعمدة.<br>
+        بيحط curve صغير على كل قيمة (اسمه <b>kernel</b>)، وبيجمع الـ curves دي كلها.<br>
+        والنتيجة منحنى واحد.</p>
+      <div class="widget" id="wKde"></div>
+      <p>عرض الـ kernel اسمه <b>bandwidth</b>.<br>
+        وده نفس سؤال الـ bins بالظبط:<br>
+        kernel رفيع = curve فيه دوشة، وkernel عريض = curve ممسوح مفيهوش تفاصيل.</p>
+      <div class="when">
+        <div class="card"><b>إمتى نستخدمه؟</b>عايز تقارن شكل 2 لـ 4 جروبات على نفس الرسمة.<br>الأعمدة المتراكبة بتلخبط، والخطوط لأ.</div>
+        <div class="card"><b>إزاي نقراه؟</b>المساحة تحت المنحنى = 1.<br>المنحنى العالي = قيم كتير متجمعة هنا.<br>الرقم على المحور الرأسي مش "عدد".</div>
+        <div class="card"><b>إمتى لأ؟</b>داتا قليلة جدًا، أو داتا ليها حد ثابت (سعر مايقلّش عن صفر).</div>
+      </div>
+      <div class="callout warn"><div class="ttl">⚠️ خلي بالك</div>
+        الـ KDE <b>تقدير</b>، مش الداتا نفسها.<br>
+        ممكن يرسم منحنى نازل تحت الصفر لسعر منتج، وده مستحيل.<br>
+        جرّب في الـ widget: كبّر الـ bandwidth، وبص على الطرف الشمال.<br>
+        لما الداتا ليها حد ثابت (أسعار، أعمار، أعداد)، بص على الأطراف كويس.</div>
+    </section>
+
+    <!-- 7 -->
+    <section class="sec" id="box">
+      <div class="sec-head"><h2><span class="num">7</span>Box Plot: 5 أرقام، وجروبات كتير</h2></div>
+      <p>الـ Box plot مش بيرسم كل الشكل.<br>
+        بيرسم <b>5 أرقام</b> بس، اسمها <b>five-number summary</b>:</p>
+      <figure class="fig"><div class="fig-scroll" id="boxAnatomy"></div>
+        <figcaption>الصندوق فيه نص الداتا اللي في النص (من Q1 لـ Q3). والخط اللي جوّه هو الـ median.</figcaption></figure>
+      <div class="cards">
+        <div class="card"><b>Q1 · الربع الأول</b><bdi>25%</bdi> من القيم أصغر منه</div>
+        <div class="card"><b>Median · الوسيط</b><bdi>50%</bdi> أصغر منه، و<bdi>50%</bdi> أكبر</div>
+        <div class="card"><b>Q3 · الربع التالت</b><bdi>75%</bdi> من القيم أصغر منه</div>
+        <div class="card"><b>IQR</b>طول الصندوق: <span class="en">Q3 − Q1</span><br>بيقيس الانتشار من غير ما يتأثر بالقيم الشاذة</div>
+        <div class="card"><b>Whiskers · الشوارب</b>بتمتد لحد آخر قيمة جوّه <span class="en">1.5 × IQR</span> من الصندوق</div>
+        <div class="card"><b>Outliers · النقط</b>أي قيمة برّا الشوارب بتترسم نقطة لوحدها</div>
+      </div>
+      <p>اتفرّج الصندوق بيتبني إزاي من الداتا:</p>
+      <div class="widget" id="wBoxBuild"></div>
+      <p>قوة الـ box plot الحقيقية في <b>المقارنة</b>.<br>
+        10 histograms جنب بعض صعب تقراهم.<br>
+        10 صناديق جنب بعض سهل جدًا.</p>
+      <div class="widget" id="wBoxCompare"></div>
+      <div class="callout insight"><div class="ttl">💡 الـ Insight</div>
+        صندوق Stationery وصندوق Electronics بعيد جدًا عن بعض.<br>
+        أكبر أوردر Stationery (<bdi>630</bdi> جنيه) أصغر من أصغر أوردر Electronics (<bdi>5,600</bdi>).<br>
+        وقاعدة الـ <span class="en">1.5 × IQR</span> على الداتا كلها بتطلّع <bdi>132</bdi> outlier.<br>
+        بس لما نحكم على كل category لوحدها، بيبقوا <bdi>34</bdi> بس.<br>
+        يعني الـ outlier بيعتمد على <b>إنت بتقارنه بمين</b>.</div>
+      <div class="when">
+        <div class="card"><b>إمتى نستخدمه؟</b>مقارنة توزيع رقم بين جروبات كتير (categories، محافظات، شهور).<br>وتلاقي الـ outliers بسرعة.</div>
+        <div class="card"><b>إزاي نقراه؟</b>قارن مكان الخط اللي في النص (المركز)، وطول الصناديق (الانتشار).<br>الصندوق المش متماثل = skew.</div>
+        <div class="card"><b>إمتى لأ؟</b>لو الشكل نفسه مهم (2 peaks مثلًا): الـ box بيخبّيه.<br>وده الجزء الجاي.</div>
+      </div>
+      <div class="callout warn"><div class="ttl">⚠️ خلي بالك</div>
+        النقطة اللي برّا الشوارب مش معناها إنها <b>غلط</b>.<br>
+        أوردر لابتوبات بـ <bdi>336,000</bdi> جنيه outlier، بس هو أوردر حقيقي ومهم جدًا.<br>
+        الـ box plot بيقولك "بص هنا"، مش "امسح دي".</div>
+    </section>
+
+    <!-- 8 -->
+    <section class="sec" id="violin">
+      <div class="sec-head"><h2><span class="num">8</span>Violin و Strip: اللي الـ Box بيخبّيه</h2></div>
+      <p>الـ box plot بيلخّص الداتا في 5 أرقام.<br>
+        والتلخيص ده بيضيّع حاجات.<br>
+        الجروبين دول ليهم <b>نفس الصندوق تقريبًا</b>:</p>
+      <figure class="fig"><div class="fig-scroll" id="sameBox"></div>
+        <figcaption>جروب A متجمّع في النص. جروب B نصّه تحت ونصّه فوق، ومفيش حد تقريبًا في النص. والـ box plot شايفهم شبه بعض.</figcaption></figure>
+      <div class="two">
+        <div class="path"><h4>Violin</h4><div class="sub">KDE متعكوس على الناحيتين</div>
+          <p>بيوريك الشكل كله، مش الأرباع بس.<br>
+            العرض في كل حتة = قد إيه فيه قيم هنا.<br>
+            ممكن تحط جوّاه box صغير، فتاخد الاتنين.</p></div>
+        <div class="path"><h4>Strip</h4><div class="sub">كل قيمة نقطة</div>
+          <p>مفيش تلخيص خالص: كل أوردر نقطة.<br>
+            ممتاز لما الداتا مش كتير أوي (مئات مش ملايين).<br>
+            وتقدر تلوّن النقط بعمود تاني.</p></div>
+      </div>
+      <p>ارجع لـ widget المقارنة اللي فوق، واختار <b>profit by segment</b>.<br>
+        وعلّم على <b>اظهر كل النقط</b>.</p>
+      <div class="callout insight"><div class="ttl">💡 الـ Insight</div>
+        النقط اللي تحت خط الصفر (الأوردرات الخسرانة) كلها لونها Electronics.<br>
+        الـ strip plot بيقولها في نظرة، والـ box plot عمره ما هيقولها.<br>
+        والـ Corporate ليهم أوسع انتشار: أوردراتهم الكبيرة بتجيب أكبر ربح <b>وأكبر خسارة</b>.</div>
+    </section>
+
+    <!-- 9 -->
+    <section class="sec" id="ecdf">
+      <div class="sec-head"><h2><span class="num">9</span>ECDF: كام % أقل من رقم معين؟</h2></div>
+      <p>ساعات السؤال مش "الشكل إيه".<br>
+        السؤال: <b>كام في المية من الأوردرات تحت رقم معين؟</b><br>
+        مثلًا: لو التوصيل مجاني فوق <bdi>5,000</bdi> جنيه، كام أوردر هيستفيد؟</p>
+      <p>الـ <b>ECDF</b> (Empirical Cumulative Distribution Function) بيجاوب ده مباشرة.<br>
+        بيطلع من <bdi>0%</bdi> لـ <bdi>100%</bdi>.<br>
+        وعند أي قيمة على المحور الأفقي، الارتفاع = نسبة الأوردرات اللي <b>أقل من أو تساوي</b> القيمة دي.</p>
+      <div class="widget" id="wEcdf"></div>
+      <div class="when">
+        <div class="card"><b>إمتى نستخدمه؟</b>أسئلة الحدود (thresholds): كام % تحت X؟ إيه القيمة اللي <bdi>90%</bdi> تحتها؟</div>
+        <div class="card"><b>إزاي نقراه؟</b>اختار قيمة على المحور الأفقي، واطلع لحد المنحنى، واقرا النسبة.<br>المكان اللي المنحنى بيقطع فيه <bdi>50%</bdi> هو الـ median.</div>
+        <div class="card"><b>ميزته</b>مفيش bins ولا bandwidth تختارهم.<br>كل نقطة في الداتا موجودة في الرسمة.</div>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="sec" id="discrete">
+      <div class="sec-head"><h2><span class="num">10</span>أرقام صحيحة قليلة؟ مش Histogram</h2></div>
+      <p>عمود <span class="en">quantity</span> أرقامه من 1 لـ 10 بس.<br>
+        لو رسمته histogram بـ bins أوتوماتيك، ممكن عمود ياخد قيمتين وعمود ياخد قيمة واحدة.<br>
+        فالأطوال مبقتش بتتقارن ببعض.</p>
+      <figure class="fig"><div class="fig-scroll" id="discreteFig"></div>
+        <figcaption>على الشمال: histogram بـ 7 bins، بعض الأعمدة شايلة قيمتين. على اليمين: عمود لكل قيمة، وده الصح.</figcaption></figure>
+      <p>القاعدة:<br>
+        عمود فيه قيم صحيحة قليلة؟ عدّ كل قيمة بـ <code class="i">value_counts()</code> وارسم <b>bar chart</b>.<br>
+        وده موضوع الدرس الجاي: الـ Comparison charts.</p>
+    </section>
+
+    <!-- 11 -->
+    <section class="sec" id="choose">
+      <div class="sec-head"><h2><span class="num">11</span>تختار أنهي Chart؟</h2></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>سؤالك</th><th>الـ Chart</th><th>ليه</th></tr></thead>
+        <tbody>
+          <tr><td>شكل عمود أرقام واحد؟</td><td><b>Histogram</b></td><td>أوضح صورة للشكل والمركز والـ tail</td></tr>
+          <tr><td>الأرقام بتفرق بأضعاف؟</td><td><b>Histogram + log scale</b></td><td>الصغير والكبير ياخدوا مساحة</td></tr>
+          <tr><td>أقارن شكل 2–4 جروبات؟</td><td><b>KDE</b></td><td>خطوط متراكبة أسهل من أعمدة متراكبة</td></tr>
+          <tr><td>أقارن جروبات كتير؟ فين القيم الشاذة؟</td><td><b>Box plot</b></td><td>صناديق كتير جنب بعض بتتقري بسهولة</td></tr>
+          <tr><td>الشكل جوّه كل جروب مهم؟</td><td><b>Violin</b></td><td>الشكل كله، مش 5 أرقام بس</td></tr>
+          <tr><td>الداتا مش كتير وعايز أشوف كل نقطة؟</td><td><b>Strip</b></td><td>مفيش أي تلخيص</td></tr>
+          <tr><td>كام % تحت رقم معين؟</td><td><b>ECDF</b></td><td>بيقرا النسبة مباشرة، من غير bins</td></tr>
+          <tr><td>قيم صحيحة قليلة (1، 2، 3…)؟</td><td><b>Bar chart للعدّ</b></td><td>عمود لكل قيمة، مفيش bins تلخبط</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 12 -->
+    <section class="sec" id="code">
+      <div class="sec-head"><h2><span class="num">12</span>الكود: نفس الرسمة بـ 3 مكتبات</h2></div>
+      <p>المكتبة مش هي الموضوع.<br>
+        الموضوع إنك تختار الـ chart الصح.<br>
+        وبعدها أي مكتبة هترسمه في سطر أو اتنين:</p>
+      <div class="cards">
+        <div class="card"><b>Matplotlib</b>الأساس. تحكّم كامل في كل تفصيلة، بس كود أكتر.</div>
+        <div class="card"><b>Seaborn</b>مبني على Matplotlib. بياخد الـ DataFrame واسم العمود، وبيعمل الـ hue والإحصاء لوحده.</div>
+        <div class="card"><b>Plotly</b>رسومات interactive: hover وzoom. ممتاز للداشبوردز (وهنستخدمه مع Streamlit).</div>
+      </div>
+      <h3 class="sub">Histogram + log scale</h3>
+      <div class="codetabs">
+        <div class="seg" role="tablist"><button aria-pressed="true" data-lib="mpl">Matplotlib</button><button aria-pressed="false" data-lib="sns">Seaborn</button><button aria-pressed="false" data-lib="px">Plotly</button></div>
+<pre data-lib="mpl">bins = np.logspace(np.log10(rev.min()), np.log10(rev.max()), <span class="k">40</span>)
+fig, ax = plt.subplots()
+ax.hist(rev, bins=bins)
+ax.set_xscale(<span class="s">"log"</span>)
+ax.axvline(rev.median(), color=<span class="s">"green"</span>, ls=<span class="s">"--"</span>)</pre>
+<pre data-lib="sns" hidden>sns.histplot(data=orders, x=<span class="s">"revenue"</span>, hue=<span class="s">"category"</span>,
+             log_scale=<span class="k">True</span>, bins=<span class="k">40</span>, multiple=<span class="s">"stack"</span>)</pre>
+<pre data-lib="px" hidden>fig = px.histogram(orders, x=<span class="s">"revenue"</span>, color=<span class="s">"category"</span>,
+                   log_x=<span class="k">True</span>, nbins=<span class="k">60</span>)
+fig.show()</pre>
+      </div>
+      <h3 class="sub">Box plot لكل category</h3>
+      <div class="codetabs">
+        <div class="seg" role="tablist"><button aria-pressed="true" data-lib="mpl">Matplotlib</button><button aria-pressed="false" data-lib="sns">Seaborn</button><button aria-pressed="false" data-lib="px">Plotly</button></div>
+<pre data-lib="mpl">groups = [orders.loc[orders[<span class="s">"category"</span>] == c, <span class="s">"revenue"</span>] <span class="k">for</span> c <span class="k">in</span> order]
+fig, ax = plt.subplots()
+ax.boxplot(groups, tick_labels=order)
+ax.set_yscale(<span class="s">"log"</span>)</pre>
+<pre data-lib="sns" hidden>sns.boxplot(data=orders, x=<span class="s">"category"</span>, y=<span class="s">"revenue"</span>, order=order, log_scale=<span class="k">True</span>)</pre>
+<pre data-lib="px" hidden>fig = px.box(orders, x=<span class="s">"category"</span>, y=<span class="s">"revenue"</span>, log_y=<span class="k">True</span>, points=<span class="s">"outliers"</span>)
+fig.show()</pre>
+      </div>
+      <h3 class="sub">ECDF</h3>
+      <div class="codetabs">
+        <div class="seg" role="tablist"><button aria-pressed="true" data-lib="mpl">Matplotlib</button><button aria-pressed="false" data-lib="sns">Seaborn</button><button aria-pressed="false" data-lib="px">Plotly</button></div>
+<pre data-lib="mpl">x = np.sort(rev)
+y = np.arange(<span class="k">1</span>, len(x) + <span class="k">1</span>) / len(x)
+fig, ax = plt.subplots()
+ax.step(x, y)
+ax.set_xscale(<span class="s">"log"</span>)</pre>
+<pre data-lib="sns" hidden>sns.ecdfplot(data=orders, x=<span class="s">"revenue"</span>, hue=<span class="s">"category"</span>, log_scale=<span class="k">True</span>)</pre>
+<pre data-lib="px" hidden>fig = px.ecdf(orders, x=<span class="s">"revenue"</span>, color=<span class="s">"category"</span>, log_x=<span class="k">True</span>)
+fig.show()</pre>
+      </div>
+      <p>الكود كامل لكل chart في الدرس، بالـ 3 مكتبات وبالـ outputs، موجود في النوت بوك:</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" data-kaggle href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebooks/distribution.html">👀 اعرض النوت بوك هنا</a>
+      </div>
+    </section>
+
+    <!-- 13 -->
+    <section class="sec" id="mistakes">
+      <div class="sec-head"><h2><span class="num">13</span>أخطاء شائعة</h2></div>
+      <div class="two">
+        <div class="path bad"><h4>✗ تقول المتوسط وبس</h4><p>على داتا ليها long tail، الـ mean بيدّي صورة غلط عن "العادي".<br>ارسم الأول، وبعدين اختار الرقم.</p></div>
+        <div class="path good"><h4>✓ الـ median مع الرسمة</h4><p>لو فيه skew، قول الـ median.<br>ولو فيه جروبات، قول رقم لكل جروب.</p></div>
+        <div class="path bad"><h4>✗ تصدّق الـ bins الافتراضية</h4><p>الـ default ممكن يخبّي جروب صغير مهم، زي الأوردرات الخسرانة.</p></div>
+        <div class="path good"><h4>✓ جرّب كذا bins</h4><p>3 أو 4 أرقام مختلفة، وشوف الشكل ثابت ولا بيتغيّر.</p></div>
+        <div class="path bad"><h4>✗ تمسح كل outlier</h4><p>أكبر أوردرات NileCart هي أهم عملاء.<br>المسح من غير سبب بيضيّع أهم حاجة في الداتا.</p></div>
+        <div class="path good"><h4>✓ تفهم الـ outlier الأول</h4><p>غلط في الإدخال؟ امسحه أو صلّحه.<br>حقيقي؟ خليه، وافهم هو جاي منين.</p></div>
+      </div>
+    </section>
+
+    <!-- 14 -->
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">14</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sheet">
+        <div class="card"><h4>الـ 4 أسئلة</h4>Shape · Center · Spread · Outliers</div>
+        <div class="card"><h4>Histogram</h4>أول chart لأي عمود أرقام<br>جرّب كذا bins</div>
+        <div class="card"><h4>Skew</h4>tail يمين: الـ mean أكبر من الـ median<br>قول الـ median</div>
+        <div class="card"><h4>Log scale</h4>لما الأرقام بتفرق بأضعاف<br>مش للأصفار والسالب</div>
+        <div class="card"><h4>KDE</h4>شكل ناعم لمقارنة جروبات قليلة<br>بص على الأطراف</div>
+        <div class="card"><h4>Box plot</h4>5 أرقام · مقارنة جروبات كتير<br><span class="en">outlier: beyond 1.5 × IQR</span></div>
+        <div class="card"><h4>Violin · Strip</h4>لما الشكل جوّه الجروب مهم<br>أو عايز تشوف كل نقطة</div>
+        <div class="card"><h4>ECDF</h4>كام % تحت رقم معين؟<br>مفيش bins</div>
+      </div>
+    </section>
+
+    <nav class="pager" aria-label="التنقل بين الدروس"><span class="pg off"><span>→ الدرس اللي فات</span><b>اختيار الـ Chart</b></span><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><span class="pg next off"><span>الدرس الجاي ←</span><b><span class="en">Comparison &amp; Ranking</span></b></span></nav>
+
+    <footer>
+      الداتا: NileCart، متجر وهمي في القاهرة، بالجنيه المصري.<br>
+      كل الأرقام في الدرس محسوبة من نفس الداتا اللي في النوت بوك.
+    </footer>
+  </main>
+</div>
+
+<script src="assets/data/sales.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = v => Math.abs(v) >= 100 ? Math.round(v).toLocaleString("en") : (+v.toFixed(1)).toLocaleString("en");
+const KAGGLE = "https://www.kaggle.com/code/KAGGLE_USERNAME/zero-grad-da-distribution-charts";
+const CAT_COL = ["--c1", "--c2", "--c3", "--c4"];
+
+/* ---------- data + stats ---------- */
+const S = window.SALES;
+const sorted = a => [...a].sort((x, y) => x - y);
+const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+function quantile(sa, q) { const p = (sa.length - 1) * q, i = Math.floor(p), f = p - i; return sa[i] + (sa[Math.min(i + 1, sa.length - 1)] - sa[i]) * f; }
+function skew(a) { const m = mean(a), n = a.length; let m2 = 0, m3 = 0; for (const v of a) { m2 += (v - m) ** 2; m3 += (v - m) ** 3; } m2 /= n; m3 /= n; return m3 / m2 ** 1.5 * Math.sqrt(n * (n - 1)) / (n - 2); }
+function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function gauss(r) { let u = 0, v = 0; while (!u) u = r(); while (!v) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+
+/* ---------- canvas helpers ---------- */
+function setup(cv, h) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 300;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + "px";
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.direction = "ltr";
+  return { ctx, w, h };
+}
+function niceTicks([a, b], n = 5) {
+  const step = Math.pow(10, Math.floor(Math.log10((b - a) / n))); let s = step;
+  for (const k of [1, 2, 2.5, 5, 10]) { if ((b - a) / (step * k) <= n + 1) { s = step * k; break; } }
+  const out = []; for (let v = Math.ceil(a / s) * s; v <= b + 1e-9; v += s) out.push(+v.toFixed(6)); return out;
+}
+function short(v) { const a = Math.abs(v); return a >= 1e6 ? (v / 1e6) + "M" : a >= 1e3 ? (v / 1e3) + "k" : String(v); }
+// x axis can be linear or log10; yd is linear
+function frame(ctx, w, h, pad, xd, yd, { xlog = false, xl = "", yl = "", yfmt = short, xticks } = {}) {
+  const tx = v => xlog ? Math.log10(v) : v, X0 = tx(xd[0]), X1 = tx(xd[1]);
+  const sx = v => pad.l + (tx(v) - X0) / (X1 - X0) * (w - pad.l - pad.r);
+  const sy = v => h - pad.b - (v - yd[0]) / (yd[1] - yd[0]) * (h - pad.t - pad.b);
+  ctx.strokeStyle = cssv("--line"); ctx.lineWidth = 1; ctx.fillStyle = cssv("--muted");
+  ctx.font = "11px 'JetBrains Mono', monospace";
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, h - pad.b); ctx.lineTo(w - pad.r, h - pad.b); ctx.stroke();
+  ctx.textAlign = "center"; if (xl) ctx.fillText(xl, (pad.l + w - pad.r) / 2, h - 5);
+  if (yl) { ctx.save(); ctx.translate(11, (pad.t + h - pad.b) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(yl, 0, 0); ctx.restore(); }
+  const xt = xticks || (xlog ? [1, 10, 100, 1e3, 1e4, 1e5, 1e6].filter(v => v >= xd[0] && v <= xd[1]) : niceTicks(xd));
+  for (const v of xt) ctx.fillText(short(v), sx(v), h - pad.b + 14);
+  ctx.textAlign = "right";
+  for (const v of niceTicks(yd, 4)) { ctx.fillText(yfmt(v), pad.l - 5, sy(v) + 4); }
+  return { sx, sy };
+}
+function vline(ctx, x, top, bot, color, dash, label, side = "right") {
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash(dash ? [6, 4] : []);
+  ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bot); ctx.stroke(); ctx.setLineDash([]);
+  if (label) { ctx.fillStyle = color; ctx.font = "bold 11px 'JetBrains Mono', monospace"; ctx.textAlign = side === "right" ? "left" : "right"; ctx.fillText(label, x + (side === "right" ? 5 : -5), top + 11); }
+  ctx.restore();
+}
+function head(title, hint, badge = "جرّب بنفسك") { return `<div class="widget-head"><span class="badge">${badge}</span><h3>${title}</h3></div><p class="hint">${hint}</p>`; }
+const redrawers = []; const onRedraw = f => redrawers.push(f);
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => redrawers.forEach(f => f()), 120); });
+const H = cv => cv.clientWidth < 460 ? 250 : 300;
+
+/* ---------- widget: build a histogram (animation) ---------- */
+function buildWidget(root) {
+  const r = rng(11), vals = [];
+  while (vals.length < 48) { const v = Math.round(Math.exp(7.6 + gauss(r) * .75)); if (v >= 200 && v < 10000) vals.push(v); }
+  const lo = 0, hi = 10000; let B = 10, bw, counts, slot, maxC;
+  root.innerHTML = head("الـ Histogram بيتبني إزاي؟", "48 أوردر، وكل نقطة أوردر. الـ bins هي الصناديق اللي بنقسم عليها المدى. اضغط وشوف كل أوردر بيقع في الـ bin بتاعه، وبعدين غيّر عدد الـ bins.", "اتفرّج") +
+    `<canvas></canvas><div class="ctl" style="margin-top:.7rem"><label>عدد الـ bins <span><output data-o="bins"></output> <span data-o="bw" style="opacity:.75"></span></span></label><input type="range" dir="ltr" data-i="bins" min="2" max="40" step="1" value="10"></div><div class="btns" style="margin-top:.7rem"><button class="btn primary" data-b="go">ابني الـ histogram</button><button class="btn" data-b="reset">من الأول</button></div><div class="status" data-s="msg"></div>`;
+  const cv = $("canvas", root); let t = 0, anim;
+  function rebin() {
+    bw = (hi - lo) / B; counts = new Array(B).fill(0);
+    slot = vals.map(v => { const b = Math.min(B - 1, Math.floor((v - lo) / bw)); return [b, counts[b]++]; });
+    maxC = Math.max(...counts);
+    $("[data-o=bins]", root).textContent = B;
+    $("[data-o=bw]", root).textContent = `· كل bin عرضه ${fmt(bw)} جنيه`;
+  }
+  rebin();
+  function draw() {
+    const h = cv.clientWidth < 460 ? 240 : 280, { ctx, w } = setup(cv, h), pad = { l: 40, r: 14, t: 14, b: 34 };
+    const { sx, sy } = frame(ctx, w, h, pad, [lo, hi], [0, maxC + 1], { xl: "revenue (EGP)", yl: "orders" });
+    const done = vals.filter((_, i) => t > i).length;
+    // bin edges
+    ctx.strokeStyle = cssv("--line"); ctx.setLineDash([3, 4]);
+    for (let b = 0; b <= B; b++) { ctx.beginPath(); ctx.moveTo(sx(lo + b * bw), pad.t); ctx.lineTo(sx(lo + b * bw), h - pad.b); ctx.stroke(); }
+    ctx.setLineDash([]);
+    // bars grow from the landed dots
+    const landed = new Array(B).fill(0);
+    vals.forEach((v, i) => { if (t >= i + 1) landed[slot[i][0]]++; });
+    ctx.fillStyle = cssv("--add"); ctx.globalAlpha = .28;
+    landed.forEach((c, b) => { if (c) ctx.fillRect(sx(lo + b * bw) + 1, sy(c), sx(lo + bw) - sx(lo) - 2, sy(0) - sy(c)); });
+    ctx.globalAlpha = 1;
+    const unitH = sy(0) - sy(1);
+    vals.forEach((v, i) => {
+      const k = Math.max(0, Math.min(1, t - i)), [b, row] = slot[i];
+      const x0 = sx(v), y0 = pad.t + 6, x1 = sx(lo + (b + .5) * bw), y1 = sy(row + .5);
+      const e = k < 1 ? 1 - (1 - k) ** 2 : 1;
+      const x = x0 + (x1 - x0) * e, y = k === 0 ? y0 : y0 + (y1 - y0) * e;
+      ctx.fillStyle = k >= 1 ? cssv("--add") : cssv("--chalk-o");
+      ctx.beginPath(); ctx.arc(x, y, Math.min(5, unitH / 2.4), 0, 7); ctx.fill();
+    });
+    $("[data-s=msg]", root).textContent = done < vals.length ? (done ? `${done} من ${vals.length} أوردر` : "كل نقطة فوق = أوردر، ومكانها الأفقي = قيمته.") :
+      (B <= 4 ? `${B} bins بس: كل bin عريض قوي، والأوردرات اتكدّست في عمود أو اتنين. الشكل ضاع.`
+       : B >= 25 ? `${B} bin: كل bin ضيق قوي، وأغلب الأعمدة فيها أوردر أو اتنين. الشكل بقى سنان ودوشة.`
+       : `خلاص: طول كل عمود = عدد الأوردرات اللي وقعت في الـ bin ده.\nحرّك سلايدر الـ bins وشوف الشكل بيتغيّر إزاي.`);
+  }
+  $("[data-b=go]", root).onclick = () => {
+    cancelAnimationFrame(anim); t = 0; let last = performance.now();
+    const tick = now => { t += (now - last) / 70; last = now; draw(); if (t < vals.length + 1) anim = requestAnimationFrame(tick); };
+    anim = requestAnimationFrame(tick);
+  };
+  $("[data-b=reset]", root).onclick = () => { cancelAnimationFrame(anim); t = 0; draw(); };
+  $("[data-i=bins]", root).oninput = e => { B = +e.target.value; rebin(); draw(); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: histogram lab on the real data ---------- */
+function histWidget(root) {
+  const COLS = { revenue: "revenue (EGP)", profit: "profit (EGP)", unit_price: "unit price (EGP)" };
+  root.innerHTML = head("Histogram على داتا NileCart", "اختار العمود، وغيّر عدد الـ bins، وجرّب الـ log scale.") + `
+    <div class="wgrid cols">
+      <div><canvas></canvas><div class="keys" data-s="keys"></div></div>
+      <div class="controls">
+        <div class="ctl"><label>العمود <select class="sel" data-i="col"><option value="revenue">revenue</option><option value="profit">profit</option><option value="unit_price">unit_price</option></select></label></div>
+        <div class="ctl"><label>bins <output data-o="bins"></output></label><input type="range" dir="ltr" data-i="bins" min="3" max="200" step="1" value="40"></div>
+        <label class="chk" data-k="log"><input type="checkbox" data-c="log">log scale</label>
+        <label class="chk" data-k="hue"><input type="checkbox" data-c="hue">لوّن بالـ category</label>
+        <label class="chk"><input type="checkbox" data-c="mm" checked>اظهر الـ mean والـ median</label>
+        <div class="stats">
+          <div class="stat"><span>mean</span><b data-s="mean"></b></div>
+          <div class="stat"><span>median</span><b data-s="median"></b></div>
+          <div class="stat"><span>skewness</span><b data-s="skew"></b></div>
+        </div>
+        <div class="status" data-s="msg"></div>
+      </div>
+    </div>`;
+  const cv = $("canvas", root), colSel = $("[data-i=col]", root), binsIn = $("[data-i=bins]", root);
+  const logC = $("[data-c=log]", root), hueC = $("[data-c=hue]", root), mmC = $("[data-c=mm]", root);
+  const info = {};
+  for (const c of Object.keys(COLS)) { const a = S[c], sa = sorted(a); info[c] = { a, sa, mean: mean(a), med: quantile(sa, .5), skew: skew(a), min: sa[0], max: sa[sa.length - 1] }; }
+  function draw() {
+    const col = colSel.value, I = info[col], B = +binsIn.value, canLog = I.min > 0;
+    if (!canLog) logC.checked = false;
+    $("[data-k=log]", root).classList.toggle("off", !canLog);
+    const log = logC.checked, hue = hueC.checked;
+    $("[data-o=bins]", root).textContent = B;
+    const tx = v => log ? Math.log10(v) : v, lo = tx(I.min), hi = tx(I.max), bw = (hi - lo) / B;
+    const counts = Array.from({ length: B }, () => [0, 0, 0, 0]);
+    I.a.forEach((v, i) => { const b = Math.min(B - 1, Math.floor((tx(v) - lo) / bw)); counts[b][hue ? S.cat[i] : 0]++; });
+    const tot = counts.map(c => c[0] + c[1] + c[2] + c[3]), maxC = Math.max(...tot);
+    const h = H(cv), { ctx, w } = setup(cv, h), pad = { l: 44, r: 14, t: 16, b: 36 };
+    const xd = [I.min, I.max];
+    const { sx, sy } = frame(ctx, w, h, pad, xd, [0, maxC * 1.08], { xlog: log, xl: COLS[col] + (log ? " · log" : ""), yl: "orders" });
+    const edge = b => log ? 10 ** (lo + b * bw) : lo + b * bw;
+    counts.forEach((c, b) => {
+      let base = 0; const x0 = sx(edge(b)), x1 = sx(edge(b + 1)), gap = x1 - x0 > 4 ? 1 : 0;
+      for (let k = 0; k < 4; k++) {
+        if (!c[k]) continue;
+        ctx.fillStyle = hue ? cssv(CAT_COL[k]) : cssv("--add");
+        ctx.fillRect(x0 + gap / 2, sy(base + c[k]), Math.max(1, x1 - x0 - gap), sy(base) - sy(base + c[k])); base += c[k];
+      }
+    });
+    if (col === "profit") vline(ctx, sx(0), pad.t, h - pad.b, cssv("--bad"), false, "0", "left");
+    if (mmC.checked) {
+      vline(ctx, sx(I.mean), pad.t, h - pad.b, cssv("--chalk-o"), false, "mean");
+      vline(ctx, sx(I.med), pad.t + 14, h - pad.b, cssv("--chalk-g"), true, "median", "left");
+    }
+    $("[data-s=mean]", root).textContent = fmt(I.mean);
+    $("[data-s=median]", root).textContent = fmt(I.med);
+    $("[data-s=skew]", root).textContent = I.skew.toFixed(2);
+    $("[data-s=keys]", root).innerHTML = hue ? S.cats.map((c, k) => `<span><i style="background:var(${CAT_COL[k]})"></i>${c}</span>`).join("") : "";
+    const msg = $("[data-s=msg]", root);
+    if (col === "profit") msg.textContent = B < 12 ? "الـ bins قليلة: الخسارة (شمال الخط الأحمر) مستخبية." : B > 120 ? "bins كتير: دوشة، مفيش شكل واضح." : "شايف الجروب الصغير شمال الصفر؟ دول أوردرات خسرت فلوس.";
+    else if (!canLog) msg.textContent = "";
+    else if (log && hue) msg.textContent = "كل category عايشة في رينج لوحدها: 4 أنواع أوردرات، مش نوع واحد.";
+    else if (log) msg.textContent = "على الـ log ظهر كذا peak بدل peak واحد.\nجرّب تلوّن بالـ category.";
+    else msg.textContent = "long tail يمين: الـ mean بعيد عن الـ median.\nجرّب الـ log scale.";
+  }
+  colSel.onchange = () => { if (colSel.value === "profit") binsIn.value = 5; draw(); };
+  binsIn.oninput = draw; [logC, hueC, mmC].forEach(c => c.onchange = draw);
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: mean vs median ---------- */
+function meanWidget(root) {
+  const base = [450, 900, 1200, 1800, 2400, 3000, 3600, 4300, 6500];
+  root.innerHTML = head("الـ Mean ولا الـ Median؟", "9 أوردرات عادية، وأوردر عاشر. كبّر الأوردر العاشر وشوف مين بيتحرك.") + `
+    <canvas></canvas>
+    <div class="controls" style="margin-top:.7rem">
+      <div class="ctl"><label>قيمة الأوردر العاشر <output data-o="big"></output></label><input type="range" dir="ltr" data-i="big" min="3" max="5.53" step="0.01" value="3.9"></div>
+      <div class="stats"><div class="stat"><span>mean</span><b data-s="mean"></b></div><div class="stat"><span>median</span><b data-s="median"></b></div></div>
+      <div class="status" data-s="msg"></div>
+    </div>`;
+  const cv = $("canvas", root), inp = $("[data-i=big]", root);
+  function draw() {
+    const big = Math.round(10 ** +inp.value / 10) * 10, vals = [...base, big], sa = sorted(vals);
+    const m = mean(vals), md = quantile(sa, .5);
+    $("[data-o=big]", root).textContent = big.toLocaleString("en") + " EGP";
+    $("[data-s=mean]", root).textContent = fmt(m); $("[data-s=median]", root).textContent = fmt(md);
+    const h = 150, { ctx, w } = setup(cv, h), pad = { l: 20, r: 20, t: 30, b: 34 };
+    const xmax = Math.max(10000, big * 1.05);
+    const { sx } = frame(ctx, w, h, pad, [0, xmax], [0, 1], { xl: "revenue (EGP)", yfmt: () => "" });
+    vline(ctx, sx(md), pad.t - 18, h - pad.b, cssv("--chalk-g"), true, "median", "left");
+    vline(ctx, sx(m), pad.t - 18, h - pad.b, cssv("--chalk-o"), false, "mean");
+    vals.forEach((v, i) => { ctx.fillStyle = i === 9 ? cssv("--bad") : cssv("--ink"); ctx.beginPath(); ctx.arc(sx(v), h - pad.b - 16, i === 9 ? 6 : 4.5, 0, 7); ctx.fill(); });
+    const below = vals.filter(v => v < m).length;
+    $("[data-s=msg]", root).textContent = big > 20000 ? `الـ mean بقى أكبر من ${below} أوردرات من الـ 10!\nوالـ median مكانه تقريبًا.` : "لسه الأوردر العاشر عادي، والاتنين قريبين.";
+  }
+  inp.oninput = draw; draw(); onRedraw(draw);
+}
+
+/* ---------- widget: KDE = sum of kernels ---------- */
+function kdeWidget(root) {
+  const pts = [180, 260, 310, 420, 450, 520, 900, 1150, 1200, 1300, 1420, 2600];
+  root.innerHTML = head("الـ KDE بيتبني إزاي؟", "12 سعر منتج. كل سعر عليه kernel (curve صغير)، والخط التقيل هو مجموعهم. غيّر الـ bandwidth.") + `
+    <canvas></canvas>
+    <div class="controls" style="margin-top:.7rem">
+      <div class="ctl"><label>bandwidth <output data-o="bw"></output></label><input type="range" dir="ltr" data-i="bw" min="30" max="700" step="5" value="160"></div>
+      <label class="chk"><input type="checkbox" data-c="bells" checked>اظهر الـ kernels الصغيرة</label>
+      <div class="status" data-s="msg"></div>
+    </div>`;
+  const cv = $("canvas", root), inp = $("[data-i=bw]", root), bellsC = $("[data-c=bells]", root);
+  function draw() {
+    const bw = +inp.value, xd = [-1200, 4000], n = pts.length;
+    $("[data-o=bw]", root).textContent = bw;
+    const k = (x, c) => Math.exp(-.5 * ((x - c) / bw) ** 2) / (bw * Math.sqrt(2 * Math.PI));
+    const N = 260, xs = Array.from({ length: N }, (_, i) => xd[0] + (xd[1] - xd[0]) * i / (N - 1));
+    const dens = xs.map(x => pts.reduce((s, c) => s + k(x, c), 0) / n), top = Math.max(...dens) * 1.15;
+    const h = H(cv), { ctx, w } = setup(cv, h), pad = { l: 20, r: 14, t: 14, b: 36 };
+    const { sx, sy } = frame(ctx, w, h, pad, xd, [0, top], { xl: "unit price (EGP)", yfmt: () => "", xticks: [-1000, 0, 1000, 2000, 3000, 4000] });
+    // impossible zone
+    ctx.fillStyle = cssv("--bad"); ctx.globalAlpha = .08; ctx.fillRect(pad.l, pad.t, sx(0) - pad.l, h - pad.t - pad.b); ctx.globalAlpha = 1;
+    vline(ctx, sx(0), pad.t, h - pad.b, cssv("--bad"), true, "0 EGP", "left");
+    if (bellsC.checked) {
+      ctx.strokeStyle = cssv("--muted"); ctx.lineWidth = 1; ctx.globalAlpha = .7;
+      for (const c of pts) { ctx.beginPath(); xs.forEach((x, i) => { const y = sy(k(x, c) / n); i ? ctx.lineTo(sx(x), y) : ctx.moveTo(sx(x), y); }); ctx.stroke(); }
+      ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = cssv("--add"); ctx.globalAlpha = .15; ctx.beginPath(); ctx.moveTo(sx(xd[0]), sy(0));
+    xs.forEach((x, i) => ctx.lineTo(sx(x), sy(dens[i]))); ctx.lineTo(sx(xd[1]), sy(0)); ctx.fill(); ctx.globalAlpha = 1;
+    ctx.strokeStyle = cssv("--add"); ctx.lineWidth = 2.5; ctx.beginPath(); xs.forEach((x, i) => i ? ctx.lineTo(sx(x), sy(dens[i])) : ctx.moveTo(sx(x), sy(dens[i]))); ctx.stroke();
+    ctx.fillStyle = cssv("--ink"); for (const c of pts) { ctx.fillRect(sx(c) - 1, h - pad.b - 10, 2, 10); }
+    const neg = dens.filter((_, i) => xs[i] < 0).reduce((s, v) => s + v, 0) * (xs[1] - xs[0]);
+    $("[data-s=msg]", root).textContent = bw < 70 ? "bandwidth صغير: كل سعر عامل peak لوحده. دوشة." : neg > .05 ? `bandwidth كبير: الـ curve ممسوح، و${Math.round(neg * 100)}% من المساحة بقت تحت الصفر!\nأسعار سالبة؟ مستحيل.` : "عرض معقول: باين جروب أسعار صغيرة وجروب أكبر.";
+  }
+  inp.oninput = draw; bellsC.onchange = draw; draw(); onRedraw(draw);
+}
+
+/* ---------- widget: build a box plot step by step ---------- */
+function boxBuildWidget(root) {
+  const vals = sorted([120, 300, 380, 450, 520, 600, 640, 700, 760, 800, 860, 900, 950, 1000, 1080, 1150, 1250, 1300, 1400, 1550, 1700, 1900, 2300, 3900, 5200]);
+  const q1 = quantile(vals, .25), md = quantile(vals, .5), q3 = quantile(vals, .75), iqr = q3 - q1, fhi = q3 + 1.5 * iqr, flo = q1 - 1.5 * iqr;
+  const wlo = vals.find(v => v >= flo), whi = [...vals].reverse().find(v => v <= fhi);
+  const STEPS = ["25 أوردر مترتبين من الصغير للكبير.", `الـ median: القيمة اللي في النص (رقم 13) = ${fmt(md)}.`,
+    `Q1 = ${fmt(q1)} و Q3 = ${fmt(q3)}.\nالصندوق فيه نص الداتا اللي في النص.`,
+    `IQR = Q3 − Q1 = ${fmt(iqr)}.\nالحد = Q3 + 1.5 × IQR = ${fmt(fhi)}.`,
+    `الشوارب بتقف عند آخر قيمة جوّه الحد.\nوالقيمتين اللي برّه (${fmt(vals[23])} و ${fmt(vals[24])}) بيترسموا نقط: outliers.`];
+  root.innerHTML = head("ابني Box Plot خطوة بخطوة", "اضغط \"الخطوة الجاية\" وشوف كل رقم من الـ 5 بييجي منين.", "اتفرّج") +
+    `<canvas></canvas><div class="btns" style="margin-top:.7rem"><button class="btn primary" data-b="next">الخطوة الجاية</button><button class="btn" data-b="reset">من الأول</button></div><div class="status" data-s="msg"></div>`;
+  const cv = $("canvas", root); let step = 0;
+  function draw() {
+    const h = 200, { ctx, w } = setup(cv, h), pad = { l: 20, r: 20, t: 20, b: 36 };
+    const { sx } = frame(ctx, w, h, pad, [0, 5500], [0, 1], { xl: "revenue (EGP)", yfmt: () => "" });
+    const cy = 110, bh = 44;
+    vals.forEach((v, i) => {
+      const out = step >= 4 && (v > fhi || v < flo);
+      ctx.fillStyle = out ? cssv("--bad") : (step >= 1 && i === 12) ? cssv("--chalk-g") : cssv("--muted");
+      ctx.beginPath(); ctx.arc(sx(v), step >= 2 && !out ? 40 : cy, out ? 5 : 3.5, 0, 7); ctx.fill();
+    });
+    ctx.lineWidth = 2;
+    if (step >= 2) { ctx.strokeStyle = cssv("--accent"); ctx.fillStyle = cssv("--add"); ctx.globalAlpha = .15; ctx.fillRect(sx(q1), cy - bh / 2, sx(q3) - sx(q1), bh); ctx.globalAlpha = 1; ctx.strokeRect(sx(q1), cy - bh / 2, sx(q3) - sx(q1), bh); }
+    if (step >= 1) vline(ctx, sx(md), cy - bh / 2 - 6, cy + bh / 2 + 6, cssv("--chalk-g"), false, step === 1 ? "median" : "");
+    if (step >= 3) {
+      ctx.strokeStyle = cssv("--chalk-o"); ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(sx(fhi), cy - 40); ctx.lineTo(sx(fhi), cy + 40); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = cssv("--chalk-o"); ctx.font = "bold 11px 'JetBrains Mono', monospace"; ctx.textAlign = "center"; ctx.fillText("Q3 + 1.5·IQR", sx(fhi), cy + 54);
+    }
+    if (step >= 4) {
+      ctx.strokeStyle = cssv("--accent"); ctx.beginPath();
+      ctx.moveTo(sx(wlo), cy); ctx.lineTo(sx(q1), cy); ctx.moveTo(sx(q3), cy); ctx.lineTo(sx(whi), cy);
+      ctx.moveTo(sx(wlo), cy - 12); ctx.lineTo(sx(wlo), cy + 12); ctx.moveTo(sx(whi), cy - 12); ctx.lineTo(sx(whi), cy + 12); ctx.stroke();
+    }
+    if (step >= 2) { ctx.fillStyle = cssv("--accent"); ctx.font = "bold 11px 'JetBrains Mono', monospace"; ctx.textAlign = "center"; ctx.fillText("Q1", sx(q1), cy - bh / 2 - 8); ctx.fillText("Q3", sx(q3), cy - bh / 2 - 8); }
+    $("[data-s=msg]", root).textContent = STEPS[step];
+    $("[data-b=next]", root).disabled = step >= STEPS.length - 1;
+  }
+  $("[data-b=next]", root).onclick = () => { step = Math.min(STEPS.length - 1, step + 1); draw(); };
+  $("[data-b=reset]", root).onclick = () => { step = 0; draw(); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: compare groups with box plots (+ strip) ---------- */
+function boxCompareWidget(root) {
+  root.innerHTML = head("قارن الجروبات", "box plot لكل جروب. جرّب الـ log scale، وعلّم على \"اظهر كل النقط\".") + `
+    <div class="wgrid cols">
+      <div><canvas></canvas><div class="keys" data-s="keys"></div></div>
+      <div class="controls">
+        <div class="ctl"><label>الرسمة <select class="sel" data-i="mode"><option value="rev">revenue by category</option><option value="profit">profit by segment</option></select></label></div>
+        <label class="chk" data-k="log"><input type="checkbox" data-c="log" checked>log scale</label>
+        <label class="chk"><input type="checkbox" data-c="pts">اظهر كل النقط (strip)</label>
+        <div class="status" data-s="msg"></div>
+      </div>
+    </div>`;
+  const cv = $("canvas", root), modeSel = $("[data-i=mode]", root), logC = $("[data-c=log]", root), ptsC = $("[data-c=pts]", root);
+  const jit = rng(5), J = S.revenue.map(() => jit() - .5);
+  function draw() {
+    const rev = modeSel.value === "rev", canLog = rev; if (!canLog) logC.checked = false;
+    $("[data-k=log]", root).classList.toggle("off", !canLog);
+    const log = logC.checked, vals = rev ? S.revenue : S.profit, key = rev ? S.cat : S.seg, names = rev ? S.cats : S.segs;
+    const groups = names.map((_, g) => sorted(vals.filter((_, i) => key[i] === g)));
+    const h = cv.clientWidth < 460 ? 300 : 340, { ctx, w } = setup(cv, h), pad = { l: 52, r: 12, t: 14, b: 40 };
+    // profit is zoomed to -16k..32k so the losses below zero stay visible; the few bigger profits are clipped
+    const all = sorted(vals), yd = log ? [Math.log10(all[0] * .8), Math.log10(all[all.length - 1] * 1.25)] : [-16000, 32000];
+    const ty = v => log ? Math.log10(v) : v, sy = v => h - pad.b - (ty(v) - yd[0]) / (yd[1] - yd[0]) * (h - pad.t - pad.b);
+    ctx.strokeStyle = cssv("--line"); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, h - pad.b); ctx.lineTo(w - pad.r, h - pad.b); ctx.stroke();
+    ctx.fillStyle = cssv("--muted"); ctx.font = "11px 'JetBrains Mono', monospace"; ctx.textAlign = "right";
+    const yt = log ? [10, 100, 1e3, 1e4, 1e5].filter(v => ty(v) >= yd[0] && ty(v) <= yd[1]) : niceTicks(yd, 5);
+    for (const v of yt) ctx.fillText(short(v), pad.l - 5, sy(v) + 4);
+    if (!rev) vline(ctx, pad.l, sy(0), sy(0), cssv("--bad"));
+    if (!rev) { ctx.strokeStyle = cssv("--bad"); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(pad.l, sy(0)); ctx.lineTo(w - pad.r, sy(0)); ctx.stroke(); }
+    const gw = (w - pad.l - pad.r) / names.length;
+    ctx.save(); ctx.beginPath(); ctx.rect(pad.l, pad.t, w - pad.l - pad.r, h - pad.t - pad.b); ctx.clip();
+    groups.forEach((g, k) => {
+      const cx = pad.l + gw * (k + .5), bw = Math.min(70, gw * .5), q1 = quantile(g, .25), md = quantile(g, .5), q3 = quantile(g, .75), iqr = q3 - q1;
+      const lo = g.find(v => v >= q1 - 1.5 * iqr), hi = [...g].reverse().find(v => v <= q3 + 1.5 * iqr);
+      const col = rev ? cssv(CAT_COL[k]) : cssv("--add");
+      if (ptsC.checked) {
+        vals.forEach((v, i) => { if (key[i] !== k) return; ctx.fillStyle = cssv(CAT_COL[S.cat[i]]); ctx.globalAlpha = .55; ctx.beginPath(); ctx.arc(cx + J[i] * gw * .7, sy(v), 2.2, 0, 7); ctx.fill(); });
+        ctx.globalAlpha = 1;
+      } else {
+        ctx.fillStyle = col; g.forEach(v => { if (v < lo || v > hi) { ctx.globalAlpha = .6; ctx.beginPath(); ctx.arc(cx, sy(v), 2.6, 0, 7); ctx.fill(); } }); ctx.globalAlpha = 1;
+      }
+      ctx.strokeStyle = col; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(cx, sy(lo)); ctx.lineTo(cx, sy(q1)); ctx.moveTo(cx, sy(q3)); ctx.lineTo(cx, sy(hi));
+      ctx.moveTo(cx - bw / 4, sy(lo)); ctx.lineTo(cx + bw / 4, sy(lo)); ctx.moveTo(cx - bw / 4, sy(hi)); ctx.lineTo(cx + bw / 4, sy(hi)); ctx.stroke();
+      ctx.fillStyle = col; ctx.globalAlpha = ptsC.checked ? .08 : .18; ctx.fillRect(cx - bw / 2, sy(q3), bw, sy(q1) - sy(q3)); ctx.globalAlpha = 1;
+      ctx.strokeRect(cx - bw / 2, sy(q3), bw, sy(q1) - sy(q3));
+      ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx - bw / 2, sy(md)); ctx.lineTo(cx + bw / 2, sy(md)); ctx.stroke();
+    });
+    ctx.restore();
+    groups.forEach((g, k) => {
+      const cx = pad.l + gw * (k + .5);
+      ctx.fillStyle = cssv("--ink"); ctx.font = (gw < 90 ? "10px" : "12px") + " Inter, sans-serif"; ctx.textAlign = "center"; ctx.fillText(names[k], cx, h - pad.b + 16);
+    });
+    $("[data-s=keys]", root).innerHTML = ptsC.checked ? S.cats.map((c, k) => `<span><i style="background:var(${CAT_COL[k]})"></i>${c}</span>`).join("") : "";
+    $("[data-s=msg]", root).textContent = rev ? (log ? (ptsC.checked ? "كل نقطة أوردر. كل category في رينج لوحدها." : "كل category على مستوى مختلف خالص.\nونقط الـ outliers قليلة جوّه كل جروب.") : "من غير log، Stationery و Accessories مكبوسين تحت.\nجرّب الـ log scale.")
+      : (ptsC.checked ? "النقط اللي تحت الخط الأحمر لونها إيه؟\nكلها Electronics." : "الـ Corporate ليهم أوسع صندوق وأطول شوارب.\nعلّم على \"اظهر كل النقط\".") + "\n(المحور مقصوص عند 32k عشان الخسارة تبان.)";
+  }
+  modeSel.onchange = () => { logC.checked = modeSel.value === "rev"; draw(); };
+  logC.onchange = draw; ptsC.onchange = draw; draw(); onRedraw(draw);
+}
+
+/* ---------- widget: ECDF with a threshold ---------- */
+function ecdfWidget(root) {
+  root.innerHTML = head("ECDF: حرّك الحد", "حرّك الحد، واقرا نسبة الأوردرات اللي أقل منه أو تساويه.") + `
+    <div class="wgrid cols">
+      <div><canvas></canvas><div class="keys" data-s="keys"></div></div>
+      <div class="controls">
+        <div class="ctl"><label>الحد <output data-o="thr"></output></label><input type="range" dir="ltr" data-i="thr" min="1.7" max="5.5" step="0.01" value="3.699"></div>
+        <label class="chk"><input type="checkbox" data-c="hue">خط لكل category</label>
+        <div class="stats"><div class="stat"><span>أقل من أو يساوي الحد</span><b data-s="pct"></b></div><div class="stat"><span>عدد الأوردرات</span><b data-s="cnt"></b></div></div>
+        <div class="status" data-s="msg"></div>
+      </div>
+    </div>`;
+  const cv = $("canvas", root), inp = $("[data-i=thr]", root), hueC = $("[data-c=hue]", root);
+  const all = sorted(S.revenue), byCat = S.cats.map((_, k) => sorted(S.revenue.filter((_, i) => S.cat[i] === k)));
+  const share = (sa, x) => { let lo = 0, hi = sa.length; while (lo < hi) { const m = (lo + hi) >> 1; if (sa[m] <= x) lo = m + 1; else hi = m; } return lo / sa.length; };
+  function curve(ctx, sx, sy, sa, col, wdt) {
+    ctx.strokeStyle = col; ctx.lineWidth = wdt; ctx.beginPath(); ctx.moveTo(sx(Math.max(sa[0], 40)), sy(0));
+    sa.forEach((v, i) => { ctx.lineTo(sx(v), sy(i / sa.length)); ctx.lineTo(sx(v), sy((i + 1) / sa.length)); }); ctx.lineTo(sx(4e5), sy(1)); ctx.stroke();
+  }
+  function draw() {
+    const thr = Math.round(10 ** +inp.value / 50) * 50 || 50, hue = hueC.checked;
+    $("[data-o=thr]", root).textContent = thr.toLocaleString("en") + " EGP";
+    const h = H(cv), { ctx, w } = setup(cv, h), pad = { l: 44, r: 14, t: 14, b: 36 };
+    const { sx, sy } = frame(ctx, w, h, pad, [40, 4e5], [0, 1], { xlog: true, xl: "revenue (EGP) · log", yfmt: v => Math.round(v * 100) + "%" });
+    ctx.strokeStyle = cssv("--line"); ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(pad.l, sy(.5)); ctx.lineTo(w - pad.r, sy(.5)); ctx.stroke(); ctx.setLineDash([]);
+    if (hue) byCat.forEach((sa, k) => curve(ctx, sx, sy, sa, cssv(CAT_COL[k]), 2));
+    else curve(ctx, sx, sy, all, cssv("--add"), 2.5);
+    const p = share(all, thr);
+    ctx.strokeStyle = cssv("--chalk-o"); ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(sx(thr), h - pad.b); ctx.lineTo(sx(thr), sy(hue ? 1 : p)); if (!hue) ctx.lineTo(pad.l, sy(p)); ctx.stroke(); ctx.setLineDash([]);
+    if (!hue) { ctx.fillStyle = cssv("--chalk-o"); ctx.beginPath(); ctx.arc(sx(thr), sy(p), 5, 0, 7); ctx.fill(); }
+    $("[data-s=pct]", root).textContent = Math.round(p * 100) + "%";
+    $("[data-s=cnt]", root).textContent = Math.round(p * all.length).toLocaleString("en") + " / " + all.length.toLocaleString("en");
+    $("[data-s=keys]", root).innerHTML = hue ? S.cats.map((c, k) => `<span><i style="background:var(${CAT_COL[k]})"></i>${c}: ${Math.round(share(byCat[k], thr) * 100)}%</span>`).join("") : "";
+    $("[data-s=msg]", root).textContent = hue ? "عند نفس الحد، كل category ليها نسبة مختلفة خالص.\nالـ Stationery كلها تحت أي حد معقول." : `${Math.round(p * 100)}% من الأوردرات ${thr.toLocaleString("en")} جنيه أو أقل.\nالمكان اللي الخط بيقطع فيه الـ 50% المنقّط هو الـ median.`;
+  }
+  inp.oninput = draw; hueC.onchange = draw; draw(); onRedraw(draw);
+}
+
+/* ---------- static SVG figures ---------- */
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(html, vb, label) { return `<svg viewBox="${vb}" role="img" aria-label="${label}" xmlns="${NS}">${html}</svg>`; }
+function shapesFig() {
+  const W = 120, Hh = 90, gap = 10, shapes = [
+    ["Symmetric", x => Math.exp(-(((x - .5) / .14) ** 2) / 2)],
+    ["Right-skewed", x => x <= 0 ? 0 : (x / .15) * Math.exp(1 - x / .15)],
+    ["Left-skewed", x => { const y = 1 - x; return y <= 0 ? 0 : (y / .15) * Math.exp(1 - y / .15); }],
+    ["Bimodal", x => Math.exp(-(((x - .27) / .09) ** 2) / 2) + .9 * Math.exp(-(((x - .73) / .09) ** 2) / 2)],
+    ["Uniform", x => x > .08 && x < .92 ? .8 : 0]];
+  let out = "";
+  shapes.forEach(([name, f], k) => {
+    const x0 = 10 + k * (W + gap), N = 60, ys = Array.from({ length: N }, (_, i) => f((i + .5) / N)), top = Math.max(...ys);
+    let sum = 0, wsum = 0; ys.forEach((y, i) => { sum += y; wsum += y * (i + .5) / N; });
+    const m = wsum / sum; let c = 0, md = 0; for (let i = 0; i < N; i++) { c += ys[i]; if (c >= sum / 2) { md = (i + .5) / N; break; } }
+    const bw = W / N;
+    ys.forEach((y, i) => { const hh = y / top * Hh; out += `<rect x="${(x0 + i * bw).toFixed(1)}" y="${(20 + Hh - hh).toFixed(1)}" width="${(bw - .4).toFixed(2)}" height="${hh.toFixed(1)}" style="fill:var(--add);opacity:.55"/>`; });
+    out += `<line x1="${x0}" y1="${20 + Hh}" x2="${x0 + W}" y2="${20 + Hh}" style="stroke:var(--line)"/>`;
+    out += `<line x1="${(x0 + m * W).toFixed(1)}" y1="16" x2="${(x0 + m * W).toFixed(1)}" y2="${20 + Hh}" style="stroke:var(--chalk-o);stroke-width:2"/>`;
+    out += `<line x1="${(x0 + md * W).toFixed(1)}" y1="16" x2="${(x0 + md * W).toFixed(1)}" y2="${20 + Hh}" style="stroke:var(--chalk-g);stroke-width:2;stroke-dasharray:4 3"/>`;
+    out += `<text x="${x0 + W / 2}" y="${Hh + 42}" text-anchor="middle" font-size="13" font-weight="700">${name}</text>`;
+  });
+  $("#shapesFig").innerHTML = svgEl(out, "0 0 660 140", "خمس أشكال للـ distribution");
+}
+function boxAnatomy() {
+  const y = 70, s = x => 40 + x * 5.6;  // data 0..100 -> px
+  const q1 = 30, md = 42, q3 = 60, lo = 8, hi = 92;
+  let o = `<line x1="${s(lo)}" y1="${y}" x2="${s(q1)}" y2="${y}" style="stroke:var(--accent);stroke-width:2"/><line x1="${s(q3)}" y1="${y}" x2="${s(hi)}" y2="${y}" style="stroke:var(--accent);stroke-width:2"/>`;
+  o += `<line x1="${s(lo)}" y1="${y - 14}" x2="${s(lo)}" y2="${y + 14}" style="stroke:var(--accent);stroke-width:2"/><line x1="${s(hi)}" y1="${y - 14}" x2="${s(hi)}" y2="${y + 14}" style="stroke:var(--accent);stroke-width:2"/>`;
+  o += `<rect x="${s(q1)}" y="${y - 26}" width="${s(q3) - s(q1)}" height="52" style="fill:var(--add);fill-opacity:.15;stroke:var(--accent);stroke-width:2"/>`;
+  o += `<line x1="${s(md)}" y1="${y - 26}" x2="${s(md)}" y2="${y + 26}" style="stroke:var(--chalk-g);stroke-width:3"/>`;
+  for (const v of [100, 104]) o += `<circle cx="${s(v)}" cy="${y}" r="5" style="fill:var(--bad)"/>`;
+  const lab = (x, t, sub, yy = 128) => `<text x="${x}" y="${yy}" text-anchor="middle" font-size="13" font-weight="700">${t}</text><text x="${x}" y="${yy + 17}" text-anchor="middle" font-size="11" style="fill:var(--muted)">${sub}</text>`;
+  o += lab(s(lo), "min", "lower whisker") + lab(s(q1), "Q1", "25%") + lab(s(md), "median", "50%", 26) + lab(s(q3), "Q3", "75%") + lab(s(hi), "max", "upper whisker") + lab(s(102), "outliers", "> Q3 + 1.5·IQR");
+  o += `<line x1="${s(q1)}" y1="${y + 34}" x2="${s(q3)}" y2="${y + 34}" style="stroke:var(--chalk-o);stroke-width:1.5"/><text x="${(s(q1) + s(q3)) / 2}" y="${y + 48}" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--chalk-o)">IQR</text>`;
+  $("#boxAnatomy").innerHTML = svgEl(o, "0 0 660 160", "تشريح الـ box plot");
+}
+function sameBox() {
+  const r = rng(3), A = [], B = [];
+  for (let i = 0; i < 70; i++) A.push(50 + gauss(r) * 14);
+  for (let i = 0; i < 70; i++) B.push((i % 2 ? 30 : 70) + gauss(r) * 5);
+  const s = v => 190 - v * 1.6;
+  let o = "";
+  [[A, 140, "A"], [B, 460, "B"]].forEach(([d, cx, name]) => {
+    const sa = sorted(d), q1 = quantile(sa, .25), md = quantile(sa, .5), q3 = quantile(sa, .75);
+    o += `<rect x="${cx - 100}" y="${s(q3)}" width="50" height="${s(q1) - s(q3)}" style="fill:var(--add);fill-opacity:.15;stroke:var(--accent);stroke-width:2"/>`;
+    o += `<line x1="${cx - 100}" y1="${s(md)}" x2="${cx - 50}" y2="${s(md)}" style="stroke:var(--chalk-g);stroke-width:3"/>`;
+    o += `<line x1="${cx - 75}" y1="${s(sa[0])}" x2="${cx - 75}" y2="${s(q1)}" style="stroke:var(--accent);stroke-width:2"/><line x1="${cx - 75}" y1="${s(q3)}" x2="${cx - 75}" y2="${s(sa[sa.length - 1])}" style="stroke:var(--accent);stroke-width:2"/>`;
+    d.forEach((v, i) => { o += `<circle cx="${(cx + 10 + ((i * 37) % 60)).toFixed(1)}" cy="${s(v).toFixed(1)}" r="2.6" style="fill:var(--chalk-o);opacity:.75"/>`; });
+    o += `<text x="${cx - 75}" y="196" text-anchor="middle" font-size="12" style="fill:var(--muted)">box</text><text x="${cx + 40}" y="196" text-anchor="middle" font-size="12" style="fill:var(--muted)">every point</text>`;
+    o += `<text x="${cx - 20}" y="16" text-anchor="middle" font-size="15" font-weight="700">group ${name}</text>`;
+  });
+  $("#sameBox").innerHTML = svgEl(o, "0 0 640 205", "جروبين ليهم نفس الصندوق وشكل مختلف");
+}
+function discreteFig() {
+  const q = [0, 0], cnt = {}; S.quantity.forEach(v => cnt[v] = (cnt[v] || 0) + 1);
+  const vals = Object.keys(cnt).map(Number).sort((a, b) => a - b), top = Math.max(...Object.values(cnt));
+  const H0 = 150, base = 175, sh = c => c / (top * 2) * H0;
+  let o = "";
+  // left: 7 bins over [1, 10]
+  const B = 7, bw = 9 / B, bc = new Array(B).fill(0);
+  S.quantity.forEach(v => bc[Math.min(B - 1, Math.floor((v - 1) / bw))]++);
+  const tb = Math.max(...bc), lw = 260 / B;
+  bc.forEach((c, b) => { const hh = c / tb * H0; o += `<rect x="${(20 + b * lw + 1).toFixed(1)}" y="${(base - hh).toFixed(1)}" width="${(lw - 2).toFixed(1)}" height="${hh.toFixed(1)}" style="fill:var(--chalk-o);opacity:.75"/>`; });
+  for (let v = 1; v <= 10; v++) o += `<text x="${(20 + (v - 1) / 9 * 260).toFixed(1)}" y="${base + 16}" text-anchor="middle" font-size="11" style="fill:var(--muted)">${v}</text>`;
+  o += `<text x="150" y="14" text-anchor="middle" font-size="13" font-weight="700">histogram, bins = 7</text>`;
+  // right: one bar per value
+  const rw = 260 / vals.length;
+  vals.forEach((v, i) => { const hh = cnt[v] / top * H0; o += `<rect x="${(360 + i * rw + 3).toFixed(1)}" y="${(base - hh).toFixed(1)}" width="${(rw - 6).toFixed(1)}" height="${hh.toFixed(1)}" style="fill:var(--add);opacity:.8"/><text x="${(360 + (i + .5) * rw).toFixed(1)}" y="${base + 16}" text-anchor="middle" font-size="11" style="fill:var(--muted)">${v}</text>`; });
+  o += `<text x="490" y="14" text-anchor="middle" font-size="13" font-weight="700">one bar per value</text>`;
+  o += `<line x1="20" y1="${base}" x2="280" y2="${base}" style="stroke:var(--line)"/><line x1="360" y1="${base}" x2="620" y2="${base}" style="stroke:var(--line)"/>`;
+  o += `<text x="150" y="${base + 34}" text-anchor="middle" font-size="12" style="fill:var(--muted)">quantity</text><text x="490" y="${base + 34}" text-anchor="middle" font-size="12" style="fill:var(--muted)">quantity</text>`;
+  $("#discreteFig").innerHTML = svgEl(o, "0 0 640 215", "histogram ولا bar chart لعمود quantity");
+}
+
+/* ---------- page chrome ---------- */
+function chrome() {
+  $$("#kaggleLink, [data-kaggle]").forEach(a => a.href = KAGGLE);
+  $$(".codetabs").forEach(box => $$(".seg button", box).forEach(b => b.onclick = () => {
+    $$(".seg button", box).forEach(x => x.setAttribute("aria-pressed", x === b));
+    $$("pre", box).forEach(p => p.hidden = p.dataset.lib !== b.dataset.lib);
+  }));
+  const toc = $("#tocList"), links = {};
+  $$("section.sec").forEach(sec => {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + sec.id; a.textContent = $("h2", sec).textContent.replace(/^\d+/, "").trim();
+    li.appendChild(a); toc.appendChild(li); links[sec.id] = a;
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { Object.values(links).forEach(a => a.classList.remove("active")); links[e.target.id].classList.add("active"); } }), { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  window.addEventListener("scroll", () => { const h = document.documentElement; $("#progress").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; }, { passive: true });
+  // theme (same key as the other Zero Grad lessons)
+  const root = document.documentElement;
+  try { const t = localStorage.getItem("lr-theme"); if (t) root.dataset.theme = t; } catch (e) {}
+  $("#themeBtn").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("lr-theme", root.dataset.theme); } catch (e) {}
+    redrawers.forEach(f => f());
+  };
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => redrawers.forEach(f => f()));
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  chrome();
+  shapesFig(); boxAnatomy(); sameBox(); discreteFig();
+  buildWidget($("#wBuild")); histWidget($("#wHist")); meanWidget($("#wMean")); kdeWidget($("#wKde"));
+  boxBuildWidget($("#wBoxBuild")); boxCompareWidget($("#wBoxCompare")); ecdfWidget($("#wEcdf"));
+});
+})();
+</script>
+</body>
+</html>
