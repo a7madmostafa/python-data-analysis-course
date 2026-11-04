@@ -75,37 +75,37 @@
           },
           {
             "name": "quantity",
-            "type": "number",
+            "type": "numeric",
             "description": "Number of units in the order line."
           },
           {
             "name": "unit_price",
-            "type": "number",
+            "type": "numeric",
             "description": "Price of one unit in EGP, within 5% of the list price."
           },
           {
             "name": "discount",
-            "type": "number",
+            "type": "numeric",
             "description": "Discount as a fraction (0, 0.05, 0.10 or 0.20). Missing values set to 0."
           },
           {
             "name": "gross",
-            "type": "number",
+            "type": "numeric",
             "description": "quantity x unit_price, in EGP, before the discount."
           },
           {
             "name": "revenue",
-            "type": "number",
+            "type": "numeric",
             "description": "gross x (1 - discount), in EGP: what the customer pays."
           },
           {
             "name": "unit_cost",
-            "type": "number",
+            "type": "numeric",
             "description": "What one unit costs NileCart, in EGP."
           },
           {
             "name": "profit",
-            "type": "number",
+            "type": "numeric",
             "description": "revenue - quantity x unit_cost, in EGP. Negative when the discount is bigger than the margin."
           },
           {
@@ -143,17 +143,17 @@
           },
           {
             "name": "quantity",
-            "type": "number",
+            "type": "numeric",
             "description": "Number of units in the order line."
           },
           {
             "name": "unit_price",
-            "type": "number",
+            "type": "numeric",
             "description": "Price of one unit in EGP, within 5% of the list price."
           },
           {
             "name": "discount",
-            "type": "number",
+            "type": "numeric",
             "description": "Discount as a fraction: 0, 0.05, 0.10 or 0.20."
           },
           {
@@ -181,7 +181,7 @@
           },
           {
             "name": "email",
-            "type": "string",
+            "type": "email",
             "description": "Fictional e-mail at example.com. Some are in capitals."
           },
           {
@@ -270,7 +270,7 @@
           },
           {
             "name": "usd_egp",
-            "type": "number",
+            "type": "numeric",
             "description": "How many EGP one US dollar buys."
           }
         ]

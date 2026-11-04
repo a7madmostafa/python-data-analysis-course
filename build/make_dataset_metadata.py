@@ -13,6 +13,7 @@ from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
+import matplotlib.patheffects
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -71,9 +72,9 @@ ORDER_FIELDS = [
     ("order_date", "datetime", "Date of the order, 2024-01-01 to 2025-12-31."),
     ("customer_id", "integer", "Customer who placed the order; joins to customers.csv."),
     ("product_id", "integer", "Product ordered; joins to products.csv."),
-    ("quantity", "number", "Number of units in the order line."),
-    ("unit_price", "number", "Price of one unit in EGP, within 5% of the list price."),
-    ("discount", "number", "Discount as a fraction: 0, 0.05, 0.10 or 0.20."),
+    ("quantity", "numeric", "Number of units in the order line."),
+    ("unit_price", "numeric", "Price of one unit in EGP, within 5% of the list price."),
+    ("discount", "numeric", "Discount as a fraction: 0, 0.05, 0.10 or 0.20."),
     ("status", "string", "completed, shipped, cancelled or returned."),
 ]
 RAW_ORDER = {n: (t, d) for n, t, d in ORDER_FIELDS}
@@ -93,11 +94,11 @@ RESOURCES = [
       ("category", "string", "Electronics, Accessories, Furniture or Stationery."),
       ("quantity", *RAW_ORDER["quantity"]),
       ("unit_price", *RAW_ORDER["unit_price"]),
-      ("discount", "number", "Discount as a fraction (0, 0.05, 0.10 or 0.20). Missing values set to 0."),
-      ("gross", "number", "quantity x unit_price, in EGP, before the discount."),
-      ("revenue", "number", "gross x (1 - discount), in EGP: what the customer pays."),
-      ("unit_cost", "number", "What one unit costs NileCart, in EGP."),
-      ("profit", "number", "revenue - quantity x unit_cost, in EGP. Negative when the discount is bigger than the margin."),
+      ("discount", "numeric", "Discount as a fraction (0, 0.05, 0.10 or 0.20). Missing values set to 0."),
+      ("gross", "numeric", "quantity x unit_price, in EGP, before the discount."),
+      ("revenue", "numeric", "gross x (1 - discount), in EGP: what the customer pays."),
+      ("unit_cost", "numeric", "What one unit costs NileCart, in EGP."),
+      ("profit", "numeric", "revenue - quantity x unit_cost, in EGP. Negative when the discount is bigger than the margin."),
       ("status", "string", "completed, shipped, cancelled, returned, or unknown when it was missing.")]),
     ("orders.csv",
      "Raw orders with planted data-quality problems: missing values, impossible quantities, a zero price, a 2031 date, a duplicate, unknown customers.",
@@ -106,7 +107,7 @@ RESOURCES = [
      "Raw customers with messy text (extra spaces, capitals, inconsistent governorate names).",
      [("customer_id", "integer", "Customer id, 1 to 200."),
       ("name", "string", "Customer name (fictional). Some have extra spaces and capitals."),
-      ("email", "string", "Fictional e-mail at example.com. Some are in capitals."),
+      ("email", "email", "Fictional e-mail at example.com. Some are in capitals."),
       ("governorate", "string", "Where the customer lives. A few are written inconsistently."),
       ("segment", "string", "Consumer, Corporate or Small Business."),
       ("signup_date", "datetime", "When the customer signed up, 2023 to 2024.")]),
@@ -125,7 +126,7 @@ RESOURCES = [
     ("fx_rates.csv",
      "Weekly US dollar to Egyptian pound rate (every Monday), with the March 2024 float.",
      [("rate_date", "datetime", "Monday of the week."),
-      ("usd_egp", "number", "How many EGP one US dollar buys.")]),
+      ("usd_egp", "numeric", "How many EGP one US dollar buys.")]),
 ]
 
 
@@ -136,35 +137,87 @@ def check_columns():
         assert cols == [f[0] for f in fields], (path, cols)
 
 
+def palm(ax, x, y, h, lean, color, z=5):
+    """A palm-tree silhouette: a curved trunk and a crown of drooping fronds."""
+    t = np.linspace(0, 1, 30)
+    tx, ty = x + lean * t ** 2, y + h * t
+    ax.fill_betweenx(ty, tx - 3.2 * (1 - t) - 1.4, tx + 3.2 * (1 - t) + 1.4, color=color, zorder=z, lw=0)
+    top = (tx[-1], ty[-1])
+    for ang, length in [(15, 1.0), (45, .85), (100, .7), (150, .85), (175, 1.0), (205, .7), (-20, .8)]:
+        a = np.radians(ang)
+        s = np.linspace(0, 1, 20)
+        L = h * .5 * length
+        fx = top[0] + np.cos(a) * L * s
+        fy = top[1] + np.sin(a) * L * s - (L * .55) * s ** 2           # fronds droop
+        w = 4.5 * np.sin(np.pi * s) + .4
+        ax.fill(np.r_[fx, fx[::-1]], np.r_[fy + w, fy[::-1] - w * .3], color=color, zorder=z, lw=0)
+
+
 def make_cover():
-    sales = pd.read_csv(DATA / "sales.csv")
-    done = sales[sales["status"] == "completed"]
-    cats = ["Stationery", "Accessories", "Furniture", "Electronics"]
-    colors = ["#2dd4bf", "#60a5fa", "#fbbf24", "#c084fc"]
-    bins = np.logspace(np.log10(40), np.log10(400000), 46)
+    """An original illustration: sunset over the Nile, the pyramids, a felucca and palm trees."""
+    W, H, HORIZON = 800, 400, 150
+    fig = plt.figure(figsize=(W / 100, H / 100), dpi=200)
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.set_xlim(0, W); ax.set_ylim(0, H); ax.axis("off")
 
-    fig = plt.figure(figsize=(16, 9), dpi=100, facecolor="#101f40")
-    ax = fig.add_axes([0.06, 0.1, 0.88, 0.48], facecolor="#101f40")
-    ax.hist([done.loc[done["category"] == c, "revenue"] for c in cats], bins=bins, stacked=True,
-            color=colors, edgecolor="#101f40", linewidth=1.2)
-    ax.set_xscale("log")
-    for s in ["top", "right", "left"]:
-        ax.spines[s].set_visible(False)
-    ax.spines["bottom"].set_color("#f5f2ea80")
-    ax.tick_params(colors="#f5f2eacc", labelsize=13, left=False, labelleft=False)
-    ax.set_xticks([100, 1000, 10000, 100000], ["100", "1,000", "10,000", "100,000"])
-    ax.set_xlabel("order revenue, EGP (log scale)", color="#f5f2eacc", fontsize=14)
-    for i, (c, col) in enumerate(zip(cats, colors)):
-        fig.text(0.06 + i * 0.16, 0.64, "■ " + c, color=col, fontsize=17, fontweight="bold")
+    def gradient(y0, y1, stops):
+        ys = np.linspace(0, 1, 256)
+        cols = np.array([np.interp(ys, [p for p, _ in stops], [matplotlib.colors.to_rgb(c)[k] for _, c in stops])
+                         for k in range(3)]).T
+        ax.imshow(cols[:, None, :], extent=[0, W, y0, y1], origin="lower", aspect="auto", zorder=0)
 
-    fig.text(0.06, 0.84, "NileCart Sales", color="#f5f2ea", fontsize=64, fontweight="bold")
-    fig.text(0.06, 0.76, "A fictional online shop in Cairo  ·  2024–2025  ·  prices in EGP",
-             color="#f5f2eacc", fontsize=22)
-    fig.text(0.94, 0.86, "Zero Grad", color="#fbbf24", fontsize=26, fontweight="bold", ha="right")
-    fig.text(0.94, 0.81, "Data Analysis course", color="#f5f2eacc", fontsize=17, ha="right")
+    # sky: night at the top, sunset at the horizon
+    gradient(HORIZON, H, [(0, "#fbbf24"), (.18, "#f97316"), (.45, "#be185d"), (.75, "#3b1f5e"), (1, "#101f40")])
+    sun = (575, HORIZON + 26)
+    for r, a in [(70, .10), (55, .16), (44, .9)]:
+        ax.add_patch(plt.Circle(sun, r, color="#fde68a", alpha=a, zorder=1, lw=0))
+
+    # the pyramids of Giza on the far bank
+    for cx, half, ht in [(95, 78, 92), (205, 70, 80), (285, 38, 44)]:
+        ax.fill([cx - half, cx, cx + half], [HORIZON, HORIZON + ht, HORIZON], color="#7c2d12", zorder=2, lw=0)
+        ax.fill([cx, cx + half, cx + half * .35], [HORIZON + ht, HORIZON, HORIZON], color="#9a3412", zorder=2, lw=0)
+    ax.fill_between([0, W], HORIZON - 6, HORIZON + 4, color="#3b1608", zorder=3, lw=0)   # far bank
+    for x, h in [(340, 34), (362, 28), (690, 40), (712, 30), (735, 36)]:
+        palm(ax, x, HORIZON, h, 4, "#3b1608", z=3)
+
+    # the Nile, with the sun's reflection
+    gradient(0, HORIZON - 6, [(0, "#0b1d33"), (.7, "#1e3a5f"), (1, "#7c3a3a")])
+    rng = np.random.default_rng(3)
+    for i in range(14):
+        y = HORIZON - 10 - i * 9.5
+        half = 36 - i * 2.1 + rng.uniform(-4, 4)
+        ax.plot([sun[0] - half, sun[0] + half], [y, y], color="#fbbf24", lw=2.2 - i * .1, alpha=.8 - i * .045,
+                solid_capstyle="round", zorder=4)
+
+    # a felucca
+    fx, fy = 300, 70
+    ax.fill([fx - 46, fx + 50, fx + 36, fx - 34], [fy + 10, fy + 10, fy, fy], color="#140c08", zorder=6, lw=0)
+    ax.plot([fx + 4, fx + 4], [fy + 10, fy + 92], color="#140c08", lw=1.8, zorder=6)          # mast
+    ax.fill([fx - 30, fx + 74, fx + 52], [fy + 16, fy + 134, fy + 16], color="#1c1009", zorder=6, lw=0)  # lateen sail
+    ax.plot([fx - 36, fx + 78], [fy + 12, fy + 139], color="#140c08", lw=1.4, zorder=6)        # yard
+    for i in range(4):                                                                          # its reflection
+        ax.plot([fx - 36 + i * 8, fx + 42 - i * 8], [fy - 8 - i * 7] * 2, color="#140c08", lw=2, alpha=.5,
+                solid_capstyle="round", zorder=5)
+
+    # palms in front, at both edges
+    for x, h, lean in [(25, 150, 22), (60, 120, 30), (770, 160, -24), (740, 115, -30)]:
+        palm(ax, x, 0, h, lean, "#0a0604", z=7)
+
+    # title: centred so the square thumbnail keeps it
+    shade = dict(path_effects=[matplotlib.patheffects.withStroke(linewidth=6, foreground="#101f4099")])
+    ax.text(W / 2, 362, "ZERO GRAD  ·  DATA ANALYSIS", color="#fbbf24", fontsize=9.5, fontweight="bold",
+            ha="center", zorder=9)
+    ax.text(W / 2, 300, "NileCart", color="#fff7e6", fontsize=40, fontweight="bold", ha="center", zorder=9, **shade)
+    ax.text(W / 2, 270, "Sales  ·  Cairo  ·  2024–2025  ·  EGP", color="#fff7e6", fontsize=12, ha="center",
+            zorder=9, **shade)
+
     COVER.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(COVER, facecolor=fig.get_facecolor())
+    tmp = COVER.with_suffix(".big.png")
+    fig.savefig(tmp)                                  # 1600 x 800, then scaled down for smooth edges
     plt.close(fig)
+    from PIL import Image
+    Image.open(tmp).convert("RGB").resize((W, H), Image.LANCZOS).save(COVER)
+    tmp.unlink()
 
 
 def main():
