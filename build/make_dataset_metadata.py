@@ -13,6 +13,7 @@ from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
+import matplotlib.font_manager
 import matplotlib.patheffects
 import matplotlib.pyplot as plt
 import numpy as np
@@ -203,13 +204,16 @@ def make_cover():
     for x, h, lean in [(25, 150, 22), (60, 120, 30), (770, 160, -24), (740, 115, -30)]:
         palm(ax, x, 0, h, lean, "#0a0604", z=7)
 
-    # title: centred so the square thumbnail keeps it
-    shade = dict(path_effects=[matplotlib.patheffects.withStroke(linewidth=6, foreground="#101f4099")])
-    ax.text(W / 2, 362, "ZERO GRAD  ·  DATA ANALYSIS", color="#fbbf24", fontsize=9.5, fontweight="bold",
-            ha="center", zorder=9)
-    ax.text(W / 2, 300, "NileCart", color="#fff7e6", fontsize=40, fontweight="bold", ha="center", zorder=9, **shade)
-    ax.text(W / 2, 270, "Online shop in Cairo", color="#fff7e6", fontsize=14, ha="center",
-            zorder=9, **shade)
+    # title: Kaggle's square thumbnail is the LEFT 400 x 400 of the cover, so the text lives there
+    fonts = Path("C:/Windows/Fonts")
+    black = matplotlib.font_manager.FontProperties(fname=fonts / "seguibl.ttf")
+    semi = matplotlib.font_manager.FontProperties(fname=fonts / "seguisb.ttf")
+    label = matplotlib.font_manager.FontProperties(fname=fonts / "bahnschrift.ttf")
+    shade = dict(path_effects=[matplotlib.patheffects.withStroke(linewidth=5, foreground="#101f4088")])
+    ax.text(38, 352, "Z E R O   G R A D   ·   D A T A   A N A L Y S I S", color="#fbbf24", fontsize=7.5,
+            fontproperties=label, zorder=9)
+    ax.text(34, 288, "NileCart", color="#fff7e6", fontsize=36, fontproperties=black, zorder=9, **shade)
+    ax.text(38, 260, "Online shop in Cairo", color="#fde68a", fontsize=13, fontproperties=semi, zorder=9, **shade)
 
     COVER.parent.mkdir(parents=True, exist_ok=True)
     tmp = COVER.with_suffix(".big.png")
