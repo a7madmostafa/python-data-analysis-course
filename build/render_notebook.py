@@ -1,4 +1,4 @@
-"""Render a lesson's executed notebook to site/notebooks/<slug>.html, with a Zero Grad top bar.
+"""Render a lesson's executed notebook to site/<slug>/notebook/index.html, with a Zero Grad top bar.
 
     python build/render_notebook.py distribution
     python build/render_notebook.py --all
@@ -62,7 +62,7 @@ def render(slug):
     html = html.replace("<body", "<body data-zg", 1)
     i = html.index(">", html.index("<body data-zg")) + 1
     html = html[:i] + bar + html[i:]
-    out = ROOT / "site" / "notebooks" / f"{slug}.html"
+    out = ROOT / "site" / slug / "notebook" / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
     print("wrote", out, f"({out.stat().st_size // 1024} KB)")

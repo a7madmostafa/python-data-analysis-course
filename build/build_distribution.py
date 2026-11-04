@@ -17,6 +17,10 @@ md("""
 
 **Zero Grad · Data Analysis course · Visualization**
 
+> 📖 **The lesson (in Arabic), with diagrams and interactive charts:** [zero-grad.com/courses/da/distribution](https://zero-grad.com/courses/da/distribution/)
+>
+> 🗂️ **The data:** [NileCart Sales on Kaggle](https://www.kaggle.com/datasets/a7madmostafa/nilecart-sales)
+
 This is the solved notebook of the *Distribution* lesson.
 The lesson page explains the ideas: when to use each chart and how to read it.
 Here we draw every chart on real data, with **Matplotlib**, **Seaborn** and **Plotly**.
@@ -403,6 +407,8 @@ md("""
 **Before you trust a distribution chart:** try a few bin counts, check whether a log axis is needed, and look at the edges for values that can't exist.
 
 **Next lesson:** Comparison & Ranking — bar charts done right.
+
+📚 All the lessons of the course: [zero-grad.com/courses/da](https://zero-grad.com/courses/da/)
 """),
 ]
 

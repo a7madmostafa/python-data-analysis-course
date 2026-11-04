@@ -61,9 +61,12 @@ Most charts in the course use only the **completed** orders of `sales.csv` (1,07
 `sales.csv` is the result of cleaning these: bad rows dropped, the duplicate removed, a missing discount set to 0, a missing status set to `unknown`, and text tidied.
 Orders from unknown customers keep `Unknown` in the customer columns.
 
-## Notebooks
+## The course
 
-The solved notebooks of the Zero Grad Data Analysis course run on this dataset, one per lesson.
+This dataset is used by the **Zero Grad Data Analysis course** (in Arabic): [zero-grad.com/courses/da](https://zero-grad.com/courses/da/).
+Every lesson is a page with diagrams and interactive charts, plus a solved notebook that runs on this dataset:
+
+- [Distribution Charts](https://www.kaggle.com/code/a7madmostafa/zero-grad-da-distribution-charts): histogram, bins, log scale, KDE, box, violin, ECDF ([the lesson](https://zero-grad.com/courses/da/distribution/))
 """
 
 ORDER_FIELDS = [
