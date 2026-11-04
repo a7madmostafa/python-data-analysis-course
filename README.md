@@ -38,7 +38,7 @@ Numbers in the lesson text are hard-coded, so after a rebuild check them against
 
 ## Kaggle
 
-Set `kaggle_user` in `build/course.json` and replace `KAGGLE_USERNAME` in the two `*-metadata.json` files and in the lesson page. Then:
+The Kaggle account is `a7madmostafa` (set in `build/course.json`, the two `*-metadata.json` files and the lesson page). The CLI needs your API token in the environment (`KAGGLE_API_TOKEN`) or in `~/.kaggle/`. Then:
 
 ```bash
 kaggle datasets create -p data                 # first time; later: kaggle datasets version -p data -m "update"
