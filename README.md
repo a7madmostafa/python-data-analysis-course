@@ -45,7 +45,7 @@ kaggle datasets create -p data                 # first time; later: kaggle datas
 kaggle kernels push -p notebooks/distribution
 ```
 
-Notebooks are pushed as private first (`is_private: true`); flip it once reviewed.
+Notebooks are pushed as private first (`is_private: true`) and made public once reviewed. Distribution is public.
 
 ## Roadmap
 
