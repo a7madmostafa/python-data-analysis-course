@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "site",
+      "name": "zero-grad",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "site"],
+      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "../zero-grad/site"],
       "port": 8766
     }
   ]
