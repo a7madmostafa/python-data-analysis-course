@@ -17,8 +17,9 @@ No quizzes, no labs, no unsolved exercises.
 |---|---|
 | `site/` | Laid out exactly as served at zero-grad.com/courses/da/ |
 | `site/index.html` | The course page (`/courses/da/`) |
+| `site/intro/` | Lesson: Introduction (what data analysis is, the workflow, data types, the NileCart tables), and `notebook/` |
 | `site/distribution/` | Lesson: Distribution charts (histogram, bins, log scale, KDE, box, violin/strip, ECDF), and `notebook/` with the notebook rendered to HTML |
-| `site/assets/data/sales.js` | NileCart data the lesson widgets read |
+| `site/assets/data/` | NileCart data the lesson widgets read (`sales.js` for Distribution, `nilecart.js` for the Introduction) |
 | `notebooks/<lesson>/` | Solved notebook + `kernel-metadata.json` for Kaggle |
 | `data/` | NileCart tables (`sales.csv` + raw tables) + `dataset-metadata.json` for Kaggle |
 | `build/` | Scripts that make everything above (see below) |
@@ -28,8 +29,9 @@ No quizzes, no labs, no unsolved exercises.
 ```bash
 python build/make_orders_data.py data         # NileCart tables (seed 42)
 python build/export_site_data.py              # site/assets/data/sales.js
-python build/build_distribution.py            # write + execute the notebook
-python build/render_notebook.py distribution  # site/distribution/notebook/index.html
+python build/build_intro.py                   # write + execute a lesson's notebook
+python build/build_distribution.py
+python build/render_notebook.py --all         # site/<lesson>/notebook/index.html
 python build/make_dataset_metadata.py --push  # Kaggle dataset About, column notes, cover
 python build/export_to_site.py                # copy site/ to ../zero-grad/site/courses/da
 ```
@@ -49,14 +51,14 @@ kaggle datasets create -p data                 # first time; later: kaggle datas
 kaggle kernels push -p notebooks/distribution
 ```
 
-Notebooks are pushed as private first (`is_private: true`) and made public once reviewed. Distribution is public.
+Notebooks are pushed as private first (`is_private: true`) and made public once reviewed. Distribution is public. Introduction is public too.
 
 ## Roadmap
 
 Status: ✅ done · 🟡 in progress · ⬜ planned
 
 ### 1. Foundations
-- ⬜ Introduction: what is data analysis, the workflow, data types
+- ✅ Introduction: what is data analysis, the workflow, data types
 - ⬜ Light linear algebra: vectors, matrices, a table as a matrix
 - ⬜ NumPy
 - ⬜ Descriptive statistics

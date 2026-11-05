@@ -3,6 +3,12 @@
   "kaggle_user": "a7madmostafa",
   "kaggle_dataset": "nilecart-sales",
   "lessons": {
+    "intro": {
+      "title": "Introduction to Data Analysis",
+      "title_ar": "مقدمة",
+      "notebook": "notebooks/intro/intro.ipynb",
+      "kaggle_slug": "zero-grad-da-introduction-to-data-analysis"
+    },
     "distribution": {
       "title": "Distribution Charts",
       "title_ar": "شكل الأرقام: Distribution",
