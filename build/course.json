@@ -9,6 +9,12 @@
       "notebook": "notebooks/intro/intro.ipynb",
       "kaggle_slug": "zero-grad-da-introduction-to-data-analysis"
     },
+    "linalg": {
+      "title": "Light Linear Algebra",
+      "title_ar": "Linear Algebra خفيفة",
+      "notebook": "notebooks/linalg/linalg.ipynb",
+      "kaggle_slug": "zero-grad-da-light-linear-algebra"
+    },
     "distribution": {
       "title": "Distribution Charts",
       "title_ar": "شكل الأرقام: Distribution",
