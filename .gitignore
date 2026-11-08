@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .DS_Store
 kaggle.json
+
+# personal Claude Code settings, and wrangler cache when deploying from here
+.claude/settings.local.json
+.wrangler/
