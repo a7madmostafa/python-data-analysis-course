@@ -19,8 +19,9 @@ No quizzes, no labs, no unsolved exercises.
 | `site/index.html` | The course page (`/courses/da/`) |
 | `site/intro/` | Lesson: Introduction (what data analysis is, the workflow, data types, the NileCart tables), and `notebook/` |
 | `site/linalg/` | Lesson: Light linear algebra (scalar/vector/matrix, element-wise, dot product, a table as a matrix, transpose, matrix product), and `notebook/` |
+| `site/numpy/` | Lesson: NumPy (arrays vs lists, dtype and NaN, reshape, indexing and views, boolean masks, aggregation and axis, broadcasting, sort/argsort), and `notebook/` |
 | `site/distribution/` | Lesson: Distribution charts (histogram, bins, log scale, KDE, box, violin/strip, ECDF), and `notebook/` with the notebook rendered to HTML |
-| `site/assets/data/` | NileCart data the lesson widgets read (`sales.js` for Distribution, `nilecart.js` for the Introduction, `linalg.js` for Linear algebra) |
+| `site/assets/data/` | NileCart data the lesson widgets read (`sales.js` for Distribution, `nilecart.js` for the Introduction, `linalg.js` for Linear algebra, `numpy.js` for NumPy) |
 | `notebooks/<lesson>/` | Solved notebook + `kernel-metadata.json` for Kaggle |
 | `data/` | NileCart tables (`sales.csv` + raw tables) + `dataset-metadata.json` for Kaggle |
 | `build/` | Scripts that make everything above (see below) |
@@ -32,6 +33,7 @@ python build/make_orders_data.py data         # NileCart tables (seed 42)
 python build/export_site_data.py              # site/assets/data/*.js
 python build/build_intro.py                   # write + execute a lesson's notebook
 python build/build_linalg.py
+python build/build_numpy.py
 python build/build_distribution.py
 python build/render_notebook.py --all         # site/<lesson>/notebook/index.html
 python build/make_dataset_metadata.py --push  # Kaggle dataset About, column notes, cover
@@ -62,7 +64,7 @@ Status: ✅ done · 🟡 in progress · ⬜ planned
 ### 1. Foundations
 - ✅ Introduction: what is data analysis, the workflow, data types
 - ✅ Light linear algebra: vectors, matrices, a table as a matrix
-- ⬜ NumPy
+- ✅ NumPy: arrays, dtype, masks, axis, broadcasting
 - ⬜ Descriptive statistics
 
 ### 2. Pandas

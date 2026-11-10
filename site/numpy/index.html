@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NumPy</title>
+<meta name="description" content="NumPy لـ Data Analysis: الـ array والـ dtype والـ NaN، والـ reshape، والـ indexing والـ slicing، والفلترة بـ boolean mask، والتجميع بالـ axis، والـ broadcasting، والـ sort والـ argsort، كله على داتا NileCart.">
+<meta property="og:title" content="NumPy: الحساب على عمود كامل مرة واحدة · Zero Grad">
+<meta property="og:description" content="الـ arrays والفلترة والـ axis والـ broadcasting، بالعربي وعلى داتا NileCart.">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/numpy/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/numpy/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<script src="/assets/js/theme.js"></script>
+<link rel="apple-touch-icon" href="/assets/img/zero-grad-app-icon-512.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<script src="/assets/js/pwa.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ea; --surface:#fffdf8; --surface-2:#efeadf; --ink:#1c1e22; --muted:#5b616b; --line:#ddd6c6;
+  --accent:#101f40; --on-accent:#f5f2ea; --chalk-g:#15803d; --chalk-o:#c2410c; --add:#2563eb; --bad:#dc2626;
+  --c1:#0f766e; --c2:#2563eb; --c3:#b45309; --c4:#9333ea;
+  --board:#232323; --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+    --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+    --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+  --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+  --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--add)}
+html,body{overflow-x:clip}
+@media (max-width:520px){.brand{font-size:.8rem}.seg button{padding:.2rem .55rem;font-size:.8rem}.topbar-in{gap:.4rem}.top-actions{gap:.3rem}.iconbtn{width:30px;height:30px}}
+code,pre{font-family:"JetBrains Mono",monospace}
+.en{direction:ltr;unicode-bidi:isolate}
+code.i{font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .35rem;direction:ltr;unicode-bidi:isolate}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;right:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .1s}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:auto;padding:.55rem 16px;display:flex;gap:.75rem;align-items:center;justify-content:space-between}
+.top-actions{display:flex;gap:.5rem;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.25rem .8rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+
+/* layout */
+.wrap{max-width:1180px;margin:auto;padding:0 16px;display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media (min-width:1100px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:72px;align-self:start;padding-top:2.5rem;font-size:.9rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+  nav.toc a{display:block;padding:.3rem .9rem;color:var(--muted);text-decoration:none;margin-inline-start:-2px;border-inline-start:2px solid transparent;line-height:1.5}
+  nav.toc a.active{color:var(--ink);border-color:var(--accent);font-weight:500}
+}
+main{min-width:0;padding-bottom:6rem}
+
+/* hero */
+.hero{padding:3rem 0 1.5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.hero h1{font-family:"Caveat",cursive;font-size:clamp(3rem,9vw,5.2rem);line-height:1;margin:.5rem 0 .75rem;color:var(--accent);direction:ltr;text-align:right;font-weight:700}
+.lead{font-size:1.15rem;max-width:62ch;margin:0}
+
+/* notebook links */
+.nb-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.nb-btn{display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4rem 1rem;text-decoration:none}
+.nb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.nb-btn:hover{border-color:var(--accent)}
+
+/* sections */
+section.sec{padding-top:2.5rem;scroll-margin-top:64px}
+.sec-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:1.25rem}
+.sec-head h2{margin:0;font-size:1.55rem;line-height:1.35;display:flex;gap:.7rem;align-items:baseline}
+.num{font-family:"Caveat",cursive;color:var(--accent);font-size:2rem;line-height:1}
+h3.sub{font-size:1.15rem;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+.chalk{font-family:"Caveat",cursive;font-size:1.35em;color:var(--accent);direction:ltr;unicode-bidi:isolate;font-weight:700;line-height:1.2}
+.voice{margin:1.25rem 0;padding:.9rem 1.2rem;border-radius:var(--radius);background:var(--board);color:#f2c94c;font-family:"Caveat",cursive;font-size:1.9rem;direction:ltr;text-align:center;line-height:1.3}
+.voice small{display:block;font-family:"Noto Sans Arabic",sans-serif;font-size:.8rem;color:#a1a1a1;direction:rtl;margin-top:.25rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;line-height:1.6}
+.card b{display:block;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr;gap:1rem;margin:1rem 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.path{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem}
+.path h4{margin:0 0 .25rem;font-size:1.05rem}
+.path .sub{color:var(--muted);font-size:.85rem}
+.path.good{border-color:color-mix(in srgb,var(--chalk-g) 55%,var(--line))}
+.path.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.path.good h4{color:var(--chalk-g)}
+.path.bad h4{color:var(--bad)}
+
+/* the "use it when" box every chart gets */
+.when{display:grid;grid-template-columns:1fr;gap:.75rem;margin:1rem 0}
+@media(min-width:760px){.when{grid-template-columns:repeat(3,1fr)}}
+.when .card{border-top:3px solid var(--accent)}
+.when .card:nth-child(2){border-top-color:var(--chalk-g)}
+.when .card:nth-child(3){border-top-color:var(--chalk-o)}
+
+/* callouts */
+.callout{border-radius:var(--radius);padding:.9rem 1.1rem;margin:1.25rem 0;border:1px solid;font-size:.97rem}
+.callout .ttl{font-weight:700;font-size:.85rem;display:flex;gap:.4rem;align-items:center;margin-bottom:.15rem}
+.callout.add{border-color:color-mix(in srgb,var(--add) 45%,transparent);background:color-mix(in srgb,var(--add) 7%,var(--surface))}
+.callout.add .ttl{color:var(--add)}
+.callout.warn{border-color:color-mix(in srgb,var(--chalk-o) 55%,transparent);background:color-mix(in srgb,var(--chalk-o) 8%,var(--surface))}
+.callout.warn .ttl{color:var(--chalk-o)}
+.callout.insight{border-color:color-mix(in srgb,var(--chalk-g) 50%,transparent);background:color-mix(in srgb,var(--chalk-g) 8%,var(--surface))}
+.callout.insight .ttl{color:var(--chalk-g)}
+details.callout summary{cursor:pointer;list-style:none}
+details.callout summary::-webkit-details-marker{display:none}
+details.callout summary .ttl::after{content:"＋";margin-inline-start:auto}
+details.callout[open] summary .ttl::after{content:"－"}
+
+/* tables & code */
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.tbl th,.tbl td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.tbl thead th{background:var(--surface-2);font-size:.85rem}
+.tbl tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+pre{direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;padding:1rem 1.1rem;border-radius:var(--radius);overflow-x:auto;font-size:.85rem;line-height:1.65;margin:1rem 0}
+pre .c{color:#8a8a8a}
+pre .k{color:#f2c94c}
+pre .s{color:#4ade80}
+.codetabs{margin:1rem 0}
+.codetabs .seg{margin-bottom:-.4rem}
+.codetabs pre{margin-top:.6rem}
+.codetabs pre[hidden]{display:none}
+
+/* figures */
+figure.fig{margin:1.25rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.fig-scroll{overflow-x:auto}
+figure.fig svg{width:100%;min-width:520px;height:auto;display:block;direction:ltr}
+figure.fig svg text{font-family:Inter,"Noto Sans Arabic",sans-serif;fill:var(--ink)}
+figure.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+
+/* widgets */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.widget-head{display:flex;gap:.6rem;align-items:center;margin-bottom:.2rem}
+.widget-head .badge{font-size:.72rem;font-weight:700;color:var(--bg);background:var(--chalk-g);border-radius:999px;padding:.1rem .6rem;white-space:nowrap}
+.widget-head h3{margin:0;font-size:1.1rem}
+.widget .hint{color:var(--muted);font-size:.9rem;margin:.1rem 0 .8rem}
+.wgrid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:820px){.wgrid.cols{grid-template-columns:1.6fr 1fr}}
+canvas{width:100%;display:block;border-radius:10px;background:var(--surface-2);touch-action:none}
+.controls{display:grid;gap:.7rem;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;gap:.5rem}
+.ctl label output{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.4rem .85rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk.off{opacity:.45;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem}
+.stat{background:var(--surface-2);border-radius:10px;padding:.45rem .7rem;line-height:1.35}
+.stat span{display:block;font-size:.75rem;color:var(--muted)}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;unicode-bidi:isolate}
+.status{font-size:.9rem;min-height:1.6em;color:var(--muted);white-space:pre-line}
+.keys{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.5rem}
+.keys span{display:inline-flex;gap:.35rem;align-items:center}
+.keys i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+
+/* summary */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem}
+.sheet .card{padding:1rem}
+.sheet .card h4{margin:0 0 .3rem;font-size:.95rem;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding:1.5rem 0;margin-top:3rem}
+.muted{color:var(--muted);font-size:.9em}
+
+/* lesson navigation */
+.crumbs{display:flex;align-items:center;gap:.45rem;font-size:.9rem;white-space:nowrap;min-width:0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{color:var(--line)}
+.crumbs .here{font-weight:700;color:var(--ink)}
+a.iconbtn{display:grid;place-items:center;text-decoration:none;font-size:.95rem}
+.iconbtn.off{opacity:.3;pointer-events:none;display:grid;place-items:center}
+.pager{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;margin-top:3rem}
+.pg{display:flex;flex-direction:column;gap:.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);text-decoration:none;line-height:1.5}
+.pg span{font-size:.82rem;color:var(--muted)}
+.pg b{font-size:1rem;color:var(--accent)}
+a.pg:hover{border-color:var(--accent)}
+.pg.next{text-align:left}
+.pg.all{justify-content:center;text-align:center}
+.pg.off{border-style:dashed;background:transparent}
+.pg.off b{color:var(--muted)}
+@media (max-width:640px){.pager{grid-template-columns:1fr}.pg.next{text-align:right}.pg.all{order:3}}
+@media (max-width:520px){.crumbs .home,.crumbs .home+.sep{display:none}}
+@media (max-width:400px){.crumbs .course+.sep,.crumbs .here{display:none}}
+@media print{.topbar,nav.toc,#progress,.widget{display:none!important}body{background:#fff;color:#000;font-size:12pt}}
+
+/* numpy lesson */
+.shape{font-family:"JetBrains Mono",monospace;font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .4rem;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.codeline{font-family:"JetBrains Mono",monospace;direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;border-radius:12px;padding:.7rem 1rem;font-size:.88rem;line-height:1.8;overflow-x:auto;white-space:pre}
+.codeline .k{color:#f2c94c}.codeline .s{color:#4ade80}.codeline .c{color:#8a8a8a}
+.tbl.mx{margin:0;font-family:"JetBrains Mono",monospace;font-size:.78rem;width:auto;direction:ltr}
+.tbl.mx th,.tbl.mx td{text-align:right;padding:.3rem .45rem;white-space:nowrap;transition:background .15s}
+.tbl.mx th{color:var(--muted);font-weight:500;font-size:.72rem}
+.tbl.mx td.in{background:color-mix(in srgb,var(--add) 9%,var(--surface))}
+.tbl.mx td.hi{background:color-mix(in srgb,var(--chalk-g) 30%,var(--surface));font-weight:700}
+.tbl.mx td.res,.tbl.mx th.res{background:color-mix(in srgb,var(--chalk-o) 16%,var(--surface));color:var(--ink);font-weight:700}
+.tbl.mx td.dir,.tbl.mx th.dir{color:var(--chalk-o);font-weight:700;text-align:center}
+.tbl.mx td.dim{opacity:.35}
+.mxwrap{overflow-x:auto;direction:ltr}
+.mxwrap .tbl.mx{margin:0 auto}
+.optrow{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center;margin:.3rem 0 .8rem}
+.optrow .lbl{font-size:.85rem;color:var(--muted)}
+.optrow .seg{flex-wrap:wrap;max-width:100%;border-radius:16px}
+.rows10{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:.3rem;direction:ltr;margin:.6rem 0;font-family:"JetBrains Mono",monospace;font-size:.72rem;text-align:center}
+.rows10 div{background:var(--surface-2);border-radius:8px;padding:.3rem .1rem;line-height:1.5;border:1.5px solid transparent;min-width:0;overflow:hidden}
+.rows10 div b{display:block;font-size:.66rem;border-radius:5px;margin-top:.15rem}
+.rows10 div.t{border-color:var(--chalk-g)}
+.rows10 div.t b{background:var(--chalk-g);color:var(--bg)}
+.rows10 div.f b{color:var(--muted)}
+.rows10 small{display:block;color:var(--muted);font-size:.62rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:640px){.rows10{grid-template-columns:repeat(5,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here en">NumPy</span></nav>
+    <div class="top-actions">
+      <a class="iconbtn" href="/courses/da/linalg/" aria-label="الدرس اللي فات: Linear Algebra خفيفة" title="الدرس اللي فات: Linear Algebra خفيفة">→</a><span class="iconbtn off" aria-hidden="true">←</span>
+      <button class="iconbtn" id="themeBtn" type="button" data-theme-toggle aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="المحتوى"><ol id="tocList"></ol></nav>
+  <main>
+    <div class="hero">
+      <div class="kicker">Zero Grad · كورس Data Analysis · الأساسيات</div>
+      <h1>NumPy</h1>
+      <p class="lead">كل عمود في جدول Pandas هو، من جوّه، <b>array</b> من NumPy.<br>
+        لما تفهم الـ array، هتفهم ليه <span class="en">sum()</span> و <span class="en">mean()</span> والفلترة في Pandas شغالين بالشكل ده.<br>
+        في الدرس ده: تعمل array، وتغيّر شكله، وتفلتره بشرط، وتجمّعه في اتجاه، وكله على إيرادات NileCart.</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" id="kaggleLink" href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
+        <a class="nb-btn" href="https://www.kaggle.com/datasets/a7madmostafa/nilecart-sales" target="_blank" rel="noopener">🗂️ داتا NileCart على Kaggle</a>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <section class="sec" id="why">
+      <div class="sec-head"><h2><span class="num">1</span>ليه NumPy؟</h2></div>
+      <p>الـ list في Python <b>وعاء</b>: بيشيل أي حاجة، وعلامة <span class="en">*</span> بتكرّره.<br>
+        الـ array في NumPy <b>عمود أرقام</b>: أي عملية حسابية بتتعمل على كل عنصر، من غير loop.</p>
+      <figure class="fig"><div class="fig-scroll" id="listFig"></div>
+        <figcaption>نفس الكود، <span class="en">* 2</span>، ومعنيين مختلفين خالص.</figcaption></figure>
+<pre>prices_list = [<span class="s">63</span>, <span class="s">30400</span>, <span class="s">57</span>]
+prices = np.array(prices_list)
+
+prices_list * <span class="s">1.14</span>   <span class="c"># TypeError: can't multiply sequence by non-int of type 'float'</span>
+prices * <span class="s">1.14</span>        <span class="c"># array([   71.82, 34656.  ,    64.98])</span></pre>
+      <h3 class="sub">وكمان أسرع بكتير</h3>
+      <p>ضرب مليون رقم في <bdi>1.14</bdi>: loop على list، قصاد سطر واحد على array.<br>
+        الـ array كان أسرع <b>عشرات المرات</b> (في النوت بوك طلع حوالي 48 مرة، والرقم بيختلف من جهاز للتاني).</p>
+      <div class="callout add"><div class="ttl">➕ ليه أسرع؟</div>
+        الـ array بيحط الأرقام جنب بعض في الذاكرة، وكلها من نفس النوع.<br>
+        فالـ loop بيتنفّذ جوّه NumPy بلغة C، مش في Python سطر سطر.<br>
+        وده نفس السبب اللي خلّى Pandas سريعة: هي مبنية على NumPy.</div>
+    </section>
+
+    <!-- 2 -->
+    <section class="sec" id="dtype">
+      <div class="sec-head"><h2><span class="num">2</span>تعمل array إزاي، والـ dtype</h2></div>
+      <p>في الكورس ده أغلب الـ arrays هتيجي من عمود في جدول.<br>
+        بس فيه طرق تانية لما تحتاج أرقام بنمط معيّن:</p>
+<pre>r = done[<span class="s">"revenue"</span>].to_numpy()   <span class="c"># from a column: 1,074 completed order lines</span>
+np.array([<span class="s">5</span>, <span class="s">9</span>, <span class="s">10</span>, <span class="s">5</span>])             <span class="c"># from a list</span>
+np.arange(<span class="s">1</span>, <span class="s">13</span>)                 <span class="c"># 1 .. 12: month numbers</span>
+np.linspace(<span class="s">0</span>, <span class="s">1</span>, <span class="s">5</span>)              <span class="c"># [0.  0.25 0.5  0.75 1.  ]</span>
+np.zeros(<span class="s">4</span>), np.ones(<span class="s">4</span>), np.full(<span class="s">4</span>, <span class="s">0.14</span>)
+
+rng = np.random.default_rng(<span class="s">42</span>)    <span class="c"># a seed: the same "random" numbers every run</span>
+rng.integers(<span class="s">1</span>, <span class="s">11</span>, size=<span class="s">8</span>)      <span class="c"># [1 8 7 5 5 9 1 7]</span></pre>
+      <h3 class="sub">Array واحد، نوع واحد</h3>
+      <p>كل array ليه <b>dtype</b>، وكل العناصر اللي فيه من النوع ده:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th><span class="en">dtype</span></th><th>بيشيل إيه</th><th>من NileCart</th></tr></thead>
+        <tbody>
+          <tr><td><span class="shape">int64</span></td><td>أرقام صحيحة</td><td><span class="en">order_id</span>، <span class="en">unit_cost</span></td></tr>
+          <tr><td><span class="shape">float64</span></td><td>أرقام بعلامة عشرية، و <span class="en">NaN</span></td><td><span class="en">revenue</span>، <span class="en">discount</span></td></tr>
+          <tr><td><span class="shape">bool</span></td><td><span class="en">True</span> / <span class="en">False</span></td><td>نتيجة شرط، زي <span class="en">r &gt; 100_000</span></td></tr>
+          <tr><td><span class="shape">object</span></td><td>أي حاجة، كـ objects في Python (بطيء)</td><td>أعمدة النصوص، زي <span class="en">category</span></td></tr>
+        </tbody>
+      </table></div>
+      <p>ولو خلطت أنواع، NumPy بيختار نوع واحد يكفّي الكل:<br>
+        رقم عشري واحد بيحوّل الكل لـ float، ونص واحد بيحوّل الكل لنصوص.</p>
+      <h3 class="sub">ليه الكمية <bdi>5.0</bdi> مش 5؟</h3>
+      <p>الكمية رقم صحيح، بس في <span class="en">sales.csv</span> مكتوبة <bdi>5.0</bdi>.<br>
+        السبب في الجدول الخام <span class="en">orders.csv</span>: فيه <b>30 كمية ناقصة</b> من <bdi>1,501</bdi>.<br>
+        والقيمة الناقصة اسمها <span class="en">np.nan</span>، و <span class="en">np.nan</span> نوعه <b>float</b>.<br>
+        الـ <span class="en">int64</span> مالوش طريقة يشيل <span class="en">NaN</span>، فالعمود كله بيبقى <span class="en">float64</span>.</p>
+<pre>oq = orders[<span class="s">"quantity"</span>].to_numpy()
+oq.dtype                <span class="c"># float64</span>
+np.isnan(oq).sum()      <span class="c"># 30</span>
+oq.sum()                <span class="c"># nan: one NaN and the whole sum is NaN</span>
+np.nansum(oq)           <span class="c"># 6504.0: skips the missing values</span>
+np.nan == np.nan        <span class="c"># False! so check with np.isnan, never with ==</span></pre>
+      <div class="callout warn"><div class="ttl">⚠️ <span class="en">astype(int)</span> على NaN مش بيوقفك</div>
+        <span class="en">oq.astype(int)</span> مش بيطلّع error.<br>
+        بيطلّع warning بس، وكل NaN بيبقى رقم ملوش معنى: <bdi>-9,223,372,036,854,775,808</bdi>.<br>
+        اتعامل مع القيم الناقصة الأول (في درس التنضيف)، وبعدين حوّل النوع.</div>
+    </section>
+
+    <!-- 3 -->
+    <section class="sec" id="shape">
+      <div class="sec-head"><h2><span class="num">3</span>الـ Shape والـ reshape</h2></div>
+      <p>إيراد NileCart في كل شهر، من يناير 2024 لديسمبر 2025: vector فيه 24 رقم.<br>
+        24 رقم في سطر واحد صعب تقارنهم ببعض.<br>
+        <span class="en">reshape(2, 12)</span> بيرصّ نفس الـ 24 رقم في <b>سطرين (السنين) × 12 عمود (الشهور)</b>، سطر سطر:</p>
+      <figure class="fig"><div class="fig-scroll" id="reshapeFig"></div>
+        <figcaption>نفس الأرقام بالظبط، بشكل جديد. دلوقتي كل عمود هو نفس الشهر في السنتين. (الأرقام بالألف جنيه)</figcaption></figure>
+<pre>m = monthly.to_numpy()   <span class="c"># shape (24,)</span>
+M = m.reshape(<span class="s">2</span>, <span class="s">12</span>)     <span class="c"># shape (2, 12): years x months</span>
+m.reshape(<span class="s">2</span>, -<span class="s">1</span>)         <span class="c"># -1 = "work it out": also (2, 12)</span>
+m.reshape(-<span class="s">1</span>, <span class="s">3</span>)         <span class="c"># (8, 3): 8 quarters x 3 months</span>
+M.ravel()                <span class="c"># back to (24,)</span>
+m.reshape(<span class="s">5</span>, <span class="s">5</span>)          <span class="c"># ValueError: cannot reshape array of size 24 into shape (5,5)</span></pre>
+      <p>الشرط الوحيد: عدد العناصر ميتغيّرش. <span class="en">2 × 12 = 24</span>، لكن <span class="en">5 × 5 = 25</span>.</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="sec" id="index">
+      <div class="sec-head"><h2><span class="num">4</span>Indexing و Slicing</h2></div>
+      <p>العدّ بيبدأ من صفر، والرقم السالب بيعدّ من الآخر.<br>
+        وفي الـ matrix، أول رقم السطر، وتاني رقم العمود: <span class="en">M[row, column]</span>.</p>
+<pre>r[<span class="s">0</span>], r[-<span class="s">1</span>]        <span class="c"># the first and the last order line</span>
+r[:<span class="s">5</span>]              <span class="c"># the first 5</span>
+
+M[<span class="s">1</span>, <span class="s">10</span>]           <span class="c"># 1,762,577: row 1 = 2025, column 10 = November</span>
+M[<span class="s">0</span>]               <span class="c"># all of 2024</span>
+M[:, <span class="s">11</span>]           <span class="c"># December, both years</span>
+M[<span class="s">0</span>, <span class="s">9</span>:]           <span class="c"># Oct, Nov, Dec of 2024</span></pre>
+      <h3 class="sub">الـ slice مش نسخة</h3>
+      <p>لما تاخد slice من array، NumPy مش بينسخ الأرقام.<br>
+        بيدّيك <b>view</b>: شباك على نفس الذاكرة.<br>
+        يعني لو غيّرت في الـ slice، الـ array الأصلي بيتغيّر:</p>
+<pre>a = np.array([<span class="s">10</span>, <span class="s">20</span>, <span class="s">30</span>, <span class="s">40</span>, <span class="s">50</span>])
+first3 = a[:<span class="s">3</span>]
+first3[<span class="s">0</span>] = <span class="s">999</span>
+a                     <span class="c"># [999  20  30  40  50]  &lt;- the original changed</span>
+
+first3 = a[:<span class="s">3</span>].copy()  <span class="c"># an independent copy: now the original is safe</span></pre>
+      <div class="callout add"><div class="ttl">➕ ليه كده؟</div>
+        الـ view بيخلّي NumPy سريع على داتا كبيرة: مفيش نسخ مع كل slice.<br>
+        ولو عايز تعدّل في جزء من غير ما تلمس الأصل، استخدم <span class="en">.copy()</span>.<br>
+        ونفس الحكاية موجودة في Pandas، ومنها بييجي الـ <span class="en">SettingWithCopyWarning</span> اللي هتقابله.</div>
+    </section>
+
+    <!-- 5 -->
+    <section class="sec" id="mask">
+      <div class="sec-head"><h2><span class="num">5</span>الفلترة بشرط: Boolean Mask</h2></div>
+      <p>لما تقارن array برقم، النتيجة array من <span class="en">True</span> و <span class="en">False</span>، واحدة لكل عنصر.<br>
+        ده اسمه <b>mask</b>.<br>
+        حط الـ mask جوّه الأقواس، يفضل بس العناصر اللي قصادها <span class="en">True</span>.</p>
+<pre>mask = r &gt; <span class="s">100_000</span>     <span class="c"># [ True False False False ...]</span>
+r[mask]                <span class="c"># only the big orders</span>
+mask.sum()             <span class="c"># 43: True counts as 1</span>
+mask.mean()            <span class="c"># 0.04: the share of lines</span>
+r[mask].sum() / r.sum()  <span class="c"># 0.346: the share of revenue</span></pre>
+      <p><b><bdi>4%</bdi> بس من السطور جابوا أكتر من تلت الإيراد.</b><br>
+        ده الذيل الطويل اللي على اليمين، اللي شفناه في المقدمة.</p>
+      <div class="widget" id="wMask"></div>
+      <h3 class="sub">أكتر من شرط: <span class="en">&amp;</span> و <span class="en">|</span> و <span class="en">~</span></h3>
+      <p><span class="en">and</span> و <span class="en">or</span> و <span class="en">not</span> مش بيشتغلوا على arrays.<br>
+        بدالهم: <span class="en">&amp;</span> (و)، <span class="en">|</span> (أو)، <span class="en">~</span> (مش)، و<b>كل شرط بين قوسين</b>.</p>
+<pre>(r &gt; <span class="s">100_000</span>) &amp; (cat == <span class="s">"Electronics"</span>)     <span class="c"># 43: every big order is Electronics</span>
+(cat == <span class="s">"Stationery"</span>) | (cat == <span class="s">"Furniture"</span>)  <span class="c"># 352 lines</span>
+np.isin(prod, [<span class="s">"Laptop"</span>, <span class="s">"Phone"</span>])          <span class="c"># 116 lines, 53% of revenue</span>
+
+r &gt; <span class="s">100_000</span> <span class="k">and</span> elec
+<span class="c"># ValueError: The truth value of an array with more than one element is ambiguous.</span></pre>
+      <h3 class="sub"><span class="en">np.where</span>: if / else على عمود كامل</h3>
+<pre>size = np.where(r &gt;= <span class="s">10_000</span>, <span class="s">"big"</span>, <span class="s">"small"</span>)   <span class="c"># 340 big, 734 small</span>
+
+capped = r.copy()
+capped[capped &gt; <span class="s">100_000</span>] = <span class="s">100_000</span>               <span class="c"># change values with a mask</span></pre>
+      <div class="callout insight"><div class="ttl">💡 هي هي في Pandas</div>
+        <span class="en">sales[sales["status"] == "completed"]</span> اللي استخدمناه من أول درس هو boolean mask.<br>
+        الشرط بيطلّع عمود <span class="en">True</span> و <span class="en">False</span>، والأقواس بتاخد السطور اللي <span class="en">True</span>.</div>
+    </section>
+
+    <!-- 6 -->
+    <section class="sec" id="axis">
+      <div class="sec-head"><h2><span class="num">6</span>التجميع والـ axis</h2></div>
+      <p>عمود كامل يتحوّل لرقم واحد:</p>
+<pre>r.sum()             <span class="c"># 19,412,322</span>
+r.mean()            <span class="c"># 18,075</span>
+np.median(r)        <span class="c"># 3,600</span>
+r.std(), r.min(), r.max(), np.percentile(r, <span class="s">90</span>)</pre>
+      <p>المتوسط 5 أضعاف الوسيط: كام أوردر ضخم بيشدّوه لفوق.<br>
+        نستخدم مين فيهم إمتى؟ ده موضوع الدرس الجاي، <span class="en">Descriptive Statistics</span>.</p>
+      <h3 class="sub">الـ axis: هتجمّع في أنهي اتجاه؟</h3>
+      <p>في الـ matrix، <span class="en">axis</span> بيقول أنهي بُعد هيختفي:</p>
+      <div class="cards">
+        <div class="card"><b><span class="en">axis=0</span></b>يقفل على السطور: نتيجة لكل <b>عمود</b>، يعني لكل شهر. <span class="shape">(12,)</span></div>
+        <div class="card"><b><span class="en">axis=1</span></b>يقفل على الأعمدة: نتيجة لكل <b>سطر</b>، يعني لكل سنة. <span class="shape">(2,)</span></div>
+        <div class="card"><b>من غير <span class="en">axis</span></b>كله على بعضه: رقم واحد. <span class="shape">()</span></div>
+      </div>
+      <div class="widget" id="wAxis"></div>
+      <p>السنتين تقريبًا زي بعض: <bdi>9.74</bdi> مليون في 2024، و <bdi>9.67</bdi> مليون في 2025.<br>
+        بس الـ peak اتحرّك: في 2024 كان ديسمبر، وفي 2025 بقى نوفمبر.</p>
+      <div class="callout add"><div class="ttl">➕ <span class="en">argmax</span> بيرجّع مكان، مش قيمة</div>
+        <span class="en">M.argmax(axis=1)</span> بيدّيك <span class="en">[11, 10]</span>: رقم العمود اللي فيه أكبر قيمة في كل سطر.<br>
+        وبالرقم ده تجيب اسم الشهر: <span class="en">MONTHS[11] == "Dec"</span>.</div>
+    </section>
+
+    <!-- 7 -->
+    <section class="sec" id="broadcast">
+      <div class="sec-head"><h2><span class="num">7</span>Broadcasting</h2></div>
+      <p>اتنين arrays بأشكال مختلفة ممكن يشتغلوا مع بعض، لو NumPy يقدر <b>يمطّ</b> واحد منهم على مقاس التاني.<br>
+        وإنت شفت أبسط حالة قبل كده: array في scalar، زي <span class="en">r * 1.14</span>.</p>
+      <h3 class="sub">نصيب كل شهر من سنته</h3>
+      <p>عايز تقسم كل شهر على إجمالي سنته.<br>
+        <span class="en">M.sum(axis=1, keepdims=True)</span> بيدّيك الإجماليين كعمود، شكله <span class="shape">(2, 1)</span>.<br>
+        و NumPy بيمطّ العمود ده على الـ 12 شهر:</p>
+      <figure class="fig"><div class="fig-scroll" id="bcFig"></div>
+        <figcaption>العمود الصغير بيتكرر (من غير ما يتنسخ فعلًا) لحد ما يبقى نفس شكل <span class="en">M</span>، وبعدين القسمة element by element.</figcaption></figure>
+<pre>share = M / M.sum(axis=<span class="s">1</span>, keepdims=<span class="k">True</span>)    <span class="c"># (2, 12) / (2, 1) -&gt; (2, 12)</span>
+share.sum(axis=<span class="s">1</span>)                           <span class="c"># [1. 1.]: every year adds up to 100%</span></pre>
+      <p>نوفمبر وديسمبر مع بعض حوالي <bdi>35%</bdi> من إيراد السنة، في السنتين.</p>
+      <h3 class="sub">سطر على كل السطور</h3>
+      <p>ولو قسمت <span class="en">M</span> على سطر 2024 (<span class="shape">(12,)</span>)، السطر ده بيتمطّ على السنتين.<br>
+        سطر 2024 بيبقى كله 1، وسطر 2025 بيقول كل شهر عمل إيه قصاد نفس الشهر السنة اللي فاتت:</p>
+<pre>M / M[<span class="s">0</span>]     <span class="c"># (2, 12) / (12,) -&gt; (2, 12)</span>
+<span class="c"># 2025:  Jan 1.50  Feb 1.46  Mar 1.48 ...  Jul 0.55  Sep 0.59 ...  Dec 0.78</span></pre>
+      <p>أول 3 شهور في 2025 كانوا حوالي <bdi>50%</bdi> فوق 2024.<br>
+        ويوليو وسبتمبر وقعوا <bdi>40–45%</bdi>.</p>
+      <div class="voice">(2, 12) ⟷ (2, 1) ✓ &nbsp; (2, 12) ⟷ (12,) ✓ &nbsp; (2, 12) ⟷ (2,) ✗<small>رصّ الأشكال من اليمين: كل رقمين قصاد بعض لازم يبقوا زي بعض، أو واحد منهم 1</small></div>
+<pre>M / M.sum(axis=<span class="s">1</span>)      <span class="c"># (2, 12) / (2,): from the right, 12 vs 2</span>
+<span class="c"># ValueError: operands could not be broadcast together with shapes (2,12) (2,)</span></pre>
+      <div class="callout warn"><div class="ttl">⚠️ أشهر error في الـ broadcasting</div>
+        نسيت <span class="en">keepdims=True</span>، فالإجماليين طلعوا <span class="shape">(2,)</span> مش <span class="shape">(2, 1)</span>.<br>
+        الحل: <span class="en">keepdims=True</span>، أو <span class="en">totals[:, None]</span> عشان تحوّله لعمود.</div>
+    </section>
+
+    <!-- 8 -->
+    <section class="sec" id="sort">
+      <div class="sec-head"><h2><span class="num">8</span>الترتيب: sort و argsort</h2></div>
+      <p><span class="en">np.sort</span> بيرتّب القيم من الصغير للكبير، و <span class="en">[::-1]</span> بيعكس الترتيب:</p>
+<pre>np.sort(r)[-<span class="s">5</span>:]           <span class="c"># the 5 largest: [215040. 230400. 259920. 320000. 336000.]</span>
+np.sort(r)[::-<span class="s">1</span>][:<span class="s">5</span>]      <span class="c"># the same, biggest first</span></pre>
+      <p>بس الأرقام لوحدها مش بتقول الأوردر ده كان على إيه.<br>
+        <span class="en">argsort</span> بيرجّع <b>الأماكن</b> اللي لو رتّبت بيها هيبقى الـ array مترتّب.<br>
+        والأماكن دي تقدر تستخدمها على أي array تاني بنفس الطول، فيفضلوا ماشيين مع بعض:</p>
+<pre>top = np.argsort(r)[::-<span class="s">1</span>][:<span class="s">5</span>]    <span class="c"># positions of the 5 largest revenues</span>
+prod[top]                       <span class="c"># all five are laptops</span>
+
+order = np.argsort(M[<span class="s">1</span>])[::-<span class="s">1</span>]    <span class="c"># the months of 2025, best to worst</span>
+<span class="c"># Nov, Dec, Jan, Mar, Oct, Sep, Feb, Aug, Jun, May, Jul, Apr</span></pre>
+      <div class="callout insight"><div class="ttl">💡 ده اللي جوّه <span class="en">sort_values</span></div>
+        في Pandas، <span class="en">sort_values</span> بيعمل argsort على العمود، وبعدين بيرتّب كل الجدول بنفس الأماكن.<br>
+        عشان كده السطر بيفضل متماسك: الاسم مع المنتج مع الإيراد.</div>
+    </section>
+
+    <!-- 9 -->
+    <section class="sec" id="mistakes">
+      <div class="sec-head"><h2><span class="num">9</span>أخطاء شائعة</h2></div>
+      <div class="two">
+        <div class="path bad"><h4>✗ <span class="en">and</span> / <span class="en">or</span> على array</h4><p><span class="en">r &gt; 1000 and r &lt; 5000</span> بيطلّع ValueError.</p></div>
+        <div class="path good"><h4>✓ <span class="en">&amp;</span> و <span class="en">|</span> وأقواس</h4><p><span class="en">(r &gt; 1000) &amp; (r &lt; 5000)</span></p></div>
+        <div class="path bad"><h4>✗ <span class="en">x == np.nan</span></h4><p>دايمًا <span class="en">False</span>، حتى لو القيمة ناقصة فعلًا.</p></div>
+        <div class="path good"><h4>✓ <span class="en">np.isnan(x)</span></h4><p>وللجمع والمتوسط: <span class="en">np.nansum</span> و <span class="en">np.nanmean</span>.</p></div>
+        <div class="path bad"><h4>✗ تعدّل في slice وإنت فاكره نسخة</h4><p>الأصل بيتغيّر من غير ما تاخد بالك.</p></div>
+        <div class="path good"><h4>✓ <span class="en">.copy()</span></h4><p>لما تكون ناوي تعدّل في جزء وتسيب الأصل زي ما هو.</p></div>
+        <div class="path bad"><h4>✗ <span class="en">axis</span> بالعكس</h4><p>عايز نتيجة لكل شهر وكتبت <span class="en">axis=1</span>، فطلع رقمين بس.</p></div>
+        <div class="path good"><h4>✓ افتكر: الـ axis هو اللي بيختفي</h4><p>واطبع الـ <span class="en">shape</span> بتاع النتيجة، لازم يبقى اللي إنت متوقّعه.</p></div>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">10</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sheet">
+        <div class="card"><h4>Array مش list</h4>الحساب على كل عنصر، ومن غير loop<br><span class="en">df["col"].to_numpy()</span></div>
+        <div class="card"><h4>dtype</h4>نوع واحد لكل array، و <span class="en">NaN</span> نوعه float<br><span class="en">np.isnan</span> · <span class="en">np.nansum</span> · <span class="en">astype</span></div>
+        <div class="card"><h4>Shape</h4>نفس الداتا بشكل جديد<br><span class="en">reshape(2, 12)</span> · <span class="en">reshape(-1)</span></div>
+        <div class="card"><h4>Indexing</h4><span class="en">M[1, 10]</span> · <span class="en">M[:, 11]</span><br>والـ slice عبارة عن view: <span class="en">.copy()</span></div>
+        <div class="card"><h4>Boolean mask</h4><span class="en">r[r &gt; 100_000]</span> · <span class="en">&amp;</span> <span class="en">|</span> <span class="en">~</span><br><span class="en">np.isin</span> · <span class="en">np.where</span></div>
+        <div class="card"><h4>axis</h4>الـ axis هو البُعد اللي بيختفي<br><span class="en">M.sum(axis=0)</span>: لكل عمود</div>
+        <div class="card"><h4>Broadcasting</h4>من اليمين: زي بعض، أو واحد منهم 1<br><span class="en">keepdims=True</span></div>
+        <div class="card"><h4>Sort</h4>القيم: <span class="en">np.sort</span><br>الأماكن: <span class="en">np.argsort</span></div>
+      </div>
+      <div class="nb-links">
+        <a class="nb-btn primary" data-kaggle href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
+      </div>
+    </section>
+
+    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/linalg/"><span>→ الدرس اللي فات</span><b><span class="en">Linear Algebra</span> خفيفة</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><span class="pg next off"><span>الدرس الجاي ←</span><b class="en">Descriptive Statistics</b></span></nav>
+
+    <footer>
+      الداتا: NileCart، متجر وهمي في القاهرة، بالجنيه المصري.<br>
+      كل الأرقام في الدرس محسوبة من نفس الداتا اللي في النوت بوك.
+    </footer>
+  </main>
+</div>
+
+<script src="../assets/data/numpy.js"></script>
+<script src="../assets/data/sales.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const KAGGLE = "https://www.kaggle.com/code/a7madmostafa/zero-grad-da-numpy";
+const N = window.NUMPY, S = window.SALES;
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const nf = v => Math.round(v).toLocaleString("en");
+const k = v => nf(v / 1000);
+
+/* ---------- canvas helpers ---------- */
+function setup(cv, h) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 300;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + "px";
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.direction = "ltr";
+  return { ctx, w, h };
+}
+function head(title, hint, badge = "جرّب بنفسك") { return `<div class="widget-head"><span class="badge">${badge}</span><h3>${title}</h3></div><p class="hint">${hint}</p>`; }
+const redrawers = []; const onRedraw = f => redrawers.push(f);
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => redrawers.forEach(f => f()), 120); });
+
+/* ---------- static SVG figures ---------- */
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(html, vb, label) { return `<svg viewBox="${vb}" role="img" aria-label="${label}" xmlns="${NS}">${html}</svg>`; }
+const box = (x, y, w, h, t, { fill = "var(--surface)", stroke = "var(--line)", fs = 12, bold = false, col = "--ink", dash = false } = {}) =>
+  `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" style="fill:${fill};stroke:${stroke};stroke-width:1.3${dash ? ";stroke-dasharray:4 3" : ""}"/>` +
+  (t === "" ? "" : `<text x="${x + w / 2}" y="${y + h / 2 + fs * .36}" text-anchor="middle" font-size="${fs}"${bold ? ' font-weight="700"' : ""} style="fill:var(${col})">${t}</text>`);
+const label = (x, y, t, { fs = 12, col = "--muted", bold = false, anchor = "middle" } = {}) =>
+  `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${fs}"${bold ? ' font-weight="700"' : ""} style="fill:var(${col})">${t}</text>`;
+const tint = (c, p = 14) => `color-mix(in srgb,var(${c}) ${p}%,var(--surface))`;
+
+function listFig() {
+  let o = "";
+  const row = (y, name, sub, inp, out, c) => {
+    o += label(14, y + 10, name, { fs: 14, col: "--ink", bold: true, anchor: "start" }) + label(14, y + 28, sub, { fs: 11, anchor: "start" });
+    let x = 110; inp.forEach(t => { o += box(x, y, 50, 30, t, { fill: tint("--c3"), stroke: "var(--c3)" }); x += 50; });
+    o += label(x + 34, y + 20, "* 2  →", { fs: 14, col: "--ink", bold: true });
+    x += 68; out.forEach(t => { o += box(x, y, 50, 30, t, { fill: tint(c), stroke: `var(${c})`, bold: true }); x += 50; });
+  };
+  row(28, "list", "a container", ["63", "30,400", "57"], ["63", "30,400", "57", "63", "30,400", "57"], "--c4");
+  row(108, "array", "numbers only", ["63", "30,400", "57"], ["126", "60,800", "114"], "--c2");
+  o += label(450, 82, "the list repeats itself", { fs: 11.5, col: "--c4" });
+  o += label(450, 162, "every number is doubled", { fs: 11.5, col: "--c2" });
+  $("#listFig").innerHTML = svgEl(o, "0 0 660 180", "list * 2 و array * 2");
+}
+function reshapeFig() {
+  const flat = N.M[0].concat(N.M[1]); let o = "";
+  const w = 25.5, x0 = 24;
+  o += label(x0, 22, "m", { fs: 14, col: "--ink", bold: true, anchor: "start" }) + label(x0 + 18, 22, "shape (24,)", { fs: 11.5, col: "--add", anchor: "start" });
+  flat.forEach((v, i) => o += box(x0 + i * w, 32, w, 26, nf(v / 1000), { fill: tint(i < 12 ? "--c2" : "--c1"), stroke: `var(${i < 12 ? "--c2" : "--c1"})`, fs: 8.5 }));
+  o += label(x0 + 6 * w, 74, "2024", { fs: 10.5, col: "--c2" }) + label(x0 + 18 * w, 74, "2025", { fs: 10.5, col: "--c1" });
+  o += `<path d="M330 84 L330 110" style="stroke:var(--chalk-o);stroke-width:2"/><path d="M324 104 L330 114 L336 104" style="fill:none;stroke:var(--chalk-o);stroke-width:2"/>`;
+  o += label(342, 104, "m.reshape(2, 12)", { fs: 12, col: "--chalk-o", bold: true, anchor: "start" });
+  const cw = 42, gx = 100, gy = 140;
+  MONTHS.forEach((mn, j) => o += label(gx + j * cw + cw / 2, gy - 6, mn, { fs: 10.5 }));
+  N.M.forEach((r, i) => {
+    o += label(gx - 10, gy + i * 28 + 18, N.years[i], { fs: 12, col: i ? "--c1" : "--c2", bold: true, anchor: "end" });
+    r.forEach((v, j) => o += box(gx + j * cw, gy + i * 28, cw, 28, nf(v / 1000), { fill: tint(i ? "--c1" : "--c2"), stroke: `var(${i ? "--c1" : "--c2"})`, fs: 10.5 }));
+  });
+  o += `<rect x="${gx + 11 * cw}" y="${gy - 18}" width="${cw}" height="${28 * 2 + 22}" rx="6" style="fill:none;stroke:var(--chalk-g);stroke-width:2;stroke-dasharray:5 4"/>`;
+  o += label(gx + 6 * cw, gy + 76, "M  shape (2, 12): rows = years, columns = months", { fs: 11.5, col: "--add" });
+  o += label(gx + 11.5 * cw, gy + 76, "", {});
+  $("#reshapeFig").innerHTML = svgEl(o, "0 0 660 228", "reshape من 24 رقم لـ 2 × 12");
+}
+function bcFig() {
+  const cols = [0, 1, 2, -1, 10, 11], heads = ["Jan", "Feb", "Mar", "…", "Nov", "Dec"], cw = 36, rh = 28, y0 = 50;
+  const tot = N.M.map(r => r.reduce((a, b) => a + b, 0));
+  let o = "";
+  const grid = (x, title, sub, cell, c, ghost) => {
+    o += label(x + cw * 3, 18, title, { fs: 13, col: "--ink", bold: true }) + label(x + cw * 3, 34, sub, { fs: 11, col: "--add" });
+    heads.forEach((h, j) => o += label(x + j * cw + cw / 2, y0 - 4, h, { fs: 9.5 }));
+    for (let i = 0; i < 2; i++) cols.forEach((cj, j) => {
+      const t = cj < 0 ? "…" : cell(i, cj, j), g = ghost && ghost(j);
+      o += box(x + j * cw, y0 + 4 + i * rh, cw, rh, t, { fill: g ? "transparent" : tint(c), stroke: `var(${c})`, fs: 9.5, dash: g, col: g ? "--muted" : "--ink" });
+    });
+  };
+  grid(20, "M", "(2, 12)", (i, cj) => nf(N.M[i][cj] / 1000), "--c2");
+  o += label(255, y0 + 4 + rh + 6, "/", { fs: 22, col: "--ink" });
+  grid(272, "totals", "(2, 1) → stretched to (2, 12)", i => nf(tot[i] / 1000), "--chalk-o", j => j > 0);
+  o += label(507, y0 + 4 + rh + 6, "=", { fs: 22, col: "--ink" });
+  grid(524, "share", "(2, 12)", (i, cj) => (N.M[i][cj] / tot[i] * 100).toFixed(1) + "%", "--c1");
+  o += label(272 + cw / 2, y0 + 4 + rh * 2 + 18, "real", { fs: 10, col: "--chalk-o", bold: true });
+  o += label(272 + cw * 3.5, y0 + 4 + rh * 2 + 18, "← repeated, not copied →", { fs: 10, col: "--muted" });
+  $("#bcFig").innerHTML = svgEl(o, "0 0 750 150", "broadcasting: (2, 12) / (2, 1)");
+}
+
+/* ---------- widget: a boolean mask ---------- */
+function maskWidget(root) {
+  const r = S.revenue, ci = S.cat, CATS = S.cats, n = r.length;
+  const TH = [1000, 10000, 50000, 100000, 200000], total = r.reduce((a, b) => a + b, 0);
+  let th = 100000, cat = -1, neg = false;
+  const jit = i => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1;
+  root.innerHTML = head("ابنِ الـ mask بنفسك", "اختار الحد، وضيف شرط على الفئة. كل نقطة سطر من الـ 1,074، والخضرا هي اللي الـ mask قصادها True.") + `
+    <div class="optrow"><span class="lbl en">r &gt;</span><div class="seg">${TH.map(v => `<button data-th="${v}" aria-pressed="${v === th}">${v >= 1000 ? v / 1000 + "k" : v}</button>`).join("")}</div>
+      <label class="chk"><input type="checkbox" data-neg> <span class="en">~</span> اعكس الشرط</label></div>
+    <div class="optrow"><span class="lbl en">&amp; cat ==</span><div class="seg"><button data-cat="-1" aria-pressed="true">أي فئة</button>${[3, 1, 2, 0].map(c => `<button data-cat="${c}" aria-pressed="false">${CATS[c]}</button>`).join("")}</div></div>
+    <div class="codeline" data-s="code"></div>
+    <div class="rows10" data-s="rows"></div>
+    <div class="wgrid cols"><div><canvas></canvas></div>
+      <div class="controls"><div class="stats" data-s="stats"></div><div class="status" data-s="msg"></div></div></div>`;
+  const cv = $("canvas", root);
+  const test = i => (neg ? !(r[i] > th) : r[i] > th) && (cat < 0 || ci[i] === cat);
+  function draw() {
+    const m = Array.from({ length: n }, (_, i) => test(i));
+    const cnt = m.filter(Boolean).length, sum = r.reduce((a, v, i) => a + (m[i] ? v : 0), 0);
+    const thS = String(th).replace(/\B(?=(\d{3})+(?!\d))/g, "_");
+    let cond = `r &gt; <span class="s">${thS}</span>`; if (neg) cond = `~(${cond})`;
+    $("[data-s=code]", root).innerHTML = `mask = ${cat < 0 ? cond : `${neg ? cond : `(${cond})`} &amp; (cat == <span class="s">"${CATS[cat]}"</span>)`}\n` +
+      `<span class="c"># mask[:10] ->  [${m.slice(0, 10).map(b => b ? "True" : "False").join(", ")}]</span>`;
+    $("[data-s=rows]", root).innerHTML = r.slice(0, 10).map((v, i) => `<div class="${m[i] ? "t" : "f"}">${nf(v)}<small>${CATS[ci[i]]}</small><b>${m[i] ? "True" : "False"}</b></div>`).join("");
+    $("[data-s=stats]", root).innerHTML =
+      `<div class="stat"><span><bdi dir="ltr">mask.sum()</bdi></span><b>${nf(cnt)}</b></div>` +
+      `<div class="stat"><span><bdi dir="ltr">mask.mean()</bdi></span><b>${(cnt / n * 100).toFixed(1)}%</b></div>` +
+      `<div class="stat"><span><bdi dir="ltr">r[mask].sum()</bdi></span><b>${(sum / 1e6).toFixed(2)}M</b></div>` +
+      `<div class="stat"><span>من الإيراد</span><b>${(sum / total * 100).toFixed(1)}%</b></div>`;
+    $("[data-s=msg]", root).textContent = cnt === 0 ? "مفيش ولا سطر عدّى الشرط: r[mask] فاضي، والمجموع صفر." +
+        (cat >= 0 && !neg ? `\nمفيش أوردر ${CATS[cat]} وصل للرقم ده.` : "") :
+      `${nf(cnt)} سطر من ${nf(n)} (${(cnt / n * 100).toFixed(1)}%) جابوا ${(sum / total * 100).toFixed(1)}% من الإيراد.`;
+    // strip plot: x = revenue (log), y = category band
+    const h = cv.clientWidth < 460 ? 200 : 230, { ctx, w } = setup(cv, h), pad = { l: 86, r: 12, t: 10, b: 26 };
+    const lo = Math.log10(30), hi = Math.log10(400000), sx = v => pad.l + (Math.log10(v) - lo) / (hi - lo) * (w - pad.l - pad.r);
+    const bands = [3, 1, 2, 0], bh = (h - pad.t - pad.b) / 4;
+    ctx.font = "11px Inter, sans-serif"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    bands.forEach((c, b) => { ctx.fillStyle = cssv("--muted"); ctx.fillText(CATS[c], pad.l - 8, pad.t + b * bh + bh / 2); });
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = "10px 'JetBrains Mono', monospace";
+    [100, 1000, 10000, 100000].forEach(v => { ctx.fillStyle = cssv("--muted"); ctx.fillText(v >= 1000 ? v / 1000 + "k" : v, sx(v), h - 8); ctx.strokeStyle = cssv("--line"); ctx.beginPath(); ctx.moveTo(sx(v), pad.t); ctx.lineTo(sx(v), h - pad.b); ctx.stroke(); });
+    const ok = cssv("--chalk-g"), off = cssv("--muted");
+    for (let pass = 0; pass < 2; pass++) for (let i = 0; i < n; i++) {
+      if (m[i] !== !!pass) continue;
+      const y = pad.t + bands.indexOf(ci[i]) * bh + bh * (.15 + .7 * jit(i));
+      ctx.globalAlpha = m[i] ? .9 : .22; ctx.fillStyle = m[i] ? ok : off;
+      ctx.beginPath(); ctx.arc(sx(Math.max(30, r[i])), y, m[i] ? 2.6 : 2.1, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1; ctx.strokeStyle = cssv("--chalk-o"); ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(sx(th), pad.t); ctx.lineTo(sx(th), h - pad.b); ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth = 1;
+    ctx.fillStyle = cssv("--chalk-o"); ctx.font = "bold 11px 'JetBrains Mono', monospace"; ctx.textAlign = "left"; ctx.fillText(`r > ${th / 1000}k`, Math.min(sx(th) + 5, w - 70), pad.t + 11);
+  }
+  $$("[data-th]", root).forEach(b => b.onclick = () => { th = +b.dataset.th; $$("[data-th]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  $$("[data-cat]", root).forEach(b => b.onclick = () => { cat = +b.dataset.cat; $$("[data-cat]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  $("[data-neg]", root).onchange = e => { neg = e.target.checked; draw(); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: aggregation and axis ---------- */
+function axisWidget(root) {
+  const M = N.M, Y = N.years;
+  let fn = "sum", ax = 0;
+  const F = {
+    sum: a => a.reduce((s, v) => s + v, 0), mean: a => a.reduce((s, v) => s + v, 0) / a.length,
+    max: a => Math.max(...a), argmax: a => a.indexOf(Math.max(...a)),
+  };
+  root.innerHTML = head("الـ axis: أنهي بُعد هيختفي؟", "اختار الدالة والـ axis. الخانات اللي بتتجمّع مع بعض في نفس الاتجاه بيطلع منها رقم واحد في النتيجة (البرتقالي). الأرقام بالألف جنيه.") + `
+    <div class="optrow"><span class="lbl">الدالة</span><div class="seg">${Object.keys(F).map(f => `<button data-fn="${f}" aria-pressed="${f === fn}">${f}</button>`).join("")}</div>
+      <span class="lbl">axis</span><div class="seg">${[["0", 0], ["1", 1], ["None", -1]].map(([t, v]) => `<button data-ax="${v}" aria-pressed="${v === ax}">${t}</button>`).join("")}</div></div>
+    <div class="mxwrap" data-s="mx"></div>
+    <div class="codeline" data-s="code" style="margin-top:.8rem;white-space:pre-wrap"></div>
+    <div class="status" data-s="msg" style="margin-top:.6rem"></div>`;
+  const fmt = (v, isIdx) => isIdx ? String(v) : k(v);
+  function draw() {
+    const f = F[fn], isIdx = fn === "argmax";
+    const flat = M[0].concat(M[1]);
+    let res, hiCell = () => false;
+    if (ax === 0) { res = MONTHS.map((_, j) => f([M[0][j], M[1][j]])); if (fn.startsWith("arg") || fn === "max") hiCell = (i, j) => M[i][j] === Math.max(M[0][j], M[1][j]); }
+    else if (ax === 1) { res = M.map(r => f(r)); if (fn.startsWith("arg") || fn === "max") hiCell = (i, j) => M[i][j] === Math.max(...M[i]); }
+    else { res = f(flat); if (fn.startsWith("arg") || fn === "max") hiCell = (i, j) => M[i][j] === Math.max(...flat); }
+    let t = `<table class="tbl mx"><thead><tr><th></th>${MONTHS.map(m => `<th>${m}</th>`).join("")}${ax === 1 ? `<th class="dir">→</th><th class="res">${fn}</th>` : ""}</tr></thead><tbody>`;
+    M.forEach((r, i) => {
+      t += `<tr><th>${Y[i]}</th>${r.map((v, j) => `<td class="${hiCell(i, j) ? "hi" : "in"}">${k(v)}</td>`).join("")}` +
+        (ax === 1 ? `<td class="dir">→</td><td class="res">${isIdx ? res[i] + " (" + MONTHS[res[i]] + ")" : k(res[i])}</td>` : "") + `</tr>`;
+    });
+    if (ax === 0) {
+      t += `<tr><th></th>${MONTHS.map(() => `<td class="dir">↓</td>`).join("")}</tr>`;
+      t += `<tr><th class="res">${fn}</th>${res.map(v => `<td class="res">${isIdx ? v : k(v)}</td>`).join("")}</tr>`;
+    }
+    $("[data-s=mx]", root).innerHTML = t + "</tbody></table>";
+    const axTxt = ax < 0 ? "" : `axis=${ax}`;
+    const shape = ax === 0 ? "(12,)" : ax === 1 ? "(2,)" : "()";
+    const shown = Array.isArray(res) ? `[${res.map(v => isIdx ? v : nf(v)).join(", ")}]` : (isIdx ? res : nf(res));
+    $("[data-s=code]", root).innerHTML = `<span class="k">M</span>.${fn}(${axTxt})   <span class="c"># shape ${shape}</span>\n${shown}`;
+    let msg;
+    if (ax === 0) msg = `axis=0 اختفى: السطرين اتقفلوا على بعض، وطلع رقم لكل شهر من الـ 12.` +
+      (isIdx ? `\nكل رقم هنا رقم سطر: 0 يعني 2024 كانت أعلى في الشهر ده، و 1 يعني 2025.\n2025 كسبت في ${res.filter(v => v === 1).length} شهور: ${MONTHS.filter((_, j) => res[j] === 1).join("، ")}.` :
+        fn === "sum" ? `\nأعلى شهر على السنتين: ديسمبر (${k(res[11])}k)، وبعده نوفمبر (${k(res[10])}k).` : "");
+    else if (ax === 1) msg = `axis=1 اختفى: الـ 12 شهر اتقفلوا على بعض، وطلع رقم لكل سنة.` +
+      (isIdx ? `\nالـ peak اتحرّك: ديسمبر في 2024، ونوفمبر في 2025.` :
+        fn === "sum" ? `\nالسنتين تقريبًا زي بعض: ${(res[0] / 1e6).toFixed(2)}M و ${(res[1] / 1e6).toFixed(2)}M.` : "");
+    else msg = `من غير axis: الـ 24 خانة كلهم بقوا رقم واحد.` +
+      (isIdx ? `\nargmax من غير axis بيعدّ في الـ array كأنه سطر واحد طوله 24: المكان ${res} = ديسمبر 2024.` : "");
+    $("[data-s=msg]", root).textContent = msg;
+  }
+  $$("[data-fn]", root).forEach(b => b.onclick = () => { fn = b.dataset.fn; $$("[data-fn]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  $$("[data-ax]", root).forEach(b => b.onclick = () => { ax = +b.dataset.ax; $$("[data-ax]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  draw();
+}
+
+/* ---------- page chrome ---------- */
+function chrome() {
+  $$("#kaggleLink, [data-kaggle]").forEach(a => a.href = KAGGLE);
+  const toc = $("#tocList"), links = {};
+  $$("section.sec").forEach(sec => {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + sec.id; a.textContent = $("h2", sec).textContent.replace(/^\d+/, "").trim();
+    li.appendChild(a); toc.appendChild(li); links[sec.id] = a;
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { Object.values(links).forEach(a => a.classList.remove("active")); links[e.target.id].classList.add("active"); } }), { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  window.addEventListener("scroll", () => { const h = document.documentElement; $("#progress").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; }, { passive: true });
+  // theme: the site's /assets/js/theme.js saves the choice (shared with the notebook and the rest of the site)
+  // and runs the toggle; the canvases only need a redraw when it changes
+  new MutationObserver(() => redrawers.forEach(f => f())).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => redrawers.forEach(f => f()));
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  chrome();
+  listFig(); reshapeFig(); bcFig();
+  maskWidget($("#wMask")); axisWidget($("#wAxis"));
+});
+})();
+</script>
+</body>
+</html>

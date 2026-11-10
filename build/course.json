@@ -15,6 +15,12 @@
       "notebook": "notebooks/linalg/linalg.ipynb",
       "kaggle_slug": "zero-grad-da-light-linear-algebra"
     },
+    "numpy": {
+      "title": "NumPy",
+      "title_ar": "NumPy",
+      "notebook": "notebooks/numpy/numpy.ipynb",
+      "kaggle_slug": "zero-grad-da-numpy"
+    },
     "distribution": {
       "title": "Distribution Charts",
       "title_ar": "شكل الأرقام: Distribution",
