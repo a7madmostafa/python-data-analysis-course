@@ -21,6 +21,12 @@
       "notebook": "notebooks/numpy/numpy.ipynb",
       "kaggle_slug": "zero-grad-da-numpy"
     },
+    "stats": {
+      "title": "Descriptive Statistics",
+      "title_ar": "Descriptive Statistics",
+      "notebook": "notebooks/stats/stats.ipynb",
+      "kaggle_slug": "zero-grad-da-descriptive-statistics"
+    },
     "distribution": {
       "title": "Distribution Charts",
       "title_ar": "شكل الأرقام: Distribution",
