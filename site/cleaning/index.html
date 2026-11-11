@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Light Cleaning</title>
+<meta name="description" content="تنضيف الداتا الخفيف في Pandas: القيم الناقصة، والمكرر، والأنواع، والنصوص، والقيم المستحيلة، و pipeline بـ log، من orders.csv الخام لـ sales.csv.">
+<meta property="og:title" content="تنضيف الداتا: من orders.csv لـ sales.csv · Zero Grad">
+<meta property="og:description" content="الناقص والمكرر والمستحيل، قرار قرار، بالعربي وعلى داتا NileCart.">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/cleaning/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/cleaning/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<script src="/assets/js/theme.js"></script>
+<link rel="apple-touch-icon" href="/assets/img/zero-grad-app-icon-512.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<script src="/assets/js/pwa.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ea; --surface:#fffdf8; --surface-2:#efeadf; --ink:#1c1e22; --muted:#5b616b; --line:#ddd6c6;
+  --accent:#101f40; --on-accent:#f5f2ea; --chalk-g:#15803d; --chalk-o:#c2410c; --add:#2563eb; --bad:#dc2626;
+  --c1:#0f766e; --c2:#2563eb; --c3:#b45309; --c4:#9333ea;
+  --board:#232323; --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+    --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+    --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+  --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+  --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--add)}
+html,body{overflow-x:clip}
+@media (max-width:520px){.brand{font-size:.8rem}.seg button{padding:.2rem .55rem;font-size:.8rem}.topbar-in{gap:.4rem}.top-actions{gap:.3rem}.iconbtn{width:30px;height:30px}}
+code,pre{font-family:"JetBrains Mono",monospace}
+.en{direction:ltr;unicode-bidi:isolate}
+code.i{font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .35rem;direction:ltr;unicode-bidi:isolate}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;right:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .1s}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:auto;padding:.55rem 16px;display:flex;gap:.75rem;align-items:center;justify-content:space-between}
+.top-actions{display:flex;gap:.5rem;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.25rem .8rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+
+/* layout */
+.wrap{max-width:1180px;margin:auto;padding:0 16px;display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media (min-width:1100px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:72px;align-self:start;padding-top:2.5rem;font-size:.9rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+  nav.toc a{display:block;padding:.3rem .9rem;color:var(--muted);text-decoration:none;margin-inline-start:-2px;border-inline-start:2px solid transparent;line-height:1.5}
+  nav.toc a.active{color:var(--ink);border-color:var(--accent);font-weight:500}
+}
+main{min-width:0;padding-bottom:6rem}
+
+/* hero */
+.hero{padding:3rem 0 1.5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.hero h1{font-family:"Caveat",cursive;font-size:clamp(3rem,9vw,5.2rem);line-height:1;margin:.5rem 0 .75rem;color:var(--accent);direction:ltr;text-align:right;font-weight:700}
+.lead{font-size:1.15rem;max-width:62ch;margin:0}
+
+/* notebook links */
+.nb-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.nb-btn{display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4rem 1rem;text-decoration:none}
+.nb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.nb-btn:hover{border-color:var(--accent)}
+
+/* sections */
+section.sec{padding-top:2.5rem;scroll-margin-top:64px}
+.sec-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:1.25rem}
+.sec-head h2{margin:0;font-size:1.55rem;line-height:1.35;display:flex;gap:.7rem;align-items:baseline}
+.num{font-family:"Caveat",cursive;color:var(--accent);font-size:2rem;line-height:1}
+h3.sub{font-size:1.15rem;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+.chalk{font-family:"Caveat",cursive;font-size:1.35em;color:var(--accent);direction:ltr;unicode-bidi:isolate;font-weight:700;line-height:1.2}
+.voice{margin:1.25rem 0;padding:.9rem 1.2rem;border-radius:var(--radius);background:var(--board);color:#f2c94c;font-family:"Caveat",cursive;font-size:1.9rem;direction:ltr;text-align:center;line-height:1.3}
+.voice small{display:block;font-family:"Noto Sans Arabic",sans-serif;font-size:.8rem;color:#a1a1a1;direction:rtl;margin-top:.25rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;line-height:1.6}
+.card b{display:block;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr;gap:1rem;margin:1rem 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.path{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem}
+.path h4{margin:0 0 .25rem;font-size:1.05rem}
+.path .sub{color:var(--muted);font-size:.85rem}
+.path.good{border-color:color-mix(in srgb,var(--chalk-g) 55%,var(--line))}
+.path.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.path.good h4{color:var(--chalk-g)}
+.path.bad h4{color:var(--bad)}
+
+/* the "use it when" box every chart gets */
+.when{display:grid;grid-template-columns:1fr;gap:.75rem;margin:1rem 0}
+@media(min-width:760px){.when{grid-template-columns:repeat(3,1fr)}}
+.when .card{border-top:3px solid var(--accent)}
+.when .card:nth-child(2){border-top-color:var(--chalk-g)}
+.when .card:nth-child(3){border-top-color:var(--chalk-o)}
+
+/* callouts */
+.callout{border-radius:var(--radius);padding:.9rem 1.1rem;margin:1.25rem 0;border:1px solid;font-size:.97rem}
+.callout .ttl{font-weight:700;font-size:.85rem;display:flex;gap:.4rem;align-items:center;margin-bottom:.15rem}
+.callout.add{border-color:color-mix(in srgb,var(--add) 45%,transparent);background:color-mix(in srgb,var(--add) 7%,var(--surface))}
+.callout.add .ttl{color:var(--add)}
+.callout.warn{border-color:color-mix(in srgb,var(--chalk-o) 55%,transparent);background:color-mix(in srgb,var(--chalk-o) 8%,var(--surface))}
+.callout.warn .ttl{color:var(--chalk-o)}
+.callout.insight{border-color:color-mix(in srgb,var(--chalk-g) 50%,transparent);background:color-mix(in srgb,var(--chalk-g) 8%,var(--surface))}
+.callout.insight .ttl{color:var(--chalk-g)}
+details.callout summary{cursor:pointer;list-style:none}
+details.callout summary::-webkit-details-marker{display:none}
+details.callout summary .ttl::after{content:"＋";margin-inline-start:auto}
+details.callout[open] summary .ttl::after{content:"－"}
+
+/* tables & code */
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.tbl th,.tbl td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.tbl thead th{background:var(--surface-2);font-size:.85rem}
+.tbl tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+pre{direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;padding:1rem 1.1rem;border-radius:var(--radius);overflow-x:auto;font-size:.85rem;line-height:1.65;margin:1rem 0}
+pre .c{color:#8a8a8a}
+pre .k{color:#f2c94c}
+pre .s{color:#4ade80}
+.codetabs{margin:1rem 0}
+.codetabs .seg{margin-bottom:-.4rem}
+.codetabs pre{margin-top:.6rem}
+.codetabs pre[hidden]{display:none}
+
+/* figures */
+figure.fig{margin:1.25rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.fig-scroll{overflow-x:auto}
+figure.fig svg{width:100%;min-width:520px;height:auto;display:block;direction:ltr}
+figure.fig svg text{font-family:Inter,"Noto Sans Arabic",sans-serif;fill:var(--ink)}
+figure.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+
+/* widgets */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.widget-head{display:flex;gap:.6rem;align-items:center;margin-bottom:.2rem}
+.widget-head .badge{font-size:.72rem;font-weight:700;color:var(--bg);background:var(--chalk-g);border-radius:999px;padding:.1rem .6rem;white-space:nowrap}
+.widget-head h3{margin:0;font-size:1.1rem}
+.widget .hint{color:var(--muted);font-size:.9rem;margin:.1rem 0 .8rem}
+.wgrid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:820px){.wgrid.cols{grid-template-columns:1.6fr 1fr}}
+canvas{width:100%;display:block;border-radius:10px;background:var(--surface-2);touch-action:none}
+.controls{display:grid;gap:.7rem;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;gap:.5rem}
+.ctl label output{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.4rem .85rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk.off{opacity:.45;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem}
+.stat{background:var(--surface-2);border-radius:10px;padding:.45rem .7rem;line-height:1.35}
+.stat span{display:block;font-size:.75rem;color:var(--muted)}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;unicode-bidi:isolate}
+.status{font-size:.9rem;min-height:1.6em;color:var(--muted);white-space:pre-line}
+.keys{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.5rem}
+.keys span{display:inline-flex;gap:.35rem;align-items:center}
+.keys i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+
+/* summary */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem}
+.sheet .card{padding:1rem}
+.sheet .card h4{margin:0 0 .3rem;font-size:.95rem;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding:1.5rem 0;margin-top:3rem}
+.muted{color:var(--muted);font-size:.9em}
+
+/* lesson navigation */
+.crumbs{display:flex;align-items:center;gap:.45rem;font-size:.9rem;white-space:nowrap;min-width:0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{color:var(--line)}
+.crumbs .here{font-weight:700;color:var(--ink)}
+a.iconbtn{display:grid;place-items:center;text-decoration:none;font-size:.95rem}
+.iconbtn.off{opacity:.3;pointer-events:none;display:grid;place-items:center}
+.pager{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;margin-top:3rem}
+.pg{display:flex;flex-direction:column;gap:.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);text-decoration:none;line-height:1.5}
+.pg span{font-size:.82rem;color:var(--muted)}
+.pg b{font-size:1rem;color:var(--accent)}
+a.pg:hover{border-color:var(--accent)}
+.pg.next{text-align:left}
+.pg.all{justify-content:center;text-align:center}
+.pg.off{border-style:dashed;background:transparent}
+.pg.off b{color:var(--muted)}
+@media (max-width:640px){.pager{grid-template-columns:1fr}.pg.next{text-align:right}.pg.all{order:3}}
+@media (max-width:520px){.crumbs .home,.crumbs .home+.sep{display:none}}
+@media (max-width:400px){.crumbs .course+.sep,.crumbs .here{display:none}}
+@media print{.topbar,nav.toc,#progress,.widget{display:none!important}body{background:#fff;color:#000;font-size:12pt}}
+
+/* light cleaning lesson */
+.shape{font-family:"JetBrains Mono",monospace;font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .4rem;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.optrow{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;margin:.3rem 0 .7rem}
+.optrow .lbl{font-size:.85rem;color:var(--ink);min-width:9.5em;font-weight:500}
+.optrow .seg{flex-wrap:wrap;max-width:100%;border-radius:16px}
+.codeline{font-family:"JetBrains Mono",monospace;direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;border-radius:12px;padding:.7rem 1rem;font-size:.82rem;line-height:1.75;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.codeline .k{color:#f2c94c}.codeline .s{color:#4ade80}.codeline .c{color:#8a8a8a}
+.funnel{display:grid;gap:.35rem;margin:.8rem 0}
+.funnel .fr{display:grid;grid-template-columns:minmax(0,11em) 1fr;gap:.6rem;align-items:center;font-size:.85rem}
+.funnel .bar{height:24px;border-radius:6px;background:color-mix(in srgb,var(--add) 30%,var(--surface));position:relative;direction:ltr;transition:width .25s}
+.funnel .bar b{position:absolute;left:8px;top:2px;font-family:"JetBrains Mono",monospace;font-size:.8rem;color:var(--ink)}
+.funnel .bar i{position:absolute;right:-.2rem;transform:translateX(100%);top:2px;font-style:normal;font-family:"JetBrains Mono",monospace;font-size:.76rem;color:var(--bad);white-space:nowrap;padding-left:.4rem}
+.verdict{border-radius:12px;padding:.6rem .9rem;font-size:.92rem;margin-top:.6rem}
+.verdict.ok{background:color-mix(in srgb,var(--chalk-g) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--chalk-g) 45%,transparent)}
+.verdict.no{background:color-mix(in srgb,var(--chalk-o) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--chalk-o) 45%,transparent)}
+.vals{display:flex;flex-wrap:wrap;gap:.35rem;direction:ltr;margin:.7rem 0}
+.vals span{font-family:"JetBrains Mono",monospace;font-size:.78rem;border-radius:7px;padding:.2rem .5rem;background:var(--surface-2);border:1px solid var(--line);white-space:pre}
+.vals span.miss{border-color:var(--bad);color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--surface))}
+.vals span small{color:var(--muted);margin-left:.3rem}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here">تنضيف الداتا</span></nav>
+    <div class="top-actions">
+      <a class="iconbtn" href="/courses/da/grouping/" aria-label="الدرس اللي فات: Grouping &amp; Joining" title="الدرس اللي فات: Grouping &amp; Joining">→</a><span class="iconbtn off" aria-hidden="true">←</span>
+      <button class="iconbtn" id="themeBtn" type="button" data-theme-toggle aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="المحتوى"><ol id="tocList"></ol></nav>
+  <main>
+    <div class="hero">
+      <div class="kicker">Zero Grad · كورس Data Analysis · Pandas</div>
+      <h1>Cleaning</h1>
+      <p class="lead">كل الدروس اللي فاتت استخدمت <span class="en">sales.csv</span>، جدول نضيف.<br>
+        الجدول ده اتعمل من <span class="en">orders.csv</span> الخام، اللي فيه قيم ناقصة، وسطر مكرر، وقيم مستحيلة، ونصوص مكعبلة، زي أي export حقيقي.<br>
+        في الدرس ده هنبني <span class="en">sales.csv</span> من الأول، قرار قرار.<br>
+        وده تنضيف <b>خفيف</b>: الفحص اليومي اللي الـ analyst بيعمله قبل أي رقم. الـ preprocessing الكامل مكانه كورس الـ ML.</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" id="kaggleLink" href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
+        <a class="nb-btn" href="https://www.kaggle.com/datasets/a7madmostafa/nilecart-sales" target="_blank" rel="noopener">🗂️ داتا NileCart على Kaggle</a>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <section class="sec" id="look">
+      <div class="sec-head"><h2><span class="num">1</span>بص الأول</h2></div>
+      <p>متنضّفش وإنت مغمّض.<br>
+        نفس روتين أول نظرة من درس Pandas، على الجدول الخام، و <span class="en">describe()</span> لوحده بيدّي 3 إنذارات:</p>
+      <div class="cards">
+        <div class="card"><b><span class="en">quantity</span></b>الـ count <bdi>1,471</bdi> مش <bdi>1,501</bdi> (فيه ناقص)، والـ min <b>−2</b>، والـ max <b>500</b>.</div>
+        <div class="card"><b><span class="en">unit_price</span></b>الـ min <b>صفر</b>: منتج ببلاش؟</div>
+        <div class="card"><b><span class="en">customer_id</span></b>الـ max <b>902</b>، وعندنا 200 عميل بس.</div>
+      </div>
+      <p>و <span class="en">info()</span> بيقول إن <span class="en">order_date</span> نص (<span class="en">object</span>).<br>
+        وده شكل القيم الناقصة في الأعمدة الـ 8:</p>
+      <figure class="fig"><div class="fig-scroll" id="missFig"></div>
+        <figcaption>كل سطر عمود من <span class="en">orders.csv</span>، وكل علامة حمرا أوردر القيمة دي ناقصة فيه. العلامات متفرّقة: كل عمود محتاج قرار لوحده.</figcaption></figure>
+<pre>orders.isna().sum()     <span class="c"># quantity 30, discount 40, status 10</span>
+orders.isna().mean()    <span class="c"># the share: 2%, 3%, 1%</span></pre>
+    </section>
+
+    <!-- 2 -->
+    <section class="sec" id="missing">
+      <div class="sec-head"><h2><span class="num">2</span>القيم الناقصة: تمسح، تملا، ولا تسيب؟</h2></div>
+      <p>مفيش إجابة واحدة صح. اسأل لكل عمود:<br>
+        <b>الخانة الفاضية دي معناها إيه؟ وهحسب إيه بالعمود ده؟</b></p>
+      <h3 class="sub"><span class="en">quantity</span> (30 ناقصين): امسح السطر</h3>
+      <p>من غير كمية مفيش إيراد، ومفيش طريقة أمينة تخمّن الواحد اشترى كام.<br>
+        شوف كل اختيار بيعمل إيه في الـ gross:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الاختيار</th><th>الـ gross</th><th>المشكلة</th></tr></thead>
+        <tbody>
+          <tr><td>تسيب NaN، أو تمسح</td><td><bdi>29,268,712</bdi></td><td>—</td></tr>
+          <tr><td>تملا بالـ median (4)</td><td><bdi>30,048,912</bdi></td><td>بيخترع حوالي <bdi>780,000</bdi> جنيه مبيعات</td></tr>
+          <tr><td>تملا بالـ mean (<bdi>4.09</bdi>)</td><td><bdi>30,066,173</bdi></td><td>وبيخترع كسور لابتوب كمان</td></tr>
+          <tr><td>تملا بصفر</td><td><bdi>29,268,712</bdi></td><td>المجموع صح، بس المتوسط بينزل من <bdi>4.09</bdi> لـ <bdi>4.00</bdi></td></tr>
+        </tbody>
+      </table></div>
+      <p>لو سبت NaN، <span class="en">sum()</span> و <span class="en">mean()</span> بيتجاهلوه.<br>
+        بس <span class="en">len()</span> وأي عدّ للسطور هيفضلوا عادّين 30 أوردر مالهمش كمية.<br>
+        المسح هو الأوضح هنا: 30 من <bdi>1,501</bdi>، يعني <bdi>2%</bdi>.</p>
+      <h3 class="sub"><span class="en">discount</span> (40 ناقصين): املا بصفر</h3>
+      <p>هنا الخانة الفاضية ليها معنى محتمل: السيستم بيسيبها فاضية لما مفيش خصم. (في شغل حقيقي، تتأكد من صاحب السيستم.)<br>
+        ولو سبتها NaN، الـ 40 أوردر دول بيختفوا من أي مجموع للإيراد من غير ما تاخد بالك: <b><bdi>568,657</bdi> جنيه</b>.</p>
+      <h3 class="sub"><span class="en">status</span> (10 ناقصين): فئة لوحدها</h3>
+      <p>تخمين الحالة اختراع، ومسح السطور بيضيّع أوردرات حقيقية.<br>
+        سمّي الفجوة بدل كده، عشان تظهر في أي عدّ: <span class="en">fillna("unknown")</span>.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>العمود</th><th>ناقص</th><th>القرار</th><th>ليه</th></tr></thead>
+        <tbody>
+          <tr><td><span class="en">quantity</span></td><td>30</td><td>امسح السطر</td><td>من غير كمية مفيش إيراد، والتخمين بيخترع مبيعات</td></tr>
+          <tr><td><span class="en">discount</span></td><td>40</td><td>املا 0</td><td>فاضي = مفيش خصم، و NaN بيشيل الأوردر من المجاميع</td></tr>
+          <tr><td><span class="en">status</span></td><td>10</td><td>املا <span class="en">"unknown"</span></td><td>نحتفظ بالأوردر، ومنخترعش حالة</td></tr>
+        </tbody>
+      </table></div>
+<pre>df = df.dropna(subset=[<span class="s">"quantity"</span>])
+df = df.fillna({<span class="s">"discount"</span>: <span class="s">0</span>, <span class="s">"status"</span>: <span class="s">"unknown"</span>})</pre>
+    </section>
+
+    <!-- 3 -->
+    <section class="sec" id="dups">
+      <div class="sec-head"><h2><span class="num">3</span>المكرر</h2></div>
+<pre>orders.duplicated().sum()                    <span class="c"># 1: the whole row is repeated</span>
+orders.duplicated(subset=[<span class="s">"order_id"</span>]).sum()   <span class="c"># 1: the key is repeated</span>
+orders = orders.drop_duplicates()            <span class="c"># keeps the first copy</span></pre>
+      <p>الأوردر 10004 موجود في الملف مرتين، وكل الأعمدة زي بعض: غلطة في الـ export.</p>
+      <div class="two">
+        <div class="path"><h4><span class="en">duplicated()</span></h4><p>السطر <b>كله</b> متكرر.<br>تمسحه وإنت مطمّن.</p></div>
+        <div class="path"><h4><span class="en">duplicated(subset=["order_id"])</span></h4><p>الـ <b>key</b> متكرر.<br>لو باقي الأعمدة مختلفة، ده تعارض محتاج تحقيق، مش سطر تمسحه.</p></div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="sec" id="types">
+      <div class="sec-head"><h2><span class="num">4</span>الأنواع</h2></div>
+<pre>orders[<span class="s">"order_date"</span>] = pd.to_datetime(orders[<span class="s">"order_date"</span>])   <span class="c"># text -&gt; datetime64</span>
+orders[<span class="s">"order_date"</span>].max()                                    <span class="c"># 2031-03-15 (!)</span></pre>
+      <p>لما النوع بقى صح، القيمة المستحيلة بانت: أوردر في 2031.<br>
+        ولو فيه قيم مش بتتقري، <span class="en">errors="coerce"</span> بيحوّلها لقيمة ناقصة بدل ما يوقف:</p>
+<pre>pd.to_datetime(pd.Series([<span class="s">"2025-11-28"</span>, <span class="s">"28/11/2025"</span>, <span class="s">"soon"</span>]), errors=<span class="s">"coerce"</span>, format=<span class="s">"%Y-%m-%d"</span>)
+<span class="c"># 2025-11-28, NaT, NaT</span>
+
+raw = pd.Series([<span class="s">"1,200"</span>, <span class="s">"450"</span>, <span class="s">"n/a"</span>, <span class="s">"3,800"</span>])          <span class="c"># numbers as text: every Excel export</span>
+pd.to_numeric(raw.str.replace(<span class="s">","</span>, <span class="s">""</span>), errors=<span class="s">"coerce"</span>)   <span class="c"># 1200.0, 450.0, NaN, 3800.0</span></pre>
+      <p>و <span class="en">quantity</span> كان <span class="en">float64</span> بس عشان الـ NaN (درس NumPy).<br>
+        بعد ما السطور الناقصة اتمسحت، يرجع رقم صحيح: <span class="en">astype(int)</span>.</p>
+      <div class="callout add"><div class="ttl">➕ <span class="en">category</span></div>
+        عمود نص فيه قيم قليلة بتتكرر، زي <span class="en">status</span>، ينفع يبقى <span class="en">category</span>: نفس القيم، وذاكرة أقل بكتير.<br>
+        <span class="en">status</span> كنص: <bdi>86,426</bdi> byte. كـ category: <bdi>2,090</bdi>.</div>
+    </section>
+
+    <!-- 5 -->
+    <section class="sec" id="text">
+      <div class="sec-head"><h2><span class="num">5</span>النصوص: الحاجات اللي زي بعض شكلها زي بعض؟</h2></div>
+      <p>مسافات زيادة، وحروف كابيتال، وكتابة مختلفة: الإنسان بيقرا <span class="en">" alexandria"</span> و <span class="en">"Alexandria"</span> كنفس المكان، و Pandas لأ.<br>
+        وده اللي كسر الـ merge في الدرس اللي فات.</p>
+      <div class="widget" id="wText"></div>
+<pre>customers[<span class="s">"governorate"</span>] = customers[<span class="s">"governorate"</span>].str.strip().str.title()
+customers[<span class="s">"name"</span>]        = customers[<span class="s">"name"</span>].str.strip().str.title()     <span class="c"># "  MONA MOSTAFA " -&gt; "Mona Mostafa"</span>
+customers[<span class="s">"email"</span>]       = customers[<span class="s">"email"</span>].str.strip().str.lower()</pre>
+    </section>
+
+    <!-- 6 -->
+    <section class="sec" id="impossible">
+      <div class="sec-head"><h2><span class="num">6</span>القيم المستحيلة</h2></div>
+      <p>درس الإحصاء قال: <b>الـ outlier سؤال، مش غلطة.</b><br>
+        ودول الـ outliers اللي إجابة سؤالهم "غلطة".<br>
+        ومش بنلاقيهم بقاعدة outliers، بنلاقيهم بـ <b>قواعد الشغل</b>: حاجات مستحيل تبقى صح.</p>
+<pre>rules = {
+    <span class="s">"quantity &lt;= 0"</span>:     orders[<span class="s">"quantity"</span>] &lt;= <span class="s">0</span>,              <span class="c"># 1: order 10008, quantity -2</span>
+    <span class="s">"quantity &gt; 100"</span>:    orders[<span class="s">"quantity"</span>] &gt; <span class="s">100</span>,            <span class="c"># 1: 500 laptops in one line</span>
+    <span class="s">"unit_price &lt;= 0"</span>:   orders[<span class="s">"unit_price"</span>] &lt;= <span class="s">0</span>,            <span class="c"># 1: a free item</span>
+    <span class="s">"order_date &gt; 2025"</span>: orders[<span class="s">"order_date"</span>] &gt; <span class="s">"2025-12-31"</span>,   <span class="c"># 1: an order in 2031</span>
+}
+bad = pd.concat(rules, axis=<span class="s">1</span>).any(axis=<span class="s">1</span>)                         <span class="c"># 4 rows</span></pre>
+      <div class="voice">500 × 32,000 = 16,000,000 EGP<small>سطر الـ 500 لابتوب لوحده، لو محدش بصّ عليه: أكتر من نص إيراد NileCart في السنتين، من غلطة كتابة واحدة</small></div>
+      <div class="callout insight"><div class="ttl">💡 فاكر الأوردر 10008؟</div>
+        في درس Pandas، <span class="en">s.loc[10008]</span> طلّع <span class="en">KeyError</span>.<br>
+        ده الأوردر اللي كميته −2: اتمسح هنا، فمش موجود في <span class="en">sales.csv</span>.</div>
+      <h3 class="sub">أسئلة لسه مالهاش إجابة</h3>
+      <p>فيه فحوصات بتلاقي حاجات ممكن تكون غلط، بس الـ analyst لوحده مايقدرش يصلّحها:</p>
+      <div class="two">
+        <div class="path"><h4>3 أوردرات من غير عميل</h4><p>الـ <span class="en">customer_id</span> بتاعهم (901 و 902) مش موجود.<br>البيعة حصلت، فبنحتفظ بيهم والعميل <span class="en">"Unknown"</span>.</p></div>
+        <div class="path"><h4>50 عميل طلبوا قبل ما يسجّلوا</h4><p>أول أوردر قبل <span class="en">signup_date</span>.<br>يمكن ده تاريخ الحساب الأونلاين، ويمكن bug. سؤال للشغل، يتكتب في الـ log، مش سطر يتمسح.</p></div>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="sec" id="pipeline">
+      <div class="sec-head"><h2><span class="num">7</span>الـ Pipeline: كله بالترتيب، ومعاه log</h2></div>
+      <p>كل القرارات اللي فاتت في function واحدة، وكل خطوة بتسجّل شالت كام سطر.<br>
+        جرّب تغيّر أي قرار، وشوف بتوصل لـ <span class="en">sales.csv</span> ولا لأ:</p>
+      <div class="widget" id="wPipe"></div>
+<pre><span class="k">def</span> clean_orders(raw):
+    df = raw.copy()
+    df[<span class="s">"order_date"</span>] = pd.to_datetime(df[<span class="s">"order_date"</span>])
+    bad = ((df[<span class="s">"quantity"</span>] &lt;= <span class="s">0</span>) | (df[<span class="s">"quantity"</span>] &gt; <span class="s">100</span>) |
+           (df[<span class="s">"unit_price"</span>] &lt;= <span class="s">0</span>) | (df[<span class="s">"order_date"</span>] &gt; <span class="s">"2025-12-31"</span>))
+    df = df.loc[~bad]                                       <span class="c"># 1,501 -&gt; 1,497</span>
+    df = df.drop_duplicates()                               <span class="c"># -&gt; 1,496</span>
+    df = df.dropna(subset=[<span class="s">"quantity"</span>])                     <span class="c"># -&gt; 1,466</span>
+    df = df.fillna({<span class="s">"discount"</span>: <span class="s">0</span>, <span class="s">"status"</span>: <span class="s">"unknown"</span>})
+    df[<span class="s">"quantity"</span>] = df[<span class="s">"quantity"</span>].astype(int)
+    <span class="k">return</span> df</pre>
+      <p>وبعدين الـ merges بتاعة الدرس اللي فات، والأعمدة المحسوبة (<span class="en">gross</span> و <span class="en">revenue</span> و <span class="en">profit</span>).<br>
+        وفي الآخر نقارن بـ <span class="en">sales.csv</span>:</p>
+<pre>pd.testing.assert_frame_equal(mine, sales, check_dtype=<span class="k">False</span>)   <span class="c"># passes: identical, (1466, 18)</span></pre>
+      <p>نفس الـ <bdi>1,466</bdi> سطر، ونفس القيم. كل جداول الكورس طلعت من القرارات القليلة دي.</p>
+      <h3 class="sub">الـ Cleaning log</h3>
+      <p>اكتب عملت إيه وليه، جنب الداتا. ده اللي بيخلّي حد تاني (أو إنت بعد 3 شهور) يثق في الأرقام.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الخطوة</th><th>السطور</th><th>القرار</th></tr></thead>
+        <tbody>
+          <tr><td><span class="en">orders.csv</span> الخام</td><td><bdi>1,501</bdi></td><td></td></tr>
+          <tr><td>قيم مستحيلة</td><td><bdi>−4</bdi></td><td>كمية −2 و 500، وسعر صفر، وتاريخ في 2031</td></tr>
+          <tr><td>المكرر</td><td><bdi>−1</bdi></td><td>الأوردر 10004 كان في الملف مرتين</td></tr>
+          <tr><td>كمية ناقصة</td><td><bdi>−30</bdi></td><td>من غير كمية مفيش إيراد</td></tr>
+          <tr><td>خصم ناقص</td><td>0</td><td>اتملا 0 (فاضي = مفيش خصم)</td></tr>
+          <tr><td>حالة ناقصة</td><td>0</td><td>اتملت <span class="en">"unknown"</span></td></tr>
+          <tr><td>النصوص</td><td>0</td><td>الأسماء والمحافظات strip و title، والإيميلات lower</td></tr>
+          <tr><td>أسئلة مفتوحة</td><td></td><td>3 أوردرات من غير عميل (اتسابوا "Unknown")، و 50 عميل طلبوا قبل التسجيل</td></tr>
+          <tr><td><b><span class="en">sales.csv</span></b></td><td><b><bdi>1,466</bdi></b></td><td></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 8 -->
+    <section class="sec" id="mistakes">
+      <div class="sec-head"><h2><span class="num">8</span>أخطاء شائعة</h2></div>
+      <div class="two">
+        <div class="path bad"><h4>✗ <span class="en">df.dropna()</span> على الجدول كله</h4><p>بيمسح أي سطر فيه أي خانة فاضية: الـ 40 أوردر اللي خصمهم ناقص كانوا هيروحوا.</p></div>
+        <div class="path good"><h4>✓ <span class="en">dropna(subset=[...])</span></h4><p>قرار لكل عمود.</p></div>
+        <div class="path bad"><h4>✗ تملا كل حاجة بالمتوسط</h4><p>بيخترع داتا، ويقلّل الـ std، وشكله صح.</p></div>
+        <div class="path good"><h4>✓ اسأل الخانة الفاضية معناها إيه</h4><p>صفر؟ فئة "unknown"؟ ولا السطر ميتحسبش؟</p></div>
+        <div class="path bad"><h4>✗ تمسح الـ outliers كأنها غلطات</h4><p>أكبر أوردرات اللابتوب حقيقية.</p></div>
+        <div class="path good"><h4>✓ قواعد الشغل للمستحيل</h4><p>كمية سالبة، سعر صفر، تاريخ في المستقبل.</p></div>
+        <div class="path bad"><h4>✗ تنضّف في خلايا متفرقة</h4><p>محدش يعرف إيه اللي اتعمل، ولا بأي ترتيب.</p></div>
+        <div class="path good"><h4>✓ function واحدة و log</h4><p>عدد السطور بعد كل خطوة، وليه.</p></div>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">9</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sheet">
+        <div class="card"><h4>القيم الناقصة</h4><span class="en">isna().sum()</span><br><span class="en">dropna(subset=)</span> · <span class="en">fillna({...})</span> · فئة باسم</div>
+        <div class="card"><h4>المكرر</h4><span class="en">duplicated()</span> · <span class="en">duplicated(subset=["id"])</span><br><span class="en">drop_duplicates()</span></div>
+        <div class="card"><h4>الأنواع</h4><span class="en">pd.to_datetime</span> · <span class="en">pd.to_numeric(errors="coerce")</span><br><span class="en">astype(int)</span> · <span class="en">category</span></div>
+        <div class="card"><h4>النصوص</h4><span class="en">.str.strip()</span> · <span class="en">.str.title()</span> · <span class="en">.str.lower()</span></div>
+        <div class="card"><h4>المستحيل</h4>قواعد الشغل، مش قاعدة outliers<br>والمشكوك فيه: اسأل واكتبه</div>
+        <div class="card"><h4>الـ Pipeline</h4>function واحدة، وعدد السطور بعد كل خطوة<br>وقارن بالنتيجة المتوقعة</div>
+      </div>
+      <div class="nb-links">
+        <a class="nb-btn primary" data-kaggle href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
+      </div>
+    </section>
+
+    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/grouping/"><span>→ الدرس اللي فات</span><b class="en">Grouping &amp; Joining</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><span class="pg next off"><span>الدرس الجاي ←</span><b>ليه نرسم؟</b></span></nav>
+
+    <footer>
+      الداتا: NileCart، متجر وهمي في القاهرة، بالجنيه المصري.<br>
+      كل الأرقام في الدرس محسوبة من نفس الداتا اللي في النوت بوك.
+    </footer>
+  </main>
+</div>
+
+<script src="../assets/data/cleaning.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const KAGGLE = "https://www.kaggle.com/code/a7madmostafa/zero-grad-da-light-cleaning";
+const C = window.CLEANING, N = C.order_id.length;
+const nf = v => Math.round(v).toLocaleString("en");
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function head(title, hint, badge = "جرّب بنفسك") { return `<div class="widget-head"><span class="badge">${badge}</span><h3>${title}</h3></div><p class="hint">${hint}</p>`; }
+const seg = (name, opts, cur) => `<div class="seg">${opts.map(([v, t]) => `<button data-${name}="${v}" aria-pressed="${v === cur}">${t}</button>`).join("")}</div>`;
+function wireSeg(root, name, set) { $$(`[data-${name}]`, root).forEach(b => b.onclick = () => { set(b.dataset[name]); $$(`[data-${name}]`, root).forEach(x => x.setAttribute("aria-pressed", x === b)); }); }
+
+/* ---------- figure: where the holes are ---------- */
+function missFig() {
+  const cols = ["order_id", "order_date", "customer_id", "product_id", "quantity", "unit_price", "discount", "status"];
+  const miss = { quantity: C.quantity, discount: C.discount, status: C.status };
+  const x0 = 110, w = 520, rh = 20;
+  let o = "";
+  cols.forEach((c, j) => {
+    const y = 16 + j * (rh + 6), arr = miss[c], n = arr ? arr.filter(v => v === null).length : 0;
+    o += `<text x="${x0 - 10}" y="${y + 14}" text-anchor="end" font-size="11.5" style="fill:var(${n ? "--ink" : "--muted"})" font-weight="${n ? 700 : 400}">${c}</text>`;
+    o += `<rect x="${x0}" y="${y}" width="${w}" height="${rh}" rx="3" style="fill:var(--surface-2)"/>`;
+    if (arr) arr.forEach((v, i) => { if (v === null) o += `<rect x="${x0 + i / N * w}" y="${y}" width="1.6" height="${rh}" style="fill:var(--bad)"/>`; });
+    o += `<text x="${x0 + w + 10}" y="${y + 14}" font-size="11.5" style="fill:var(${n ? "--bad" : "--muted"})" font-weight="${n ? 700 : 400}">${n ? n + " missing" : "0"}</text>`;
+  });
+  $("#missFig").innerHTML = `<svg viewBox="0 0 720 ${16 + cols.length * (rh + 6) + 8}" role="img" aria-label="القيم الناقصة في orders.csv" xmlns="http://www.w3.org/2000/svg">${o}</svg>`;
+}
+
+/* ---------- widget: clean the text keys ---------- */
+function textWidget(root) {
+  const raw = C.gov_raw, ref = new Set(C.gov_ref);
+  let strip = false, kase = "none";
+  root.innerHTML = head("نضّف الـ key", "محافظات الـ 200 عميل زي ما جات من فورم التسجيل. شغّل strip وغيّر الـ casing، وشوف كام قيمة مختلفة فضلت، وكام عميل لقى محافظته في governorates.csv. الأحمر قيمة ملهاش match، والمسافات باينة.") + `
+    <div class="optrow"><span class="lbl en">.str.strip()</span><label class="chk"><input type="checkbox" data-strip> شيل المسافات من الأطراف</label></div>
+    <div class="optrow"><span class="lbl">الـ casing</span>${seg("case", [["none", "زي ما هي"], ["lower", ".str.lower()"], ["title", ".str.title()"]], kase)}</div>
+    <div class="codeline" data-s="code"></div>
+    <div class="vals" data-s="vals"></div>
+    <div class="stats" data-s="stats"></div>
+    <div class="status" data-s="msg" style="margin-top:.5rem"></div>`;
+  const title = s => s.toLowerCase().replace(/(^|[\s-])(\S)/g, (m, a, b) => a + b.toUpperCase());
+  function draw() {
+    const f = v => { let s = strip ? v.trim() : v; return kase === "lower" ? s.toLowerCase() : kase === "title" ? title(s) : s; };
+    const clean = raw.map(f), counts = {};
+    clean.forEach(v => counts[v] = (counts[v] || 0) + 1);
+    const keys = Object.keys(counts).sort((a, b) => a.trim().toLowerCase().localeCompare(b.trim().toLowerCase()) || a.localeCompare(b));
+    const matched = clean.filter(v => ref.has(v)).length;
+    let code = `customers["governorate"]`; if (strip) code += `.str.strip()`; if (kase !== "none") code += `.str.${kase}()`;
+    $("[data-s=code]", root).innerHTML = `${esc(code)}.nunique()   <span class="c"># ${keys.length}</span>`;
+    $("[data-s=vals]", root).innerHTML = keys.map(k => `<span class="${ref.has(k) ? "" : "miss"}">${esc(JSON.stringify(k))}<small>${counts[k]}</small></span>`).join("");
+    $("[data-s=stats]", root).innerHTML = `<div class="stat"><span>nunique()</span><b>${keys.length}</b></div><div class="stat"><span>لقوا match</span><b>${matched} / ${raw.length}</b></div>`;
+    $("[data-s=msg]", root).textContent = matched === raw.length ? `كل الـ ${raw.length} عميل لقوا محافظتهم: الـ merge مش هيطلّع ولا NaN.` :
+      kase === "lower" ? `lower() خلّى الكتابة زي بعض، بس governorates.csv مكتوب "Cairo" مش "cairo": ولا عميل لقى match.\nالـ casing لازم يبقى زي الجدول اللي هتعمل معاه merge.` :
+      `${raw.length - matched} عميل ملقوش محافظتهم، والـ merge هيدّيهم NaN في region.`;
+  }
+  $("[data-strip]", root).onchange = e => { strip = e.target.checked; draw(); };
+  wireSeg(root, "case", v => { kase = v; draw(); });
+  draw();
+}
+
+/* ---------- widget: the cleaning pipeline ---------- */
+function pipeWidget(root) {
+  const st = { bad: "drop", dup: "drop", qty: "drop", disc: "zero", status: "unknown" };
+  const rowsAll = [...Array(N).keys()];
+  const key = i => [C.order_id[i], C.date[i], C.quantity[i], C.unit_price[i], C.discount[i], C.status[i]].join("|");
+  const isBad = i => { const q = C.quantity[i]; return (q !== null && (q <= 0 || q > 100)) || C.unit_price[i] <= 0 || C.date[i] > "2025-12-31"; };
+  function run(s) {
+    const log = [["orders.csv الخام", N, ""]]; let R = rowsAll.slice();
+    const q = {}, d = {}, stt = {};
+    R.forEach(i => { q[i] = C.quantity[i]; d[i] = C.discount[i]; stt[i] = C.status[i]; });
+    if (s.bad === "drop") { R = R.filter(i => !isBad(i)); log.push(["القيم المستحيلة", R.length, "drop"]); }
+    if (s.dup === "drop") { const seen = new Set(); R = R.filter(i => { const k = key(i); if (seen.has(k)) return false; seen.add(k); return true; }); log.push(["المكرر", R.length, "drop_duplicates()"]); }
+    const qs = R.map(i => q[i]).filter(v => v !== null).sort((a, b) => a - b);
+    if (s.qty === "drop") { R = R.filter(i => q[i] !== null); log.push(["كمية ناقصة", R.length, "dropna"]); }
+    else if (s.qty !== "keep") { const fill = s.qty === "zero" ? 0 : s.qty === "median" ? (qs.length % 2 ? qs[(qs.length - 1) / 2] : (qs[qs.length / 2 - 1] + qs[qs.length / 2]) / 2) : qs.reduce((a, b) => a + b, 0) / qs.length; R.forEach(i => { if (q[i] === null) q[i] = fill; }); }
+    if (s.disc === "drop") { R = R.filter(i => d[i] !== null); log.push(["خصم ناقص", R.length, "dropna"]); }
+    else if (s.disc === "zero") R.forEach(i => { if (d[i] === null) d[i] = 0; });
+    if (s.status === "drop") { R = R.filter(i => stt[i] !== null); log.push(["حالة ناقصة", R.length, "dropna"]); }
+    else if (s.status === "unknown") R.forEach(i => { if (stt[i] === null) stt[i] = -1; });
+    let rev = 0, nanRows = 0, nanStatus = 0, unknown = 0;
+    R.forEach(i => {
+      if (q[i] === null || d[i] === null) nanRows++;
+      else { const g = Math.round(q[i] * C.unit_price[i] * 100) / 100; rev += Math.round(g * (1 - d[i]) * 100) / 100; }
+      if (stt[i] === null) nanStatus++; if (stt[i] === -1) unknown++;
+    });
+    return { log, rows: R.length, rev, nanRows, nanStatus, unknown };
+  }
+  const REF = run(st);
+  root.innerHTML = head("ابنِ sales.csv بنفسك", "كل سطر قرار. القرارات اللي متعلّمة من الأول هي اللي عملت sales.csv. غيّر أي واحد، وشوف عدد السطور والإيراد بيروحوا فين.") + `
+    <div class="optrow"><span class="lbl">القيم المستحيلة (4)</span>${seg("bad", [["drop", "امسح"], ["keep", "سيبها"]], st.bad)}</div>
+    <div class="optrow"><span class="lbl">السطر المكرر (1)</span>${seg("dup", [["drop", "امسح"], ["keep", "سيبه"]], st.dup)}</div>
+    <div class="optrow"><span class="lbl"><span class="en">quantity</span> ناقصة (30)</span>${seg("qty", [["drop", "امسح السطر"], ["median", "الـ median"], ["mean", "الـ mean"], ["zero", "صفر"], ["keep", "سيب NaN"]], st.qty)}</div>
+    <div class="optrow"><span class="lbl"><span class="en">discount</span> ناقص (40)</span>${seg("disc", [["zero", "صفر"], ["keep", "سيب NaN"], ["drop", "امسح السطر"]], st.disc)}</div>
+    <div class="optrow"><span class="lbl"><span class="en">status</span> ناقصة (10)</span>${seg("status", [["unknown", "\"unknown\""], ["drop", "امسح السطر"], ["keep", "سيب NaN"]], st.status)}</div>
+    <div class="funnel" data-s="funnel"></div>
+    <div class="stats" data-s="stats"></div>
+    <div class="verdict" data-s="verdict"></div>`;
+  function draw() {
+    const r = run(st);
+    $("[data-s=funnel]", root).innerHTML = r.log.map(([t, n], k) => { const drop = k ? r.log[k - 1][1] - n : 0; return `<div class="fr"><span>${t}</span><div class="bar" style="width:${(n / N * 100).toFixed(1)}%"><b>${nf(n)}</b>${drop ? `<i>−${drop}</i>` : ""}</div></div>`; }).join("");
+    const dRev = r.rev - REF.rev;
+    $("[data-s=stats]", root).innerHTML =
+      `<div class="stat"><span>السطور</span><b>${nf(r.rows)}</b></div>` +
+      `<div class="stat"><span><bdi dir="ltr">revenue.sum()</bdi></span><b>${(r.rev / 1e6).toFixed(2)}M</b></div>` +
+      `<div class="stat"><span>الفرق عن sales.csv</span><b style="color:var(${Math.abs(dRev) < 1 ? "--chalk-g" : "--bad"})">${Math.abs(dRev) < 1 ? "0" : (dRev > 0 ? "+" : "−") + nf(Math.abs(dRev))}</b></div>` +
+      `<div class="stat"><span>إيراد NaN</span><b>${r.nanRows}</b></div>`;
+    const notes = [];
+    if (st.bad === "keep") notes.push("القيم المستحيلة فضلت: سطر الـ 500 لابتوب لوحده زوّد 16 مليون جنيه.");
+    if (st.dup === "keep") notes.push("الأوردر 10004 متحسب مرتين.");
+    if (st.qty === "median" || st.qty === "mean") notes.push(`ملينا 30 كمية بـ ${st.qty}: مبيعات متخترعة.`);
+    if (st.qty === "zero") notes.push("30 سطر بكمية صفر: المجموع ما اتغيّرش، بس عدد السطور ومتوسط الكمية بقوا غلط.");
+    if (r.nanRows) notes.push(`${r.nanRows} سطر إيرادهم NaN، و sum() بيتجاهلهم في صمت.`);
+    if (st.disc === "drop") notes.push("مسحنا 40 أوردر حقيقي عشان خانة خصم فاضية.");
+    if (st.status === "drop") notes.push("مسحنا 10 أوردرات حقيقية عشان مش عارفين حالتهم.");
+    if (r.nanStatus) notes.push(`${r.nanStatus} أوردر حالتهم NaN: value_counts() مش هيعدّهم.`);
+    const ok = r.rows === REF.rows && Math.abs(dRev) < 1 && !r.nanRows && !r.nanStatus;
+    const el = $("[data-s=verdict]", root); el.className = "verdict " + (ok ? "ok" : "no");
+    el.innerHTML = ok ? `✓ ده <span class="en">sales.csv</span> بالظبط: <bdi>1,466</bdi> سطر، و ${unknownTxt(r.unknown)}.` : "✗ " + notes.join("<br>");
+  }
+  const unknownTxt = u => `${u} أوردرات حالتهم <span class="en">"unknown"</span>`;
+  ["bad", "dup", "qty", "disc", "status"].forEach(k => wireSeg(root, k, v => { st[k] = v; draw(); }));
+  draw();
+}
+
+/* ---------- page chrome ---------- */
+function chrome() {
+  $$("#kaggleLink, [data-kaggle]").forEach(a => a.href = KAGGLE);
+  const toc = $("#tocList"), links = {};
+  $$("section.sec").forEach(sec => {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + sec.id; a.textContent = $("h2", sec).textContent.replace(/^\d+/, "").trim();
+    li.appendChild(a); toc.appendChild(li); links[sec.id] = a;
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { Object.values(links).forEach(a => a.classList.remove("active")); links[e.target.id].classList.add("active"); } }), { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  window.addEventListener("scroll", () => { const h = document.documentElement; $("#progress").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; }, { passive: true });
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  chrome();
+  missFig();
+  textWidget($("#wText")); pipeWidget($("#wPipe"));
+});
+})();
+</script>
+</body>
+</html>

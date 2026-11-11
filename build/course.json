@@ -39,6 +39,12 @@
       "notebook": "notebooks/grouping/grouping.ipynb",
       "kaggle_slug": "zero-grad-da-grouping-and-joining"
     },
+    "cleaning": {
+      "title": "Light Cleaning",
+      "title_ar": "تنضيف الداتا",
+      "notebook": "notebooks/cleaning/cleaning.ipynb",
+      "kaggle_slug": "zero-grad-da-light-cleaning"
+    },
     "distribution": {
       "title": "Distribution Charts",
       "title_ar": "شكل الأرقام: Distribution",
