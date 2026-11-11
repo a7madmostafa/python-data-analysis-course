@@ -285,7 +285,7 @@ print("a after changing a copy:   ", a)
 """),
 md("""
 Views keep NumPy fast on big data. When you want to change a piece without touching the original, call `.copy()`.
-(Pandas has the same issue; it's where its `SettingWithCopyWarning` comes from.)
+(Pandas 2 had the same issue, behind its `SettingWithCopyWarning`. Pandas 3 avoids it: every selection behaves like a copy.)
 """),
 md("""
 ---

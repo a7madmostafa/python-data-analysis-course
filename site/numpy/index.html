@@ -282,7 +282,7 @@ prices_list * <span class="s">1.14</span>   <span class="c"># TypeError: can't m
 prices * <span class="s">1.14</span>        <span class="c"># array([   71.82, 34656.  ,    64.98])</span></pre>
       <h3 class="sub">وكمان أسرع بكتير</h3>
       <p>ضرب مليون رقم في <bdi>1.14</bdi>: loop على list، قصاد سطر واحد على array.<br>
-        الـ array كان أسرع <b>عشرات المرات</b> (في النوت بوك طلع حوالي 48 مرة، والرقم بيختلف من جهاز للتاني).</p>
+        الـ array كان أسرع <b>عشرات المرات</b> (في النوت بوك بيطلع بين 30 و 50 مرة، والرقم بيختلف من جهاز للتاني ومن تشغيل للتاني).</p>
       <div class="callout add"><div class="ttl">➕ ليه أسرع؟</div>
         الـ array بيحط الأرقام جنب بعض في الذاكرة، وكلها من نفس النوع.<br>
         فالـ loop بيتنفّذ جوّه NumPy بلغة C، مش في Python سطر سطر.<br>
@@ -374,7 +374,7 @@ first3 = a[:<span class="s">3</span>].copy()  <span class="c"># an independent c
       <div class="callout add"><div class="ttl">➕ ليه كده؟</div>
         الـ view بيخلّي NumPy سريع على داتا كبيرة: مفيش نسخ مع كل slice.<br>
         ولو عايز تعدّل في جزء من غير ما تلمس الأصل، استخدم <span class="en">.copy()</span>.<br>
-        ونفس الحكاية موجودة في Pandas، ومنها بييجي الـ <span class="en">SettingWithCopyWarning</span> اللي هتقابله.</div>
+        و Pandas 2 كان فيها نفس الحكاية، ومنها كان بييجي الـ <span class="en">SettingWithCopyWarning</span>. من Pandas 3، أي اختيار من جدول بيتصرّف كأنه نسخة.</div>
     </section>
 
     <!-- 5 -->
