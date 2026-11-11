@@ -1,0 +1,15 @@
+{
+  "id": "a7madmostafa/zero-grad-da-grouping-and-joining",
+  "title": "Zero Grad DA: Grouping and Joining",
+  "code_file": "grouping.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "a7madmostafa/nilecart-sales"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

@@ -33,6 +33,12 @@
       "notebook": "notebooks/pandas/pandas.ipynb",
       "kaggle_slug": "zero-grad-da-pandas-basics"
     },
+    "grouping": {
+      "title": "Grouping & Joining",
+      "title_ar": "Grouping & Joining",
+      "notebook": "notebooks/grouping/grouping.ipynb",
+      "kaggle_slug": "zero-grad-da-grouping-and-joining"
+    },
     "distribution": {
       "title": "Distribution Charts",
       "title_ar": "شكل الأرقام: Distribution",

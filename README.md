@@ -22,8 +22,9 @@ No quizzes, no labs, no unsolved exercises.
 | `site/numpy/` | Lesson: NumPy (arrays vs lists, dtype and NaN, reshape, indexing and views, boolean masks, aggregation and axis, broadcasting, sort/argsort), and `notebook/` |
 | `site/stats/` | Lesson: Descriptive statistics (mean/median/mode, trimmed mean, std and ddof, percentiles and IQR, CV, describe(), outlier rules, skewness, group statistics), and `notebook/` |
 | `site/pandas/` | Lesson: Pandas basics (Series and DataFrame, read_csv/to_csv, first look, columns, loc/iloc, filtering, sorting), and `notebook/` |
+| `site/grouping/` | Lesson: Grouping & joining (groupby, agg, transform, pivot_table/crosstab, concat, merge and join types, unmatched and repeated keys, validate=), and `notebook/` |
 | `site/distribution/` | Lesson: Distribution charts (histogram, bins, log scale, KDE, box, violin/strip, ECDF), and `notebook/` with the notebook rendered to HTML |
-| `site/assets/data/` | NileCart data the lesson widgets read (`sales.js` for Distribution, `nilecart.js` for the Introduction, `linalg.js` for Linear algebra, `numpy.js` for NumPy, `stats.js` for Descriptive statistics, `pandas.js` for Pandas basics) |
+| `site/assets/data/` | NileCart data the lesson widgets read (`sales.js` for Distribution, `nilecart.js` for the Introduction, `linalg.js` for Linear algebra, `numpy.js` for NumPy, `stats.js` for Descriptive statistics, `pandas.js` for Pandas basics, `grouping.js` for Grouping & joining) |
 | `notebooks/<lesson>/` | Solved notebook + `kernel-metadata.json` for Kaggle |
 | `data/` | NileCart tables (`sales.csv` + raw tables) + `dataset-metadata.json` for Kaggle |
 | `build/` | Scripts that make everything above (see below) |
@@ -38,6 +39,7 @@ python build/build_linalg.py
 python build/build_numpy.py
 python build/build_stats.py
 python build/build_pandas.py
+python build/build_grouping.py
 python build/build_distribution.py
 python build/render_notebook.py --all         # site/<lesson>/notebook/index.html
 python build/make_dataset_metadata.py --push  # Kaggle dataset About, column notes, cover
@@ -73,7 +75,7 @@ Status: ✅ done · 🟡 in progress · ⬜ planned
 
 ### 2. Pandas
 - ✅ Pandas basics: reading, inspection, selection, filtering
-- ⬜ Grouping and joining: groupby, pivot, merge
+- ✅ Grouping and joining: groupby, pivot, merge
 - ⬜ Light cleaning: missing values, duplicates, types, simple outliers (full preprocessing is its own course)
 
 ### 3. Visualization (by chart type, not by library)
