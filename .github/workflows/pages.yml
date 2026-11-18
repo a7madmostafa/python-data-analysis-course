@@ -1,0 +1,42 @@
+# Publish the brand-free final-project pages (built from website/site/final-project/ by
+# website/build/build_pages.py) to GitHub Pages. Repo settings: Pages source = GitHub Actions.
+name: Final project page
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website/site/final-project/**"
+      - "website/build/build_pages.py"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Build the page
+        run: python website/build/build_pages.py _site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -18,3 +18,6 @@ _reference/
 # Bike Sharing: hidden for now, back later
 6-projects/04-bike-sharing/
 data/bike_sharing/
+
+# GitHub Pages build output (website/build/build_pages.py)
+_site/
