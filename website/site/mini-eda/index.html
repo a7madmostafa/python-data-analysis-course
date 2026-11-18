@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini EDA</title>
+<meta name="description" content="تحليل استكشافي (EDA) كامل بالعربي على داتا NileCart: univariate ثم bivariate ثم multivariate، والسؤال بيختار الـ chart، لحد ما نلاقي المحل بيخسر فين وليه، ونطلع بتوصية.">
+<meta property="og:title" content="Mini EDA · Zero Grad">
+<meta property="og:description" content="سؤال واحد من أوله لآخره بالرسم: المحل بيخسر فين، وليه؟">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/mini-eda/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/mini-eda/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<script src="/assets/js/theme.js"></script>
+<link rel="apple-touch-icon" href="/assets/img/zero-grad-app-icon-512.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<script src="/assets/js/pwa.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ea; --surface:#fffdf8; --surface-2:#efeadf; --ink:#1c1e22; --muted:#5b616b; --line:#ddd6c6;
+  --accent:#101f40; --on-accent:#f5f2ea; --chalk-g:#15803d; --chalk-o:#c2410c; --add:#2563eb; --bad:#dc2626;
+  --c1:#0f766e; --c2:#2563eb; --c3:#b45309; --c4:#9333ea;
+  --board:#232323; --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+    --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+    --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+  --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+  --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--add)}
+html,body{overflow-x:clip}
+@media (max-width:520px){.brand{font-size:.8rem}.seg button{padding:.2rem .55rem;font-size:.8rem}.topbar-in{gap:.4rem}.top-actions{gap:.3rem}.iconbtn{width:30px;height:30px}}
+code,pre{font-family:"JetBrains Mono",monospace}
+.en{direction:ltr;unicode-bidi:isolate}
+code.i{font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .35rem;direction:ltr;unicode-bidi:isolate}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;right:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .1s}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:auto;padding:.55rem 16px;display:flex;gap:.75rem;align-items:center;justify-content:space-between}
+.top-actions{display:flex;gap:.5rem;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.25rem .8rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+
+/* layout */
+.wrap{max-width:1180px;margin:auto;padding:0 16px;display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media (min-width:1100px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:72px;align-self:start;padding-top:2.5rem;font-size:.9rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+  nav.toc a{display:block;padding:.3rem .9rem;color:var(--muted);text-decoration:none;margin-inline-start:-2px;border-inline-start:2px solid transparent;line-height:1.5}
+  nav.toc a.active{color:var(--ink);border-color:var(--accent);font-weight:500}
+}
+main{min-width:0;padding-bottom:6rem}
+
+/* hero */
+.hero{padding:3rem 0 1.5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.hero h1{font-family:"Caveat",cursive;font-size:clamp(3rem,9vw,5.2rem);line-height:1;margin:.5rem 0 .75rem;color:var(--accent);direction:ltr;text-align:right;font-weight:700}
+.lead{font-size:1.15rem;max-width:62ch;margin:0}
+
+/* notebook links */
+.nb-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.nb-btn{display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4rem 1rem;text-decoration:none}
+.nb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.nb-btn:hover{border-color:var(--accent)}
+
+/* sections */
+section.sec{padding-top:2.5rem;scroll-margin-top:64px}
+.sec-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:1.25rem}
+.sec-head h2{margin:0;font-size:1.55rem;line-height:1.35;display:flex;gap:.7rem;align-items:baseline}
+.num{font-family:"Caveat",cursive;color:var(--accent);font-size:2rem;line-height:1}
+h3.sub{font-size:1.15rem;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+.chalk{font-family:"Caveat",cursive;font-size:1.35em;color:var(--accent);direction:ltr;unicode-bidi:isolate;font-weight:700;line-height:1.2}
+.voice{margin:1.25rem 0;padding:.9rem 1.2rem;border-radius:var(--radius);background:var(--board);color:#f2c94c;font-family:"Caveat",cursive;font-size:1.9rem;direction:ltr;text-align:center;line-height:1.3}
+.voice small{display:block;font-family:"Noto Sans Arabic",sans-serif;font-size:.8rem;color:#a1a1a1;direction:rtl;margin-top:.25rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;line-height:1.6}
+.card b{display:block;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr;gap:1rem;margin:1rem 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.path{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem}
+.path h4{margin:0 0 .25rem;font-size:1.05rem}
+.path .sub{color:var(--muted);font-size:.85rem}
+.path.good{border-color:color-mix(in srgb,var(--chalk-g) 55%,var(--line))}
+.path.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.path.good h4{color:var(--chalk-g)}
+.path.bad h4{color:var(--bad)}
+
+/* the "use it when" box every chart gets */
+.when{display:grid;grid-template-columns:1fr;gap:.75rem;margin:1rem 0}
+@media(min-width:760px){.when{grid-template-columns:repeat(3,1fr)}}
+.when .card{border-top:3px solid var(--accent)}
+.when .card:nth-child(2){border-top-color:var(--chalk-g)}
+.when .card:nth-child(3){border-top-color:var(--chalk-o)}
+
+/* callouts */
+.callout{border-radius:var(--radius);padding:.9rem 1.1rem;margin:1.25rem 0;border:1px solid;font-size:.97rem}
+.callout .ttl{font-weight:700;font-size:.85rem;display:flex;gap:.4rem;align-items:center;margin-bottom:.15rem}
+.callout.add{border-color:color-mix(in srgb,var(--add) 45%,transparent);background:color-mix(in srgb,var(--add) 7%,var(--surface))}
+.callout.add .ttl{color:var(--add)}
+.callout.warn{border-color:color-mix(in srgb,var(--chalk-o) 55%,transparent);background:color-mix(in srgb,var(--chalk-o) 8%,var(--surface))}
+.callout.warn .ttl{color:var(--chalk-o)}
+.callout.insight{border-color:color-mix(in srgb,var(--chalk-g) 50%,transparent);background:color-mix(in srgb,var(--chalk-g) 8%,var(--surface))}
+.callout.insight .ttl{color:var(--chalk-g)}
+details.callout summary{cursor:pointer;list-style:none}
+details.callout summary::-webkit-details-marker{display:none}
+details.callout summary .ttl::after{content:"＋";margin-inline-start:auto}
+details.callout[open] summary .ttl::after{content:"－"}
+
+/* tables & code */
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.tbl th,.tbl td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.tbl thead th{background:var(--surface-2);font-size:.85rem}
+.tbl tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+pre{direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;padding:1rem 1.1rem;border-radius:var(--radius);overflow-x:auto;font-size:.85rem;line-height:1.65;margin:1rem 0}
+pre .c{color:#8a8a8a}
+pre .k{color:#f2c94c}
+pre .s{color:#4ade80}
+.codetabs{margin:1rem 0}
+.codetabs .seg{margin-bottom:-.4rem}
+.codetabs pre{margin-top:.6rem}
+.codetabs pre[hidden]{display:none}
+
+/* figures */
+figure.fig{margin:1.25rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.fig-scroll{overflow-x:auto}
+figure.fig svg{width:100%;min-width:520px;height:auto;display:block;direction:ltr}
+figure.fig svg text{font-family:Inter,"Noto Sans Arabic",sans-serif;fill:var(--ink)}
+figure.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+
+/* widgets */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.widget-head{display:flex;gap:.6rem;align-items:center;margin-bottom:.2rem}
+.widget-head .badge{font-size:.72rem;font-weight:700;color:var(--bg);background:var(--chalk-g);border-radius:999px;padding:.1rem .6rem;white-space:nowrap}
+.widget-head h3{margin:0;font-size:1.1rem}
+.widget .hint{color:var(--muted);font-size:.9rem;margin:.1rem 0 .8rem}
+.wgrid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:820px){.wgrid.cols{grid-template-columns:1.6fr 1fr}}
+canvas{width:100%;display:block;border-radius:10px;background:var(--surface-2);touch-action:none}
+.controls{display:grid;gap:.7rem;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;gap:.5rem}
+.ctl label output{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.4rem .85rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk.off{opacity:.45;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem}
+.stat{background:var(--surface-2);border-radius:10px;padding:.45rem .7rem;line-height:1.35}
+.stat span{display:block;font-size:.75rem;color:var(--muted)}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;unicode-bidi:isolate}
+.status{font-size:.9rem;min-height:1.6em;color:var(--muted);white-space:pre-line}
+.keys{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.5rem}
+.keys span{display:inline-flex;gap:.35rem;align-items:center}
+.keys i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+
+/* summary */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem}
+.sheet .card{padding:1rem}
+.sheet .card h4{margin:0 0 .3rem;font-size:.95rem;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding:1.5rem 0;margin-top:3rem}
+.muted{color:var(--muted);font-size:.9em}
+
+/* lesson navigation */
+.crumbs{display:flex;align-items:center;gap:.45rem;font-size:.9rem;white-space:nowrap;min-width:0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{color:var(--line)}
+.crumbs .here{font-weight:700;color:var(--ink)}
+a.iconbtn{display:grid;place-items:center;text-decoration:none;font-size:.95rem}
+.iconbtn.off{opacity:.3;pointer-events:none;display:grid;place-items:center}
+.pager{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;margin-top:3rem}
+.pg{display:flex;flex-direction:column;gap:.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);text-decoration:none;line-height:1.5}
+.pg span{font-size:.82rem;color:var(--muted)}
+.pg b{font-size:1rem;color:var(--accent)}
+a.pg:hover{border-color:var(--accent)}
+.pg.next{text-align:left}
+.pg.all{justify-content:center;text-align:center}
+.pg.off{border-style:dashed;background:transparent}
+.pg.off b{color:var(--muted)}
+@media (max-width:640px){.pager{grid-template-columns:1fr}.pg.next{text-align:right}.pg.all{order:3}}
+@media (max-width:520px){.crumbs .home,.crumbs .home+.sep{display:none}}
+@media (max-width:400px){.crumbs .course+.sep,.crumbs .here{display:none}}
+@media print{.topbar,nav.toc,#progress,.widget{display:none!important}body{background:#fff;color:#000;font-size:12pt}}
+
+.steps{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.8rem}
+.steps button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);border-radius:999px;padding:.2rem .7rem;cursor:pointer}
+.steps button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.steps button.u{border-inline-start:3px solid var(--c1)}.steps button.b{border-inline-start:3px solid var(--c3)}.steps button.m{border-inline-start:3px solid var(--bad)}
+.qa{display:grid;gap:.35rem;margin:.2rem 0 .7rem;font-size:.95rem}
+.qa .lvl{font-size:.78rem;color:var(--muted)}
+.qa b.q{font-size:1.05rem}
+.insight{margin-top:.7rem;padding:.6rem .8rem;border-radius:10px;background:color-mix(in srgb,var(--chalk-g) 9%,var(--surface));border:1px solid color-mix(in srgb,var(--chalk-g) 40%,transparent);font-size:.95rem}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here">Mini EDA</span></nav>
+    <div class="top-actions">
+      <a class="iconbtn" href="/courses/da/more-charts/" aria-label="الدرس اللي فات: رسومات تانية" title="الدرس اللي فات: رسومات تانية">→</a><span class="iconbtn off" aria-hidden="true">←</span>
+      <button class="iconbtn" id="themeBtn" type="button" data-theme-toggle aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="المحتوى"><ol id="tocList"></ol></nav>
+  <main>
+    <div class="hero">
+      <div class="kicker">Zero Grad · كورس Data Analysis · Visualization · تطبيق</div>
+      <h1>Mini EDA</h1>
+      <p class="lead">الدرس ده بيشغّل رسومات القسم كله على سؤال بيزنس واحد من جدول NileCart:<br><b>فيه سطور أوردرات بتخسر فلوس. أنهي سطور؟ وليه؟</b><br>الرسومات مش هتتشرح تاني. المهم هنا <b>ترتيب الأسئلة</b>، و<b>ليه اخترنا كل chart</b>.</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" href="https://github.com/a7madmostafa/python-data-analysis-course/blob/main/4-visualization/06_mini_eda.ipynb" target="_blank" rel="noopener">📓 النوت بوك على GitHub</a><a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a><a class="nb-btn" href="https://www.kaggle.com/datasets/a7madmostafa/nilecart-sales" target="_blank" rel="noopener">🗂️ داتا NileCart على Kaggle</a>
+      </div>
+    </div>
+
+<section class="sec" id="plan">
+      <div class="sec-head"><h2><span class="num">1</span>الخطة</h2></div>
+      <p>التحليل بيمشي من البسيط للغني:</p>
+      <div class="cards">
+        <div class="card"><b>1. Univariate</b>عمود واحد في المرة. شكله إيه؟</div>
+        <div class="card"><b>2. Bivariate</b>عمودين. إيه بيتحرك مع إيه؟</div>
+        <div class="card"><b>3. Multivariate</b>3 أعمدة أو أكتر. هي فعلًا حكاية واحدة؟</div>
+        <div class="card"><b>4. الخلاصة</b>الإجابة، وهنعمل إيه.</div>
+      </div>
+      <p>والـ chart بييجي من الأعمدة اللي في السؤال:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>السؤال عن</th><th>الـ Chart</th></tr></thead>
+        <tbody>
+          <tr><td>رقم واحد</td><td>Histogram</td></tr>
+          <tr><td>فئة واحدة</td><td>Bars مترتّبة</td></tr>
+          <tr><td>رقم عبر فئات</td><td>Bars أو box plot</td></tr>
+          <tr><td>رقم مع رقم</td><td>Scatter، أو correlation heatmap لو كتير</td></tr>
+          <tr><td>رقم مع الوقت</td><td>Line</td></tr>
+          <tr><td>رقم عبر فئتين</td><td>Heatmap</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="sec" id="walk">
+      <div class="sec-head"><h2><span class="num">2</span>التحقيق، سؤال سؤال</h2></div>
+      <p>الجدول نضيف أصلًا: سطر لكل order line، سنتين كاملين (1,466 سطر، مفيش خانات فاضية). امشي في الأسئلة بالترتيب:</p>
+      <div class="widget" id="wWalk"></div>
+      <div class="callout insight"><div class="ttl">💡 لاحظ الطريق</div>
+        الـ univariate قال إن فيه خسارة، والـ bivariate طلّع 3 مشتبه فيهم (Electronics، وخصم 20%، ونوفمبر)،
+        والـ multivariate بس هو اللي وضّح إنهم <b>حكاية واحدة</b>: الـ White Friday بيحط خصم 20% على Electronics.</div>
+    </section>
+
+    <section class="sec" id="answer">
+      <div class="sec-head"><h2><span class="num">3</span>الإجابة</h2></div>
+      <div class="cards">
+        <div class="card"><b>أنهي سطور بتخسر؟</b>Electronics بخصم 20%: الـ 32 سطر الخسرانين كلهم، في المنتجات الأربعة، ومفيش غيرهم.</div>
+        <div class="card"><b>ليه؟</b>Electronics هامشها رفيع: التكلفة 81% لـ 85% من السعر النموذجي، فخصم 20% بيبيع أغلب السطور دي <b>تحت التكلفة</b>. والخصم مبيزوّدش الكمية في السطر.</div>
+        <div class="card"><b>إمتى؟</b>في أي شهر، بس الـ White Friday هو الـ peak: 14 من الـ 32 في النوفمبرين.</div>
+      </div>
+      <p>صاحب القرار محتاج صفحة واحدة، مش كل الرسومات. الملخّص بيحتفظ بالتلاتة اللي شايلين الإجابة (heatmap، و scatter لـ Electronics، و bars الخسارة كل شهر)،
+        في figure واحدة بـ <span class="en">fig.subplot_mosaic("AB;CC")</span>، ومحفوظة بـ <span class="en">savefig</span>.</p>
+      <h3 class="sub">التوصية، وقيمتها</h3>
+      <p>نقفل خصم Electronics عند حد معيّن، ونسيب عروض الـ White Friday على كل حاجة تانية. الحد ده يسوى كام؟ جرّب:</p>
+      <div class="widget" id="wCap"></div>
+      <div class="callout warn"><div class="ttl">⚠️ متأكدين قد إيه؟</div>
+        النمط ثابت: موجود حتى لو أخدنا الأوردرات المكتملة والمشحونة بس. بس المكسب مفترض إن السطور دي كانت هتتباع برضه بخصم أقل،
+        والداتا دي مش بتوري العملاء اللي جم عشان الـ 20% بس. لازم نجرّب الحد ده في الـ White Friday الجاي قبل ما يبقى قاعدة.</div>
+    </section>
+
+    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/more-charts/"><span>→ الدرس اللي فات</span><b>رسومات تانية</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><span class="pg next off"><span>الدرس الجاي ←</span><b>Streamlit</b></span></nav>
+
+    <footer>
+      الداتا: NileCart، متجر وهمي في القاهرة، بالجنيه المصري.<br>
+      كل الأرقام في الدرس من نفس الداتا اللي في النوت بوك.
+    </footer>
+  </main>
+</div>
+
+<script src="../assets/data/vizlib.js"></script>
+<script>
+(() => {
+"use strict";
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const nf = v => Math.round(v).toLocaleString("en");
+function head(title, hint, badge = "جرّب بنفسك") { return `<div class="widget-head"><span class="badge">${badge}</span><h3>${title}</h3></div><p class="hint">${hint}</p>`; }
+function setup(cv, h) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 300;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + "px";
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.direction = "ltr";
+  return { ctx, w, h };
+}
+const redrawers = []; const onRedraw = f => redrawers.push(f);
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => redrawers.forEach(f => f()), 120); });
+const PAL = () => [cssv("--c1"), cssv("--c3"), cssv("--bad"), cssv("--c2"), cssv("--c4"), cssv("--muted")];
+function text(ctx, t, x, y, { col = "--muted", font = "11px Inter, sans-serif", align = "left", base = "alphabetic" } = {}) {
+  ctx.fillStyle = col.startsWith("--") ? cssv(col) : col; ctx.font = font; ctx.textAlign = align; ctx.textBaseline = base; ctx.fillText(t, x, y);
+}
+function axes(ctx, x0, y0, x1, y1) { ctx.strokeStyle = cssv("--line"); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke(); }
+function segPick(root, attr, onPick) {
+  $$(`[${attr}]`, root).forEach(b => b.onclick = () => { $$(`[${attr}]`, root).forEach(x => x.setAttribute("aria-pressed", x === b)); onPick(b.getAttribute(attr)); });
+}
+
+
+function chrome() {
+  $$(".codetabs").forEach(box => $$(".seg button", box).forEach(b => b.onclick = () => {
+    $$(".seg button", box).forEach(x => x.setAttribute("aria-pressed", x === b));
+    $$("pre", box).forEach(p => p.hidden = p.dataset.lib !== b.dataset.lib);
+  }));
+  const toc = $("#tocList"), links = {};
+  $$("section.sec").forEach(sec => {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + sec.id; a.textContent = $("h2", sec).textContent.replace(/^\d+/, "").trim();
+    li.appendChild(a); toc.appendChild(li); links[sec.id] = a;
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { Object.values(links).forEach(a => a.classList.remove("active")); links[e.target.id].classList.add("active"); } }), { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  window.addEventListener("scroll", () => { const h = document.documentElement; $("#progress").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; }, { passive: true });
+  new MutationObserver(() => redrawers.forEach(f => f())).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => redrawers.forEach(f => f()));
+}
+
+const V = window.VL, L = V.levels, N = V.revenue.length, ALL = [...Array(N).keys()];
+const cat = c => L.category.indexOf(c), E = cat("Electronics");
+const YM = V.date.map(d => d.slice(0, 7)), MONTHS = [...new Set(YM)].sort(), MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const sum = a => a.reduce((x, y) => x + y, 0), mean = a => sum(a) / a.length;
+const D = [0, 5, 10, 20], loss = i => V.profit[i] < 0;
+
+/* small painters on a canvas */
+function bars(ctx, w, h, labels, vals, { fmt = nf, colors, horizontal = false, zero = true, hl } = {}) {
+  const pad = horizontal ? { l: 96, r: 60, t: 8, b: 8 } : { l: 16, r: 16, t: 22, b: 30 };
+  const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals) * 1.1 || 1, pal = colors || labels.map((_, k) => hl === undefined || hl === k ? cssv("--c1") : cssv("--muted"));
+  if (horizontal) {
+    const bh = (h - pad.t - pad.b) / labels.length, sx = v => pad.l + v / hi * (w - pad.l - pad.r);
+    labels.forEach((l, k) => { const y = pad.t + k * bh; ctx.fillStyle = typeof pal === "string" ? pal : pal[k]; ctx.fillRect(pad.l, y + bh * .15, sx(vals[k]) - pad.l, bh * .7);
+      text(ctx, l, pad.l - 6, y + bh / 2, { col: "--ink", align: "right", base: "middle", font: "11.5px Inter, sans-serif" }); text(ctx, fmt(vals[k]), sx(vals[k]) + 5, y + bh / 2, { base: "middle", font: "11px 'JetBrains Mono', monospace" }); });
+  } else {
+    const bw = (w - pad.l - pad.r) / labels.length, sy = v => h - pad.b - (v - lo) / (hi - lo) * (h - pad.t - pad.b);
+    labels.forEach((l, k) => { const x = pad.l + k * bw + bw * .18; ctx.fillStyle = typeof pal === "string" ? pal : pal[k]; const y0 = sy(0), y1 = sy(vals[k]); ctx.fillRect(x, Math.min(y0, y1), bw * .64, Math.abs(y1 - y0));
+      text(ctx, fmt(vals[k]), x + bw * .32, vals[k] >= 0 ? y1 - 5 : y1 + 13, { col: "--ink", align: "center", font: "bold 11px 'JetBrains Mono', monospace" });
+      text(ctx, l, x + bw * .32, h - 10, { col: "--ink", align: "center", font: "11px Inter, sans-serif" }); });
+    if (lo < 0) { ctx.strokeStyle = cssv("--ink"); ctx.beginPath(); ctx.moveTo(pad.l, sy(0)); ctx.lineTo(w - pad.r, sy(0)); ctx.stroke(); }
+  }
+}
+
+/* ---------- the walk-through ---------- */
+function walkWidget(root) {
+  const catOrder = ["Accessories", "Electronics", "Furniture", "Stationery"].sort((a, b) => ALL.filter(i => V.category[i] === cat(b)).length - ALL.filter(i => V.category[i] === cat(a)).length);
+  const marg = L.category.map((c, k) => { const ix = ALL.filter(i => V.category[i] === k); return [c, sum(ix.map(i => V.profit[i])) / sum(ix.map(i => V.revenue[i]))]; }).sort((a, b) => b[1] - a[1]);
+  const monthMargin = MONTHS.map(m => { const ix = ALL.filter(i => YM[i] === m); return sum(ix.map(i => V.profit[i])) / sum(ix.map(i => V.revenue[i])); });
+  const cellMargin = L.category.map((c, k) => D.map(d => { const ix = ALL.filter(i => V.category[i] === k && V.discount[i] === d); return sum(ix.map(i => V.profit[i])) / sum(ix.map(i => V.revenue[i])); }));
+  const elecProd = [...new Set(ALL.filter(i => V.category[i] === E).map(i => V.product_name[i]))].map(p => L.product_name[p]);
+  const S = [
+    { l: "u", lvl: "Univariate", q: "ربح السطر شكله إيه؟ وكام سطر تحت الصفر؟", chart: "histogram لرقم واحد، وخط عند الصفر: الحد اللي يهمنا.",
+      draw(ctx, w, h) { const v = V.profit, lo = Math.min(...v), hi = Math.max(...v), nb = 50, c = new Array(nb).fill(0); v.forEach(x => c[Math.min(nb - 1, Math.floor((x - lo) / (hi - lo) * nb))]++);
+        const pad = { l: 30, r: 10, t: 10, b: 24 }, mx = Math.max(...c), bw = (w - pad.l - pad.r) / nb, sx = x => pad.l + (x - lo) / (hi - lo) * (w - pad.l - pad.r);
+        axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); c.forEach((n, k) => { ctx.fillStyle = k < Math.floor((0 - lo) / (hi - lo) * nb) ? cssv("--bad") : cssv("--c1"); ctx.fillRect(pad.l + k * bw + .5, h - pad.b - n / mx * (h - pad.t - pad.b), bw - 1, n / mx * (h - pad.t - pad.b)); });
+        ctx.strokeStyle = cssv("--ink"); ctx.beginPath(); ctx.moveTo(sx(0), pad.t); ctx.lineTo(sx(0), h - pad.b); ctx.stroke(); text(ctx, "0", sx(0), h - 8, { align: "center" }); text(ctx, nf(hi), w - pad.r, h - 8, { align: "right" }); },
+      ins: () => { const l = ALL.filter(loss); return `الربح ليه ذيل طويل لليمين، فالـ mean (${nf(mean(V.profit))}) بعيد فوق الـ median. ${l.length} سطر بس من ${nf(N)} بيخسروا، ${nf(-sum(l.map(i => V.profit[i])))} جنيه: صغير، بس فلوس المحل اختار يخسرها.`; } },
+    { l: "u", lvl: "Univariate", q: "المحل بيعمل خصم قد إيه؟", chart: "count bars: الـ discount رقم، بس بـ 4 قيم بس بيتصرف زي فئة.",
+      draw(ctx, w, h) { bars(ctx, w, h, D.map(d => d + "%"), D.map(d => ALL.filter(i => V.discount[i] === d).length)); },
+      ins: () => `${Math.round(ALL.filter(i => V.discount[i] === 0).length / N * 100)}% من السطور من غير خصم، و ${Math.round(ALL.filter(i => V.discount[i] === 20).length / N * 100)}% بالخصم الكبير 20%.` },
+    { l: "u", lvl: "Univariate", q: "إيه اللي بيتباع أكتر؟", chart: "bars مترتّبة لفئة واحدة.",
+      draw(ctx, w, h) { bars(ctx, w, h, catOrder, catOrder.map(c => ALL.filter(i => V.category[i] === cat(c)).length), { horizontal: true, hl: 0 }); },
+      ins: () => "Accessories في الأول بـ 602 سطر، و Electronics تانية بـ 389. بس بالفلوس، سطر لابتوبات مش زي سطر كشاكيل، فالخطوة الجاية بتحط الأعمدة جنب بعض." },
+    { l: "b", lvl: "Bivariate", q: "أنهي فئات بتجيب الفلوس فعلًا؟", chart: "bars مترتّبة للـ margin: الربح كنسبة من الإيراد، فكشكول بـ 60 جنيه ولابتوب بـ 32,000 على نفس المقياس.",
+      draw(ctx, w, h) { bars(ctx, w, h, marg.map(m => m[0]), marg.map(m => m[1]), { horizontal: true, fmt: v => Math.round(v * 100) + "%", hl: 3 }); },
+      ins: () => "Electronics بتجيب 81% من الإيراد، بس 56% بس من الربح. هامشها 13%، وكل فئة تانية 42% أو أكتر. هامش رفيع = مفيش مكان لخصم." },
+    { l: "b", lvl: "Bivariate", q: "الخصم بيعمل إيه في الربح؟ وبيبيع قطع أكتر على الأقل؟", chart: "bars للمتوسط، رقم عبر 4 مجموعات. panel للربح و panel للكمية.",
+      draw(ctx, w, h) { const half = w / 2 - 8; ctx.save(); bars(ctx, half, h, D.map(d => d + "%"), D.map(d => mean(ALL.filter(i => V.discount[i] === d).map(i => V.profit[i]))), { hl: -1, colors: cssv("--c1") });
+        text(ctx, "mean profit", 16, 12, { col: "--ink", font: "bold 11px Inter, sans-serif" }); ctx.translate(half + 16, 0);
+        bars(ctx, half, h, D.map(d => d + "%"), D.map(d => mean(ALL.filter(i => V.discount[i] === d).map(i => V.quantity[i]))), { fmt: v => v.toFixed(2), colors: cssv("--c3") });
+        text(ctx, "mean quantity", 16, 12, { col: "--ink", font: "bold 11px Inter, sans-serif" }); ctx.restore(); },
+      ins: () => "متوسط الربح بينزل من 4,583 جنيه من غير خصم لـ 708 عند 20%، والكمية ثابتة حوالي 4 قطع في السطر. الخصم مش بيخلّي الناس تشتري أكتر." },
+    { l: "b", lvl: "Bivariate", q: "فيه وقت الـ margin بيبقى أوحش؟", chart: "line لرقم مع الوقت، بعد ما نجمع كل شهر.",
+      draw(ctx, w, h) { const pad = { l: 40, r: 10, t: 12, b: 24 }, lo = .1, hi = Math.max(...monthMargin) * 1.05, sx = k => pad.l + k / (MONTHS.length - 1) * (w - pad.l - pad.r), sy = v => h - pad.b - (v - lo) / (hi - lo) * (h - pad.t - pad.b);
+        axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); ctx.strokeStyle = cssv("--c1"); ctx.lineWidth = 2; ctx.beginPath(); monthMargin.forEach((v, k) => k ? ctx.lineTo(sx(k), sy(v)) : ctx.moveTo(sx(k), sy(v))); ctx.stroke();
+        monthMargin.forEach((v, k) => { ctx.fillStyle = MONTHS[k].endsWith("-11") ? cssv("--bad") : cssv("--c1"); ctx.beginPath(); ctx.arc(sx(k), sy(v), MONTHS[k].endsWith("-11") ? 5 : 3, 0, 7); ctx.fill(); });
+        [.15, .2, .25].forEach(v => v < hi && text(ctx, Math.round(v * 100) + "%", pad.l - 5, sy(v) + 3, { align: "right" })); [0, 10, 22].forEach(k => text(ctx, MO[+MONTHS[k].slice(5) - 1] + " " + MONTHS[k].slice(2, 4), sx(k), h - 8, { align: "center" })); },
+      ins: () => "أوحش شهر في السنتين نوفمبر 2025 (12%)، ونوفمبر 2024 قريب من القاع (15%). الـ margin الكلي 19%. يبقى عندنا 3 مشتبه فيهم: Electronics، وخصم 20%، ونوفمبر. 3 حكايات، ولا واحدة؟" },
+    { l: "m", lvl: "Multivariate", q: "الـ margin بيتغيّر إزاي مع الفئة والخصم مع بعض؟", chart: "heatmap: رقم عبر فئتين. الـ margin بيخلّي الفئات قابلة للمقارنة، و center=0 بيخلّي أي خسارة حمرا.",
+      draw(ctx, w, h) { const pad = { l: 96, r: 10, t: 22, b: 6 }, cw = (w - pad.l - pad.r) / 4, rh = (h - pad.t - pad.b) / 4, m = .7;
+        D.forEach((d, j) => text(ctx, d + "%", pad.l + j * cw + cw / 2, 14, { align: "center" }));
+        L.category.forEach((c, i) => { text(ctx, c, pad.l - 6, pad.t + i * rh + rh / 2, { col: "--ink", align: "right", base: "middle" }); cellMargin[i].forEach((v, j) => {
+          const t = Math.min(1, Math.abs(v) / m), col = v < 0 ? `rgb(${215},${Math.round(255 - 160 * Math.max(t, .6))},${Math.round(191 - 150 * Math.max(t, .6))})` : `rgb(${Math.round(255 - 229 * t)},${Math.round(255 - 103 * t)},${Math.round(191 - 111 * t)})`;
+          ctx.fillStyle = col; ctx.fillRect(pad.l + j * cw + 1, pad.t + i * rh + 1, cw - 2, rh - 2);
+          text(ctx, Math.round(v * 100) + "%", pad.l + j * cw + cw / 2, pad.t + i * rh + rh / 2, { col: t > .55 && v > 0 ? "#fff" : "#1c1e22", align: "center", base: "middle", font: "bold 11.5px 'JetBrains Mono', monospace" }); }); }); },
+      ins: () => "ده النمط المستخبّي: كل فئة كسبانة عند كل خصم، ما عدا Electronics عند 20%، الخانة السالبة الوحيدة (−3%). الـ −0.22 الضعيف كان متوسط فئات بتتصرف مختلف خالص." },
+    { l: "m", lvl: "Multivariate", q: "كل سطور الخانة دي، ولا شوية سطور وحشين؟", chart: "scatter للإيراد والربح، نقطة لكل سطر من Electronics، واللون = الخصم.",
+      draw(ctx, w, h) { const ix = ALL.filter(i => V.category[i] === E), pad = { l: 50, r: 10, t: 10, b: 24 }, xm = Math.max(...ix.map(i => V.revenue[i])), ylo = Math.min(...ix.map(i => V.profit[i])) * 1.1, yhi = Math.max(...ix.map(i => V.profit[i])) * 1.05;
+        const sx = v => pad.l + v / xm * (w - pad.l - pad.r), sy = v => h - pad.b - (v - ylo) / (yhi - ylo) * (h - pad.t - pad.b), DC = { 0: "#440154", 5: "#3b528b", 10: "#21918c", 20: "#fde725" };
+        axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); ctx.strokeStyle = cssv("--ink"); ctx.beginPath(); ctx.moveTo(pad.l, sy(0)); ctx.lineTo(w - pad.r, sy(0)); ctx.stroke(); text(ctx, "0", pad.l - 5, sy(0) + 3, { align: "right" });
+        ix.forEach(i => { ctx.fillStyle = DC[V.discount[i]]; ctx.globalAlpha = .8; ctx.beginPath(); ctx.arc(sx(V.revenue[i]), sy(V.profit[i]), 3.2, 0, 7); ctx.fill(); }); ctx.globalAlpha = 1;
+        D.forEach((d, k) => { ctx.fillStyle = DC[d]; ctx.fillRect(w - 190 + k * 46, pad.t + 2, 10, 10); text(ctx, d + "%", w - 176 + k * 46, pad.t + 11); }); },
+      ins: () => { const l = ALL.filter(loss); return `كل الـ ${l.length} سطر الخسرانين Electronics بخصم 20%: ${l.filter(i => V.category[i] === E && V.discount[i] === 20).length} من ${l.length}، من غير ولا استثناء. النقط الصفرا هي اللي تحت الصفر.`; } },
+    { l: "m", lvl: "Multivariate", q: "هو منتج واحد وحش؟", chart: "grouped bars: المنتج على x، والخصم hue، ومتوسط الربح الارتفاع. هنا: عند 20% بس.",
+      draw(ctx, w, h) { const v = elecProd.map(p => mean(ALL.filter(i => L.product_name[V.product_name[i]] === p && V.discount[i] === 20).map(i => V.profit[i]))); bars(ctx, w, h, elecProd, v, { colors: v.map(x => x < 0 ? cssv("--bad") : cssv("--c1")) }); },
+      ins: () => "المنتجات الأربعة تحت الصفر عند 20%، من اللابتوب (−5,504 جنيه للسطر) للشاشة (−105). دي مشكلة تسعير، مش مشكلة منتج: التكلفة 81% لـ 85% من السعر." },
+    { l: "m", lvl: "Multivariate", q: "الخسارة دي بتحصل إمتى؟", chart: "bars لكل شهر: أعداد، كل شهر لوحده، فالـ bars أوضح من الـ line.",
+      draw(ctx, w, h) { const c = MONTHS.map(m => ALL.filter(i => YM[i] === m && loss(i)).length), pad = { l: 26, r: 10, t: 12, b: 24 }, mx = Math.max(...c), bw = (w - pad.l - pad.r) / c.length;
+        axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); c.forEach((n, k) => { ctx.fillStyle = MONTHS[k].endsWith("-11") ? cssv("--bad") : cssv("--muted"); ctx.fillRect(pad.l + k * bw + bw * .15, h - pad.b - n / mx * (h - pad.t - pad.b), bw * .7, n / mx * (h - pad.t - pad.b)); });
+        text(ctx, mx, pad.l - 5, pad.t + 8, { align: "right" }); [0, 10, 22].forEach(k => text(ctx, MO[+MONTHS[k].slice(5) - 1] + " " + MONTHS[k].slice(2, 4), pad.l + k * bw + bw / 2, h - 8, { align: "center" })); },
+      ins: () => { const l = ALL.filter(loss); return `${l.filter(i => YM[i].endsWith("-11")).length} من الـ ${l.length} سطر الخسرانين في النوفمبرين. الـ 3 مشتبه فيهم حكاية واحدة: الـ White Friday بيحط خصم 20% على Electronics.`; } },
+  ];
+  let si = 0;
+  root.innerHTML = head("المحل بيخسر فين؟", "كل خطوة: السؤال، وليه الـ chart ده، والرسمة، واللي طلعنا بيه.", "التحقيق") + `
+    <div class="steps">${S.map((s, i) => `<button class="${s.l}" data-s="${i}" aria-pressed="${i === si}">${i + 1}</button>`).join("")}</div>
+    <div class="qa" data-s="qa"></div><canvas></canvas><div class="insight" data-s="ins"></div>
+    <div class="btns" style="margin-top:.7rem"><button class="btn" data-a="prev">→ اللي فات</button><button class="btn primary" data-a="next">اللي بعده ←</button></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const s = S[si], { ctx, w, h } = setup(cv, cv.clientWidth < 460 ? 220 : 250);
+    $("[data-s=qa]", root).innerHTML = `<span class="lvl">${s.lvl} · ${si + 1} / ${S.length}</span><b class="q">❓ ${s.q}</b><span>📊 ${s.chart}</span>`;
+    s.draw(ctx, w, h); $("[data-s=ins]", root).textContent = "📌 " + s.ins();
+    $$("[data-s]", root).forEach(b => b.matches("button") && b.setAttribute("aria-pressed", +b.dataset.s === si));
+    $("[data-a=prev]", root).disabled = si === 0; $("[data-a=next]", root).disabled = si === S.length - 1;
+  }
+  $$(".steps button", root).forEach(b => b.onclick = () => { si = +b.dataset.s; draw(); });
+  $("[data-a=prev]", root).onclick = () => { si = Math.max(0, si - 1); draw(); };
+  $("[data-a=next]", root).onclick = () => { si = Math.min(S.length - 1, si + 1); draw(); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- what is the cap worth? ---------- */
+function capWidget(root) {
+  let cap = 10, kept = false;
+  root.innerHTML = head("حد أقصى لخصم Electronics", "السطور اللي اتباعت بـ 20%: الربح لو كان الخصم أقل. (الـ gross = السعر × الكمية، وكل نقطة خصم أقل = 1% من الـ gross ربح زيادة.)", "احسبها") + `
+    <div class="optrow"><span class="muted">الحد</span><div class="seg">${[0, 5, 10, 15, 20].map(c => `<button data-c="${c}" aria-pressed="${c === cap}">${c}%</button>`).join("")}</div>
+      <label class="chk"><input type="checkbox" data-k="kept"> المكتملة والمشحونة بس</label></div>
+    <div class="stats" data-s="st"></div><div class="status" data-s="msg" style="margin-top:.6rem"></div>`;
+  const ok = ["completed", "shipped"].map(s => L.status.indexOf(s));
+  function draw() {
+    const base = kept ? ALL.filter(i => ok.includes(V.status[i])) : ALL, deep = base.filter(i => V.category[i] === E && V.discount[i] === 20);
+    const now = sum(deep.map(i => V.profit[i])), extra = sum(deep.map(i => V.unit_price[i] * V.quantity[i] * (20 - cap) / 100)), total = sum(base.map(i => V.profit[i]));
+    const lossLines = base.filter(loss);
+    $("[data-s=st]", root).innerHTML = [["سطور Electronics بـ 20%", deep.length], ["ربحهم دلوقتي", nf(now)], [`ربحهم عند ${cap}%`, nf(now + extra)], ["المكسب", nf(extra)], ["من الربح الكلي", (extra / total * 100).toFixed(1) + "%"]]
+      .map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join("");
+    $("[data-s=msg]", root).textContent = (kept ? `من غير الملغية والمرتجعة: ${base.length} سطر، و ${lossLines.length} خسرانين، كلهم Electronics بـ 20% (${lossLines.filter(i => V.category[i] === E && V.discount[i] === 20).length}). النمط لسه ثابت. ` : "") +
+      (cap === 20 ? "ده الوضع الحالي." : cap === 10 ? "التوصية: 10% لـ Electronics. المكسب حوالي 5% من الربح الكلي." : cap === 0 ? "من غير خصم خالص على Electronics: مكسب أكبر على الورق، بس احتمال نخسر عملاء أكتر." : "");
+  }
+  segPick(root, "data-c", v => { cap = +v; draw(); });
+  $("[data-k=kept]", root).onchange = e => { kept = e.target.checked; draw(); };
+  draw();
+}
+
+function main() { walkWidget($("#wWalk")); capWidget($("#wCap")); }
+
+window.addEventListener("DOMContentLoaded", () => { chrome(); main(); });
+})();
+</script>
+</body>
+</html>

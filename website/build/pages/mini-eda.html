@@ -1,0 +1,195 @@
+<!--meta
+{"title": "Mini EDA",
+ "h1": "Mini EDA",
+ "lead": "الدرس ده بيشغّل رسومات القسم كله على سؤال بيزنس واحد من جدول NileCart:<br><b>فيه سطور أوردرات بتخسر فلوس. أنهي سطور؟ وليه؟</b><br>الرسومات مش هتتشرح تاني. المهم هنا <b>ترتيب الأسئلة</b>، و<b>ليه اخترنا كل chart</b>.",
+ "description": "تحليل استكشافي (EDA) كامل بالعربي على داتا NileCart: univariate ثم bivariate ثم multivariate، والسؤال بيختار الـ chart، لحد ما نلاقي المحل بيخسر فين وليه، ونطلع بتوصية.",
+ "og_description": "سؤال واحد من أوله لآخره بالرسم: المحل بيخسر فين، وليه؟",
+ "kicker": "Visualization · تطبيق",
+ "next_soon": "Streamlit",
+ "scripts": ["../assets/data/vizlib.js"]}
+-->
+    <section class="sec" id="plan">
+      <div class="sec-head"><h2><span class="num">1</span>الخطة</h2></div>
+      <p>التحليل بيمشي من البسيط للغني:</p>
+      <div class="cards">
+        <div class="card"><b>1. Univariate</b>عمود واحد في المرة. شكله إيه؟</div>
+        <div class="card"><b>2. Bivariate</b>عمودين. إيه بيتحرك مع إيه؟</div>
+        <div class="card"><b>3. Multivariate</b>3 أعمدة أو أكتر. هي فعلًا حكاية واحدة؟</div>
+        <div class="card"><b>4. الخلاصة</b>الإجابة، وهنعمل إيه.</div>
+      </div>
+      <p>والـ chart بييجي من الأعمدة اللي في السؤال:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>السؤال عن</th><th>الـ Chart</th></tr></thead>
+        <tbody>
+          <tr><td>رقم واحد</td><td>Histogram</td></tr>
+          <tr><td>فئة واحدة</td><td>Bars مترتّبة</td></tr>
+          <tr><td>رقم عبر فئات</td><td>Bars أو box plot</td></tr>
+          <tr><td>رقم مع رقم</td><td>Scatter، أو correlation heatmap لو كتير</td></tr>
+          <tr><td>رقم مع الوقت</td><td>Line</td></tr>
+          <tr><td>رقم عبر فئتين</td><td>Heatmap</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="sec" id="walk">
+      <div class="sec-head"><h2><span class="num">2</span>التحقيق، سؤال سؤال</h2></div>
+      <p>الجدول نضيف أصلًا: سطر لكل order line، سنتين كاملين (1,466 سطر، مفيش خانات فاضية). امشي في الأسئلة بالترتيب:</p>
+      <div class="widget" id="wWalk"></div>
+      <div class="callout insight"><div class="ttl">💡 لاحظ الطريق</div>
+        الـ univariate قال إن فيه خسارة، والـ bivariate طلّع 3 مشتبه فيهم (Electronics، وخصم 20%، ونوفمبر)،
+        والـ multivariate بس هو اللي وضّح إنهم <b>حكاية واحدة</b>: الـ White Friday بيحط خصم 20% على Electronics.</div>
+    </section>
+
+    <section class="sec" id="answer">
+      <div class="sec-head"><h2><span class="num">3</span>الإجابة</h2></div>
+      <div class="cards">
+        <div class="card"><b>أنهي سطور بتخسر؟</b>Electronics بخصم 20%: الـ 32 سطر الخسرانين كلهم، في المنتجات الأربعة، ومفيش غيرهم.</div>
+        <div class="card"><b>ليه؟</b>Electronics هامشها رفيع: التكلفة 81% لـ 85% من السعر النموذجي، فخصم 20% بيبيع أغلب السطور دي <b>تحت التكلفة</b>. والخصم مبيزوّدش الكمية في السطر.</div>
+        <div class="card"><b>إمتى؟</b>في أي شهر، بس الـ White Friday هو الـ peak: 14 من الـ 32 في النوفمبرين.</div>
+      </div>
+      <p>صاحب القرار محتاج صفحة واحدة، مش كل الرسومات. الملخّص بيحتفظ بالتلاتة اللي شايلين الإجابة (heatmap، و scatter لـ Electronics، و bars الخسارة كل شهر)،
+        في figure واحدة بـ <span class="en">fig.subplot_mosaic("AB;CC")</span>، ومحفوظة بـ <span class="en">savefig</span>.</p>
+      <h3 class="sub">التوصية، وقيمتها</h3>
+      <p>نقفل خصم Electronics عند حد معيّن، ونسيب عروض الـ White Friday على كل حاجة تانية. الحد ده يسوى كام؟ جرّب:</p>
+      <div class="widget" id="wCap"></div>
+      <div class="callout warn"><div class="ttl">⚠️ متأكدين قد إيه؟</div>
+        النمط ثابت: موجود حتى لو أخدنا الأوردرات المكتملة والمشحونة بس. بس المكسب مفترض إن السطور دي كانت هتتباع برضه بخصم أقل،
+        والداتا دي مش بتوري العملاء اللي جم عشان الـ 20% بس. لازم نجرّب الحد ده في الـ White Friday الجاي قبل ما يبقى قاعدة.</div>
+    </section>
+
+<style>
+.steps{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.8rem}
+.steps button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);border-radius:999px;padding:.2rem .7rem;cursor:pointer}
+.steps button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.steps button.u{border-inline-start:3px solid var(--c1)}.steps button.b{border-inline-start:3px solid var(--c3)}.steps button.m{border-inline-start:3px solid var(--bad)}
+.qa{display:grid;gap:.35rem;margin:.2rem 0 .7rem;font-size:.95rem}
+.qa .lvl{font-size:.78rem;color:var(--muted)}
+.qa b.q{font-size:1.05rem}
+.insight{margin-top:.7rem;padding:.6rem .8rem;border-radius:10px;background:color-mix(in srgb,var(--chalk-g) 9%,var(--surface));border:1px solid color-mix(in srgb,var(--chalk-g) 40%,transparent);font-size:.95rem}
+</style>
+<script>
+const V = window.VL, L = V.levels, N = V.revenue.length, ALL = [...Array(N).keys()];
+const cat = c => L.category.indexOf(c), E = cat("Electronics");
+const YM = V.date.map(d => d.slice(0, 7)), MONTHS = [...new Set(YM)].sort(), MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const sum = a => a.reduce((x, y) => x + y, 0), mean = a => sum(a) / a.length;
+const D = [0, 5, 10, 20], loss = i => V.profit[i] < 0;
+
+/* small painters on a canvas */
+function bars(ctx, w, h, labels, vals, { fmt = nf, colors, horizontal = false, zero = true, hl } = {}) {
+  const pad = horizontal ? { l: 96, r: 60, t: 8, b: 8 } : { l: 16, r: 16, t: 22, b: 30 };
+  const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals) * 1.1 || 1, pal = colors || labels.map((_, k) => hl === undefined || hl === k ? cssv("--c1") : cssv("--muted"));
+  if (horizontal) {
+    const bh = (h - pad.t - pad.b) / labels.length, sx = v => pad.l + v / hi * (w - pad.l - pad.r);
+    labels.forEach((l, k) => { const y = pad.t + k * bh; ctx.fillStyle = typeof pal === "string" ? pal : pal[k]; ctx.fillRect(pad.l, y + bh * .15, sx(vals[k]) - pad.l, bh * .7);
+      text(ctx, l, pad.l - 6, y + bh / 2, { col: "--ink", align: "right", base: "middle", font: "11.5px Inter, sans-serif" }); text(ctx, fmt(vals[k]), sx(vals[k]) + 5, y + bh / 2, { base: "middle", font: "11px 'JetBrains Mono', monospace" }); });
+  } else {
+    const bw = (w - pad.l - pad.r) / labels.length, sy = v => h - pad.b - (v - lo) / (hi - lo) * (h - pad.t - pad.b);
+    labels.forEach((l, k) => { const x = pad.l + k * bw + bw * .18; ctx.fillStyle = typeof pal === "string" ? pal : pal[k]; const y0 = sy(0), y1 = sy(vals[k]); ctx.fillRect(x, Math.min(y0, y1), bw * .64, Math.abs(y1 - y0));
+      text(ctx, fmt(vals[k]), x + bw * .32, vals[k] >= 0 ? y1 - 5 : y1 + 13, { col: "--ink", align: "center", font: "bold 11px 'JetBrains Mono', monospace" });
+      text(ctx, l, x + bw * .32, h - 10, { col: "--ink", align: "center", font: "11px Inter, sans-serif" }); });
+    if (lo < 0) { ctx.strokeStyle = cssv("--ink"); ctx.beginPath(); ctx.moveTo(pad.l, sy(0)); ctx.lineTo(w - pad.r, sy(0)); ctx.stroke(); }
+  }
+}
+
+/* ---------- the walk-through ---------- */
+function walkWidget(root) {
+  const catOrder = ["Accessories", "Electronics", "Furniture", "Stationery"].sort((a, b) => ALL.filter(i => V.category[i] === cat(b)).length - ALL.filter(i => V.category[i] === cat(a)).length);
+  const marg = L.category.map((c, k) => { const ix = ALL.filter(i => V.category[i] === k); return [c, sum(ix.map(i => V.profit[i])) / sum(ix.map(i => V.revenue[i]))]; }).sort((a, b) => b[1] - a[1]);
+  const monthMargin = MONTHS.map(m => { const ix = ALL.filter(i => YM[i] === m); return sum(ix.map(i => V.profit[i])) / sum(ix.map(i => V.revenue[i])); });
+  const cellMargin = L.category.map((c, k) => D.map(d => { const ix = ALL.filter(i => V.category[i] === k && V.discount[i] === d); return sum(ix.map(i => V.profit[i])) / sum(ix.map(i => V.revenue[i])); }));
+  const elecProd = [...new Set(ALL.filter(i => V.category[i] === E).map(i => V.product_name[i]))].map(p => L.product_name[p]);
+  const S = [
+    { l: "u", lvl: "Univariate", q: "ربح السطر شكله إيه؟ وكام سطر تحت الصفر؟", chart: "histogram لرقم واحد، وخط عند الصفر: الحد اللي يهمنا.",
+      draw(ctx, w, h) { const v = V.profit, lo = Math.min(...v), hi = Math.max(...v), nb = 50, c = new Array(nb).fill(0); v.forEach(x => c[Math.min(nb - 1, Math.floor((x - lo) / (hi - lo) * nb))]++);
+        const pad = { l: 30, r: 10, t: 10, b: 24 }, mx = Math.max(...c), bw = (w - pad.l - pad.r) / nb, sx = x => pad.l + (x - lo) / (hi - lo) * (w - pad.l - pad.r);
+        axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); c.forEach((n, k) => { ctx.fillStyle = k < Math.floor((0 - lo) / (hi - lo) * nb) ? cssv("--bad") : cssv("--c1"); ctx.fillRect(pad.l + k * bw + .5, h - pad.b - n / mx * (h - pad.t - pad.b), bw - 1, n / mx * (h - pad.t - pad.b)); });
+        ctx.strokeStyle = cssv("--ink"); ctx.beginPath(); ctx.moveTo(sx(0), pad.t); ctx.lineTo(sx(0), h - pad.b); ctx.stroke(); text(ctx, "0", sx(0), h - 8, { align: "center" }); text(ctx, nf(hi), w - pad.r, h - 8, { align: "right" }); },
+      ins: () => { const l = ALL.filter(loss); return `الربح ليه ذيل طويل لليمين، فالـ mean (${nf(mean(V.profit))}) بعيد فوق الـ median. ${l.length} سطر بس من ${nf(N)} بيخسروا، ${nf(-sum(l.map(i => V.profit[i])))} جنيه: صغير، بس فلوس المحل اختار يخسرها.`; } },
+    { l: "u", lvl: "Univariate", q: "المحل بيعمل خصم قد إيه؟", chart: "count bars: الـ discount رقم، بس بـ 4 قيم بس بيتصرف زي فئة.",
+      draw(ctx, w, h) { bars(ctx, w, h, D.map(d => d + "%"), D.map(d => ALL.filter(i => V.discount[i] === d).length)); },
+      ins: () => `${Math.round(ALL.filter(i => V.discount[i] === 0).length / N * 100)}% من السطور من غير خصم، و ${Math.round(ALL.filter(i => V.discount[i] === 20).length / N * 100)}% بالخصم الكبير 20%.` },
+    { l: "u", lvl: "Univariate", q: "إيه اللي بيتباع أكتر؟", chart: "bars مترتّبة لفئة واحدة.",
+      draw(ctx, w, h) { bars(ctx, w, h, catOrder, catOrder.map(c => ALL.filter(i => V.category[i] === cat(c)).length), { horizontal: true, hl: 0 }); },
+      ins: () => "Accessories في الأول بـ 602 سطر، و Electronics تانية بـ 389. بس بالفلوس، سطر لابتوبات مش زي سطر كشاكيل، فالخطوة الجاية بتحط الأعمدة جنب بعض." },
+    { l: "b", lvl: "Bivariate", q: "أنهي فئات بتجيب الفلوس فعلًا؟", chart: "bars مترتّبة للـ margin: الربح كنسبة من الإيراد، فكشكول بـ 60 جنيه ولابتوب بـ 32,000 على نفس المقياس.",
+      draw(ctx, w, h) { bars(ctx, w, h, marg.map(m => m[0]), marg.map(m => m[1]), { horizontal: true, fmt: v => Math.round(v * 100) + "%", hl: 3 }); },
+      ins: () => "Electronics بتجيب 81% من الإيراد، بس 56% بس من الربح. هامشها 13%، وكل فئة تانية 42% أو أكتر. هامش رفيع = مفيش مكان لخصم." },
+    { l: "b", lvl: "Bivariate", q: "الخصم بيعمل إيه في الربح؟ وبيبيع قطع أكتر على الأقل؟", chart: "bars للمتوسط، رقم عبر 4 مجموعات. panel للربح و panel للكمية.",
+      draw(ctx, w, h) { const half = w / 2 - 8; ctx.save(); bars(ctx, half, h, D.map(d => d + "%"), D.map(d => mean(ALL.filter(i => V.discount[i] === d).map(i => V.profit[i]))), { hl: -1, colors: cssv("--c1") });
+        text(ctx, "mean profit", 16, 12, { col: "--ink", font: "bold 11px Inter, sans-serif" }); ctx.translate(half + 16, 0);
+        bars(ctx, half, h, D.map(d => d + "%"), D.map(d => mean(ALL.filter(i => V.discount[i] === d).map(i => V.quantity[i]))), { fmt: v => v.toFixed(2), colors: cssv("--c3") });
+        text(ctx, "mean quantity", 16, 12, { col: "--ink", font: "bold 11px Inter, sans-serif" }); ctx.restore(); },
+      ins: () => "متوسط الربح بينزل من 4,583 جنيه من غير خصم لـ 708 عند 20%، والكمية ثابتة حوالي 4 قطع في السطر. الخصم مش بيخلّي الناس تشتري أكتر." },
+    { l: "b", lvl: "Bivariate", q: "فيه وقت الـ margin بيبقى أوحش؟", chart: "line لرقم مع الوقت، بعد ما نجمع كل شهر.",
+      draw(ctx, w, h) { const pad = { l: 40, r: 10, t: 12, b: 24 }, lo = .1, hi = Math.max(...monthMargin) * 1.05, sx = k => pad.l + k / (MONTHS.length - 1) * (w - pad.l - pad.r), sy = v => h - pad.b - (v - lo) / (hi - lo) * (h - pad.t - pad.b);
+        axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); ctx.strokeStyle = cssv("--c1"); ctx.lineWidth = 2; ctx.beginPath(); monthMargin.forEach((v, k) => k ? ctx.lineTo(sx(k), sy(v)) : ctx.moveTo(sx(k), sy(v))); ctx.stroke();
+        monthMargin.forEach((v, k) => { ctx.fillStyle = MONTHS[k].endsWith("-11") ? cssv("--bad") : cssv("--c1"); ctx.beginPath(); ctx.arc(sx(k), sy(v), MONTHS[k].endsWith("-11") ? 5 : 3, 0, 7); ctx.fill(); });
+        [.15, .2, .25].forEach(v => v < hi && text(ctx, Math.round(v * 100) + "%", pad.l - 5, sy(v) + 3, { align: "right" })); [0, 10, 22].forEach(k => text(ctx, MO[+MONTHS[k].slice(5) - 1] + " " + MONTHS[k].slice(2, 4), sx(k), h - 8, { align: "center" })); },
+      ins: () => "أوحش شهر في السنتين نوفمبر 2025 (12%)، ونوفمبر 2024 قريب من القاع (15%). الـ margin الكلي 19%. يبقى عندنا 3 مشتبه فيهم: Electronics، وخصم 20%، ونوفمبر. 3 حكايات، ولا واحدة؟" },
+    { l: "m", lvl: "Multivariate", q: "الـ margin بيتغيّر إزاي مع الفئة والخصم مع بعض؟", chart: "heatmap: رقم عبر فئتين. الـ margin بيخلّي الفئات قابلة للمقارنة، و center=0 بيخلّي أي خسارة حمرا.",
+      draw(ctx, w, h) { const pad = { l: 96, r: 10, t: 22, b: 6 }, cw = (w - pad.l - pad.r) / 4, rh = (h - pad.t - pad.b) / 4, m = .7;
+        D.forEach((d, j) => text(ctx, d + "%", pad.l + j * cw + cw / 2, 14, { align: "center" }));
+        L.category.forEach((c, i) => { text(ctx, c, pad.l - 6, pad.t + i * rh + rh / 2, { col: "--ink", align: "right", base: "middle" }); cellMargin[i].forEach((v, j) => {
+          const t = Math.min(1, Math.abs(v) / m), col = v < 0 ? `rgb(${215},${Math.round(255 - 160 * Math.max(t, .6))},${Math.round(191 - 150 * Math.max(t, .6))})` : `rgb(${Math.round(255 - 229 * t)},${Math.round(255 - 103 * t)},${Math.round(191 - 111 * t)})`;
+          ctx.fillStyle = col; ctx.fillRect(pad.l + j * cw + 1, pad.t + i * rh + 1, cw - 2, rh - 2);
+          text(ctx, Math.round(v * 100) + "%", pad.l + j * cw + cw / 2, pad.t + i * rh + rh / 2, { col: t > .55 && v > 0 ? "#fff" : "#1c1e22", align: "center", base: "middle", font: "bold 11.5px 'JetBrains Mono', monospace" }); }); }); },
+      ins: () => "ده النمط المستخبّي: كل فئة كسبانة عند كل خصم، ما عدا Electronics عند 20%، الخانة السالبة الوحيدة (−3%). الـ −0.22 الضعيف كان متوسط فئات بتتصرف مختلف خالص." },
+    { l: "m", lvl: "Multivariate", q: "كل سطور الخانة دي، ولا شوية سطور وحشين؟", chart: "scatter للإيراد والربح، نقطة لكل سطر من Electronics، واللون = الخصم.",
+      draw(ctx, w, h) { const ix = ALL.filter(i => V.category[i] === E), pad = { l: 50, r: 10, t: 10, b: 24 }, xm = Math.max(...ix.map(i => V.revenue[i])), ylo = Math.min(...ix.map(i => V.profit[i])) * 1.1, yhi = Math.max(...ix.map(i => V.profit[i])) * 1.05;
+        const sx = v => pad.l + v / xm * (w - pad.l - pad.r), sy = v => h - pad.b - (v - ylo) / (yhi - ylo) * (h - pad.t - pad.b), DC = { 0: "#440154", 5: "#3b528b", 10: "#21918c", 20: "#fde725" };
+        axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); ctx.strokeStyle = cssv("--ink"); ctx.beginPath(); ctx.moveTo(pad.l, sy(0)); ctx.lineTo(w - pad.r, sy(0)); ctx.stroke(); text(ctx, "0", pad.l - 5, sy(0) + 3, { align: "right" });
+        ix.forEach(i => { ctx.fillStyle = DC[V.discount[i]]; ctx.globalAlpha = .8; ctx.beginPath(); ctx.arc(sx(V.revenue[i]), sy(V.profit[i]), 3.2, 0, 7); ctx.fill(); }); ctx.globalAlpha = 1;
+        D.forEach((d, k) => { ctx.fillStyle = DC[d]; ctx.fillRect(w - 190 + k * 46, pad.t + 2, 10, 10); text(ctx, d + "%", w - 176 + k * 46, pad.t + 11); }); },
+      ins: () => { const l = ALL.filter(loss); return `كل الـ ${l.length} سطر الخسرانين Electronics بخصم 20%: ${l.filter(i => V.category[i] === E && V.discount[i] === 20).length} من ${l.length}، من غير ولا استثناء. النقط الصفرا هي اللي تحت الصفر.`; } },
+    { l: "m", lvl: "Multivariate", q: "هو منتج واحد وحش؟", chart: "grouped bars: المنتج على x، والخصم hue، ومتوسط الربح الارتفاع. هنا: عند 20% بس.",
+      draw(ctx, w, h) { const v = elecProd.map(p => mean(ALL.filter(i => L.product_name[V.product_name[i]] === p && V.discount[i] === 20).map(i => V.profit[i]))); bars(ctx, w, h, elecProd, v, { colors: v.map(x => x < 0 ? cssv("--bad") : cssv("--c1")) }); },
+      ins: () => "المنتجات الأربعة تحت الصفر عند 20%، من اللابتوب (−5,504 جنيه للسطر) للشاشة (−105). دي مشكلة تسعير، مش مشكلة منتج: التكلفة 81% لـ 85% من السعر." },
+    { l: "m", lvl: "Multivariate", q: "الخسارة دي بتحصل إمتى؟", chart: "bars لكل شهر: أعداد، كل شهر لوحده، فالـ bars أوضح من الـ line.",
+      draw(ctx, w, h) { const c = MONTHS.map(m => ALL.filter(i => YM[i] === m && loss(i)).length), pad = { l: 26, r: 10, t: 12, b: 24 }, mx = Math.max(...c), bw = (w - pad.l - pad.r) / c.length;
+        axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); c.forEach((n, k) => { ctx.fillStyle = MONTHS[k].endsWith("-11") ? cssv("--bad") : cssv("--muted"); ctx.fillRect(pad.l + k * bw + bw * .15, h - pad.b - n / mx * (h - pad.t - pad.b), bw * .7, n / mx * (h - pad.t - pad.b)); });
+        text(ctx, mx, pad.l - 5, pad.t + 8, { align: "right" }); [0, 10, 22].forEach(k => text(ctx, MO[+MONTHS[k].slice(5) - 1] + " " + MONTHS[k].slice(2, 4), pad.l + k * bw + bw / 2, h - 8, { align: "center" })); },
+      ins: () => { const l = ALL.filter(loss); return `${l.filter(i => YM[i].endsWith("-11")).length} من الـ ${l.length} سطر الخسرانين في النوفمبرين. الـ 3 مشتبه فيهم حكاية واحدة: الـ White Friday بيحط خصم 20% على Electronics.`; } },
+  ];
+  let si = 0;
+  root.innerHTML = head("المحل بيخسر فين؟", "كل خطوة: السؤال، وليه الـ chart ده، والرسمة، واللي طلعنا بيه.", "التحقيق") + `
+    <div class="steps">${S.map((s, i) => `<button class="${s.l}" data-s="${i}" aria-pressed="${i === si}">${i + 1}</button>`).join("")}</div>
+    <div class="qa" data-s="qa"></div><canvas></canvas><div class="insight" data-s="ins"></div>
+    <div class="btns" style="margin-top:.7rem"><button class="btn" data-a="prev">→ اللي فات</button><button class="btn primary" data-a="next">اللي بعده ←</button></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const s = S[si], { ctx, w, h } = setup(cv, cv.clientWidth < 460 ? 220 : 250);
+    $("[data-s=qa]", root).innerHTML = `<span class="lvl">${s.lvl} · ${si + 1} / ${S.length}</span><b class="q">❓ ${s.q}</b><span>📊 ${s.chart}</span>`;
+    s.draw(ctx, w, h); $("[data-s=ins]", root).textContent = "📌 " + s.ins();
+    $$("[data-s]", root).forEach(b => b.matches("button") && b.setAttribute("aria-pressed", +b.dataset.s === si));
+    $("[data-a=prev]", root).disabled = si === 0; $("[data-a=next]", root).disabled = si === S.length - 1;
+  }
+  $$(".steps button", root).forEach(b => b.onclick = () => { si = +b.dataset.s; draw(); });
+  $("[data-a=prev]", root).onclick = () => { si = Math.max(0, si - 1); draw(); };
+  $("[data-a=next]", root).onclick = () => { si = Math.min(S.length - 1, si + 1); draw(); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- what is the cap worth? ---------- */
+function capWidget(root) {
+  let cap = 10, kept = false;
+  root.innerHTML = head("حد أقصى لخصم Electronics", "السطور اللي اتباعت بـ 20%: الربح لو كان الخصم أقل. (الـ gross = السعر × الكمية، وكل نقطة خصم أقل = 1% من الـ gross ربح زيادة.)", "احسبها") + `
+    <div class="optrow"><span class="muted">الحد</span><div class="seg">${[0, 5, 10, 15, 20].map(c => `<button data-c="${c}" aria-pressed="${c === cap}">${c}%</button>`).join("")}</div>
+      <label class="chk"><input type="checkbox" data-k="kept"> المكتملة والمشحونة بس</label></div>
+    <div class="stats" data-s="st"></div><div class="status" data-s="msg" style="margin-top:.6rem"></div>`;
+  const ok = ["completed", "shipped"].map(s => L.status.indexOf(s));
+  function draw() {
+    const base = kept ? ALL.filter(i => ok.includes(V.status[i])) : ALL, deep = base.filter(i => V.category[i] === E && V.discount[i] === 20);
+    const now = sum(deep.map(i => V.profit[i])), extra = sum(deep.map(i => V.unit_price[i] * V.quantity[i] * (20 - cap) / 100)), total = sum(base.map(i => V.profit[i]));
+    const lossLines = base.filter(loss);
+    $("[data-s=st]", root).innerHTML = [["سطور Electronics بـ 20%", deep.length], ["ربحهم دلوقتي", nf(now)], [`ربحهم عند ${cap}%`, nf(now + extra)], ["المكسب", nf(extra)], ["من الربح الكلي", (extra / total * 100).toFixed(1) + "%"]]
+      .map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join("");
+    $("[data-s=msg]", root).textContent = (kept ? `من غير الملغية والمرتجعة: ${base.length} سطر، و ${lossLines.length} خسرانين، كلهم Electronics بـ 20% (${lossLines.filter(i => V.category[i] === E && V.discount[i] === 20).length}). النمط لسه ثابت. ` : "") +
+      (cap === 20 ? "ده الوضع الحالي." : cap === 10 ? "التوصية: 10% لـ Electronics. المكسب حوالي 5% من الربح الكلي." : cap === 0 ? "من غير خصم خالص على Electronics: مكسب أكبر على الورق، بس احتمال نخسر عملاء أكتر." : "");
+  }
+  segPick(root, "data-c", v => { cap = +v; draw(); });
+  $("[data-k=kept]", root).onchange = e => { kept = e.target.checked; draw(); };
+  draw();
+}
+
+function main() { walkWidget($("#wWalk")); capWidget($("#wCap")); }
+</script>

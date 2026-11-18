@@ -97,7 +97,7 @@ a lesson page (article) for each, the rendered notebook, and links. Plan as of 2
 - ✅ Seaborn (`03_seaborn`): page + rendered notebook
 - ✅ Plotly (`04_plotly`): page with live Plotly charts (plotly.js 2.35.2 from jsDelivr, data in `assets/data/airbnb.js`) + rendered notebook (its outputs are static PNGs)
 - ✅ More charts (`05_more_charts`): page + rendered notebook
-- ⬜ Mini EDA on NileCart (`06_mini_eda`): page + rendered notebook
+- ✅ Mini EDA on NileCart (`06_mini_eda`): page + rendered notebook
 
 ### 5. Streamlit (`5-streamlit/`)
 - ⬜ Page(s) from the guide (`5-streamlit/README.md`): the rerun model, widgets, layout, cache, state, pages, deploy;

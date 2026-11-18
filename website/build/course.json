@@ -70,6 +70,11 @@
       "title": "More Charts",
       "title_ar": "رسومات تانية",
       "notebook": "4-visualization/05_more_charts.ipynb"
+    },
+    "mini-eda": {
+      "title": "Mini EDA",
+      "title_ar": "Mini EDA",
+      "notebook": "4-visualization/06_mini_eda.ipynb"
     }
   }
 }
