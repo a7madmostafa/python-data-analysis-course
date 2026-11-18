@@ -192,7 +192,7 @@ out.write_text("/* NileCart summaries for the Why-visualize lesson widgets, gene
 print("wrote", out, f"({out.stat().st_size // 1024} KB)")
 
 # ---------- site/assets/data/vizlib.js: the whole sales table, compact, for the library lessons (Matplotlib on) ----------
-# The notebooks of 4-visualization/ use every order line (all statuses), so these widgets do too.
+# The notebooks of 4-visualization/ (from 02_matplotlib) use every order line (all statuses), so these widgets do too.
 vl = pd.read_csv(ROOT / "data" / "nilecart" / "sales.csv", parse_dates=["order_date"])
 vlev = {c: sorted(vl[c].unique().tolist()) for c in ["category", "segment", "region", "status", "product_name"]}
 vlib = {"levels": vlev,

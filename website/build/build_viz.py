@@ -1,6 +1,6 @@
 """Build 4-visualization/01_principles.ipynb, the solved notebook of the "Why visualize, and which chart" lesson.
 
-It merges our first Visualization draft with the earlier repo's principles notebook: why draw at all, how the
+It merges our first Visualization draft with the earlier principles notebook: why draw at all, how the
 question and the variable types pick the chart, what makes a chart clear, and how a correct chart can still
 mislead. The libraries get their own chapters next (02_matplotlib, 03_seaborn, 04_plotly), so here the code
 stays short and every chart is a static Matplotlib / Seaborn image (renders on GitHub, Kaggle and the site).

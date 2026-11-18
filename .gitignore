@@ -8,14 +8,14 @@ kaggle.json
 .claude/settings.local.json
 .wrangler/
 
-# Earlier material kept for reference only (not used in the course): stays local, never pushed
+# earlier material kept for reference only (not used in the course): stays local, never pushed
 _reference/
 
-# from the earlier repo
+# environments and generated outputs
 .venv/
 **/output/
 
-# Bike Sharing: hidden for now, back later
+# Bike Sharing: hidden for now
 6-projects/04-bike-sharing/
 data/bike_sharing/
 
