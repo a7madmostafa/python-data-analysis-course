@@ -80,6 +80,21 @@
       "title": "Streamlit",
       "title_ar": "Streamlit",
       "notebook": null
+    },
+    "titanic": {
+      "title": "Titanic",
+      "title_ar": "مشروع Titanic",
+      "notebook": "6-projects/01-titanic/analysis.ipynb"
+    },
+    "happiness": {
+      "title": "World Happiness",
+      "title_ar": "مشروع World Happiness",
+      "notebook": "6-projects/02-world-happiness/analysis.ipynb"
+    },
+    "airbnb": {
+      "title": "Airbnb NYC",
+      "title_ar": "مشروع Airbnb NYC",
+      "notebook": "6-projects/03-airbnb-nyc/analysis.ipynb"
     }
   }
 }

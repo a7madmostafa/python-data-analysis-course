@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Titanic Project</title>
+<meta name="description" content="مشروع Titanic بالعربي: تحليل كامل لـ 891 راكب من الداتا الخام للإجابات، تنضيف وملء السن من الألقاب، وتأثير الميناء اللي طلع تأثير درجة، و dashboard بـ Streamlit.">
+<meta property="og:title" content="مشروع Titanic · Zero Grad">
+<meta property="og:description" content="مين نجا من الـ Titanic، وليه؟ تحليل كامل و dashboard بـ Streamlit.">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/titanic/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/titanic/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<script src="/assets/js/theme.js"></script>
+<link rel="apple-touch-icon" href="/assets/img/zero-grad-app-icon-512.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<script src="/assets/js/pwa.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ea; --surface:#fffdf8; --surface-2:#efeadf; --ink:#1c1e22; --muted:#5b616b; --line:#ddd6c6;
+  --accent:#101f40; --on-accent:#f5f2ea; --chalk-g:#15803d; --chalk-o:#c2410c; --add:#2563eb; --bad:#dc2626;
+  --c1:#0f766e; --c2:#2563eb; --c3:#b45309; --c4:#9333ea;
+  --board:#232323; --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+    --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+    --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+  --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+  --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--add)}
+html,body{overflow-x:clip}
+@media (max-width:520px){.brand{font-size:.8rem}.seg button{padding:.2rem .55rem;font-size:.8rem}.topbar-in{gap:.4rem}.top-actions{gap:.3rem}.iconbtn{width:30px;height:30px}}
+code,pre{font-family:"JetBrains Mono",monospace}
+.en{direction:ltr;unicode-bidi:isolate}
+code.i{font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .35rem;direction:ltr;unicode-bidi:isolate}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;right:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .1s}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:auto;padding:.55rem 16px;display:flex;gap:.75rem;align-items:center;justify-content:space-between}
+.top-actions{display:flex;gap:.5rem;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.25rem .8rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+
+/* layout */
+.wrap{max-width:1180px;margin:auto;padding:0 16px;display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media (min-width:1100px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:72px;align-self:start;padding-top:2.5rem;font-size:.9rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+  nav.toc a{display:block;padding:.3rem .9rem;color:var(--muted);text-decoration:none;margin-inline-start:-2px;border-inline-start:2px solid transparent;line-height:1.5}
+  nav.toc a.active{color:var(--ink);border-color:var(--accent);font-weight:500}
+}
+main{min-width:0;padding-bottom:6rem}
+
+/* hero */
+.hero{padding:3rem 0 1.5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.hero h1{font-family:"Caveat",cursive;font-size:clamp(3rem,9vw,5.2rem);line-height:1;margin:.5rem 0 .75rem;color:var(--accent);direction:ltr;text-align:right;font-weight:700}
+.lead{font-size:1.15rem;max-width:62ch;margin:0}
+
+/* notebook links */
+.nb-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.nb-btn{display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4rem 1rem;text-decoration:none}
+.nb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.nb-btn:hover{border-color:var(--accent)}
+
+/* sections */
+section.sec{padding-top:2.5rem;scroll-margin-top:64px}
+.sec-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:1.25rem}
+.sec-head h2{margin:0;font-size:1.55rem;line-height:1.35;display:flex;gap:.7rem;align-items:baseline}
+.num{font-family:"Caveat",cursive;color:var(--accent);font-size:2rem;line-height:1}
+h3.sub{font-size:1.15rem;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+.chalk{font-family:"Caveat",cursive;font-size:1.35em;color:var(--accent);direction:ltr;unicode-bidi:isolate;font-weight:700;line-height:1.2}
+.voice{margin:1.25rem 0;padding:.9rem 1.2rem;border-radius:var(--radius);background:var(--board);color:#f2c94c;font-family:"Caveat",cursive;font-size:1.9rem;direction:ltr;text-align:center;line-height:1.3}
+.voice small{display:block;font-family:"Noto Sans Arabic",sans-serif;font-size:.8rem;color:#a1a1a1;direction:rtl;margin-top:.25rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;line-height:1.6}
+.card b{display:block;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr;gap:1rem;margin:1rem 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.path{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem}
+.path h4{margin:0 0 .25rem;font-size:1.05rem}
+.path .sub{color:var(--muted);font-size:.85rem}
+.path.good{border-color:color-mix(in srgb,var(--chalk-g) 55%,var(--line))}
+.path.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.path.good h4{color:var(--chalk-g)}
+.path.bad h4{color:var(--bad)}
+
+/* the "use it when" box every chart gets */
+.when{display:grid;grid-template-columns:1fr;gap:.75rem;margin:1rem 0}
+@media(min-width:760px){.when{grid-template-columns:repeat(3,1fr)}}
+.when .card{border-top:3px solid var(--accent)}
+.when .card:nth-child(2){border-top-color:var(--chalk-g)}
+.when .card:nth-child(3){border-top-color:var(--chalk-o)}
+
+/* callouts */
+.callout{border-radius:var(--radius);padding:.9rem 1.1rem;margin:1.25rem 0;border:1px solid;font-size:.97rem}
+.callout .ttl{font-weight:700;font-size:.85rem;display:flex;gap:.4rem;align-items:center;margin-bottom:.15rem}
+.callout.add{border-color:color-mix(in srgb,var(--add) 45%,transparent);background:color-mix(in srgb,var(--add) 7%,var(--surface))}
+.callout.add .ttl{color:var(--add)}
+.callout.warn{border-color:color-mix(in srgb,var(--chalk-o) 55%,transparent);background:color-mix(in srgb,var(--chalk-o) 8%,var(--surface))}
+.callout.warn .ttl{color:var(--chalk-o)}
+.callout.insight{border-color:color-mix(in srgb,var(--chalk-g) 50%,transparent);background:color-mix(in srgb,var(--chalk-g) 8%,var(--surface))}
+.callout.insight .ttl{color:var(--chalk-g)}
+details.callout summary{cursor:pointer;list-style:none}
+details.callout summary::-webkit-details-marker{display:none}
+details.callout summary .ttl::after{content:"＋";margin-inline-start:auto}
+details.callout[open] summary .ttl::after{content:"－"}
+
+/* tables & code */
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.tbl th,.tbl td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.tbl thead th{background:var(--surface-2);font-size:.85rem}
+.tbl tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+pre{direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;padding:1rem 1.1rem;border-radius:var(--radius);overflow-x:auto;font-size:.85rem;line-height:1.65;margin:1rem 0}
+pre .c{color:#8a8a8a}
+pre .k{color:#f2c94c}
+pre .s{color:#4ade80}
+.codetabs{margin:1rem 0}
+.codetabs .seg{margin-bottom:-.4rem}
+.codetabs pre{margin-top:.6rem}
+.codetabs pre[hidden]{display:none}
+
+/* figures */
+figure.fig{margin:1.25rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.fig-scroll{overflow-x:auto}
+figure.fig svg{width:100%;min-width:520px;height:auto;display:block;direction:ltr}
+figure.fig svg text{font-family:Inter,"Noto Sans Arabic",sans-serif;fill:var(--ink)}
+figure.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+
+/* widgets */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.widget-head{display:flex;gap:.6rem;align-items:center;margin-bottom:.2rem}
+.widget-head .badge{font-size:.72rem;font-weight:700;color:var(--bg);background:var(--chalk-g);border-radius:999px;padding:.1rem .6rem;white-space:nowrap}
+.widget-head h3{margin:0;font-size:1.1rem}
+.widget .hint{color:var(--muted);font-size:.9rem;margin:.1rem 0 .8rem}
+.wgrid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:820px){.wgrid.cols{grid-template-columns:1.6fr 1fr}}
+canvas{width:100%;display:block;border-radius:10px;background:var(--surface-2);touch-action:none}
+.controls{display:grid;gap:.7rem;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;gap:.5rem}
+.ctl label output{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.4rem .85rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk.off{opacity:.45;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem}
+.stat{background:var(--surface-2);border-radius:10px;padding:.45rem .7rem;line-height:1.35}
+.stat span{display:block;font-size:.75rem;color:var(--muted)}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;unicode-bidi:isolate}
+.status{font-size:.9rem;min-height:1.6em;color:var(--muted);white-space:pre-line}
+.keys{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.5rem}
+.keys span{display:inline-flex;gap:.35rem;align-items:center}
+.keys i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+
+/* summary */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem}
+.sheet .card{padding:1rem}
+.sheet .card h4{margin:0 0 .3rem;font-size:.95rem;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding:1.5rem 0;margin-top:3rem}
+.muted{color:var(--muted);font-size:.9em}
+
+/* lesson navigation */
+.crumbs{display:flex;align-items:center;gap:.45rem;font-size:.9rem;white-space:nowrap;min-width:0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{color:var(--line)}
+.crumbs .here{font-weight:700;color:var(--ink)}
+a.iconbtn{display:grid;place-items:center;text-decoration:none;font-size:.95rem}
+.iconbtn.off{opacity:.3;pointer-events:none;display:grid;place-items:center}
+.pager{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;margin-top:3rem}
+.pg{display:flex;flex-direction:column;gap:.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);text-decoration:none;line-height:1.5}
+.pg span{font-size:.82rem;color:var(--muted)}
+.pg b{font-size:1rem;color:var(--accent)}
+a.pg:hover{border-color:var(--accent)}
+.pg.next{text-align:left}
+.pg.all{justify-content:center;text-align:center}
+.pg.off{border-style:dashed;background:transparent}
+.pg.off b{color:var(--muted)}
+@media (max-width:640px){.pager{grid-template-columns:1fr}.pg.next{text-align:right}.pg.all{order:3}}
+@media (max-width:520px){.crumbs .home,.crumbs .home+.sep{display:none}}
+@media (max-width:400px){.crumbs .course+.sep,.crumbs .here{display:none}}
+@media print{.topbar,nav.toc,#progress,.widget{display:none!important}body{background:#fff;color:#000;font-size:12pt}}
+
+.heat{display:grid;gap:3px;direction:ltr;font-family:"JetBrains Mono",monospace;font-size:.82rem}
+.heat div{padding:.4rem .3rem;text-align:center;border-radius:6px;line-height:1.25}
+.heat div small{display:block;font-size:.68rem;opacity:.75}
+.heat .h{background:transparent;color:var(--muted);font-family:Inter,sans-serif;font-size:.78rem}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here">مشروع Titanic</span></nav>
+    <div class="top-actions">
+      <a class="iconbtn" href="/courses/da/streamlit/" aria-label="الدرس اللي فات: Streamlit" title="الدرس اللي فات: Streamlit">→</a><a class="iconbtn" href="/courses/da/happiness/" aria-label="الدرس الجاي: مشروع World Happiness" title="الدرس الجاي: مشروع World Happiness">←</a>
+      <button class="iconbtn" id="themeBtn" type="button" data-theme-toggle aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="المحتوى"><ol id="tocList"></ol></nav>
+  <main>
+    <div class="hero">
+      <div class="kicker">Zero Grad · كورس Data Analysis · المشاريع · 1</div>
+      <h1>Titanic</h1>
+      <p class="lead"><b>مين نجا من الـ Titanic؟ وليه؟</b><br>تحليل استكشافي لـ 891 راكب: النوع، والدرجة، والسن، والعيلة، والميناء، والتذكرة قصاد النجاة،<br>و dashboard تفاعلي على الداتا بعد التنضيف. النوت بوك والـ app بيستخدموا نفس <span class="en">charts.py</span>، فكل رسمة مكتوبة مرة واحدة.</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" href="https://github.com/a7madmostafa/python-data-analysis-course/blob/main/6-projects/01-titanic/analysis.ipynb" target="_blank" rel="noopener">📓 النوت بوك على GitHub</a><a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a><a class="nb-btn" href="https://github.com/a7madmostafa/python-data-analysis-course/blob/main/6-projects/01-titanic/streamlit_app.py" target="_blank" rel="noopener">💻 الـ dashboard (الكود)</a><a class="nb-btn" href="https://www.kaggle.com/competitions/titanic/data" target="_blank" rel="noopener">🗂️ داتا Titanic على Kaggle</a>
+      </div>
+    </div>
+
+<section class="sec" id="q">
+      <div class="sec-head"><h2><span class="num">1</span>الأسئلة والداتا</h2></div>
+      <p>ملف الـ training بتاع Titanic: 891 راكب، سطر لكل واحد، فيه الدرجة، والاسم، والنوع، والسن، والعيلة اللي معاه، والتذكرة، والأجرة، والكابينة، والميناء.</p>
+      <div class="cards">
+        <div class="card"><b>كام واحد نجا؟</b>والنوع والدرجة هما اللي قرروا؟ وأنهي فيهم أهم؟</div>
+        <div class="card"><b>الأطفال الأول؟</b>الأطفال اتنقذوا فعلًا قبل الكبار؟ والعيلة ساعدت؟</div>
+        <div class="card"><b>ليه Cherbourg؟</b>ركاب Cherbourg نجوا أكتر. ليه؟ وهل الأجرة فرقت بعد الدرجة؟</div>
+      </div>
+      <p>كل مشروع ماشي على نفس المراحل: أول بصّة، والأسئلة، والتنضيف، والـ feature engineering، والتحليل univariate و bivariate و multivariate، والإجابات، والخلاصة.</p>
+    </section>
+
+    <section class="sec" id="clean">
+      <div class="sec-head"><h2><span class="num">2</span>قرارات التنضيف</h2></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>العمود</th><th>المشكلة</th><th>القرار</th></tr></thead>
+        <tbody>
+          <tr><td class="en">Cabin</td><td>77% فاضي، وأغلبه مجرد مؤشر للدرجة</td><td>اتشال، ومعاه <span class="en">Ticket</span></td></tr>
+          <tr><td class="en">Embarked</td><td>2 فاضيين</td><td>اتملوا بـ Southampton، الأكتر</td></tr>
+          <tr><td class="en">Age</td><td>177 فاضي</td><td>اتملوا بـ median سن <b>اللقب</b> بتاع الراكب (Mr، Mrs، Miss، Master، Rare)، ومتعلّم عليهم في <span class="en">age_known</span></td></tr>
+          <tr><td class="en">Fare</td><td>£0 و £512</td><td>اتسابوا: قيم حقيقية</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout add"><div class="ttl">➕ ليه اللقب؟</div>
+        "Master" معناها ولد صغير، و "Miss" غالبًا أصغر من "Mrs". median السن لكل لقب أدق بكتير من median الكل، ومن غير ما نخترع حاجة:
+        العمود <span class="en">age_known</span> بيفكّرنا إن السن ده تقدير.</div>
+    </section>
+
+    <section class="sec" id="find">
+      <div class="sec-head"><h2><span class="num">3</span>اللي لقيناه</h2></div>
+      <div class="cards">
+        <div class="card"><b>342 من 891 نجوا (38%)</b></div>
+        <div class="card"><b>النوع أقوى عامل</b>74% من الستات نجوا، و 19% من الرجالة.</div>
+        <div class="card"><b>الدرجة حددت المستوى</b>97% من ستات الدرجة الأولى، ونص ستات الدرجة التالتة، و 14% من رجالة التالتة.</div>
+        <div class="card"><b>الأطفال</b>حوالي 58% نجوا: كل الـ 12 ولد في الأولى والتانية، و 39% من ولاد التالتة.</div>
+      </div>
+      <figure class="fig"><img src="img/class_sex.png" alt="Survival rate by class and sex" style="width:100%;border-radius:10px;background:#fff"><figcaption>نسبة النجاة حسب الدرجة والنوع (من النوت بوك).</figcaption></figure>
+      <h3 class="sub">مجموعتين مع بعض</h3>
+      <p>اختار عمودين، وشوف نسبة النجاة لكل تركيبة، وعدد الركاب في كل خانة:</p>
+      <div class="widget" id="wTwo"></div>
+      <h3 class="sub">تأثير الميناء: تأثير درجة</h3>
+      <div class="widget" id="wPort"></div>
+    </section>
+
+    <section class="sec" id="dash">
+      <div class="sec-head"><h2><span class="num">4</span>الـ Dashboard</h2></div>
+      <p>app بـ Streamlit فيه فلاتر للدرجة، والنوع، والميناء، والسن: KPIs (الركاب، والناجيين، ونسبة النجاة، و median الأجرة) و 4 tabs.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الـ Tab</th><th>بيوري إيه</th></tr></thead>
+        <tbody>
+          <tr><td>Who survived?</td><td>نسبة النجاة وعدد الركاب حسب النوع، أو الدرجة، أو الفئة العمرية، أو اللقب، أو حجم العيلة، أو الميناء</td></tr>
+          <tr><td>Two groups</td><td>نسبة النجاة لكل تركيبة من عمودين، وتوزيع الدرجات في كل ميناء</td></tr>
+          <tr><td>Ages and fares</td><td>أعمار الناجيين والضحايا، والأجرة حسب الدرجة والنتيجة</td></tr>
+          <tr><td>Passengers</td><td>الركاب بعد الفلترة، وتنزّلهم CSV</td></tr>
+        </tbody>
+      </table></div>
+<pre>uv run streamlit run 6-projects/01-titanic/streamlit_app.py      <span class="c"># from the repository folder, after uv sync</span></pre>
+<pre>01-titanic/
+├── analysis.ipynb      <span class="c"># the analysis: questions, cleaning, exploration, answers</span>
+├── streamlit_app.py    <span class="c"># the dashboard: data, filters, KPIs, tabs</span>
+├── charts.py           <span class="c"># one function per chart (Plotly), shared by the notebook and the app</span>
+└── images/             <span class="c"># figures used in the README</span></pre>
+    </section>
+
+    <section class="sec" id="limits">
+      <div class="sec-head"><h2><span class="num">5</span>حدود التحليل</h2></div>
+      <div class="two">
+        <div class="path"><h4>الداتا ناقصة</h4><p>891 من حوالي 1,300 راكب، ومفيش طاقم السفينة. والسن متقدّر لـ 177 راكب.</p></div>
+        <div class="path"><h4>اللي مش موجود</h4><p>مجموعات صغيرة، ومفيش معلومة الناس كانت فين لما السفينة خبطت في جبل التلج.</p></div>
+      </div>
+    </section>
+
+    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/streamlit/"><span>→ الدرس اللي فات</span><b>Streamlit</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><a class="pg next" href="/courses/da/happiness/"><span>الدرس الجاي ←</span><b>مشروع World Happiness</b></a></nav>
+
+    <footer>
+      الداتا: ملف الـ training بتاع Titanic من Kaggle، 891 راكب، بعد تنضيف المشروع (<span class="en">data/titanic_clean.csv</span>).
+    </footer>
+  </main>
+</div>
+
+<script src="../assets/data/titanic_clean.js"></script>
+<script>
+(() => {
+"use strict";
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const nf = v => Math.round(v).toLocaleString("en");
+function head(title, hint, badge = "جرّب بنفسك") { return `<div class="widget-head"><span class="badge">${badge}</span><h3>${title}</h3></div><p class="hint">${hint}</p>`; }
+function setup(cv, h) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 300;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + "px";
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.direction = "ltr";
+  return { ctx, w, h };
+}
+const redrawers = []; const onRedraw = f => redrawers.push(f);
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => redrawers.forEach(f => f()), 120); });
+const PAL = () => [cssv("--c1"), cssv("--c3"), cssv("--bad"), cssv("--c2"), cssv("--c4"), cssv("--muted")];
+function text(ctx, t, x, y, { col = "--muted", font = "11px Inter, sans-serif", align = "left", base = "alphabetic" } = {}) {
+  ctx.fillStyle = col.startsWith("--") ? cssv(col) : col; ctx.font = font; ctx.textAlign = align; ctx.textBaseline = base; ctx.fillText(t, x, y);
+}
+function axes(ctx, x0, y0, x1, y1) { ctx.strokeStyle = cssv("--line"); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke(); }
+function segPick(root, attr, onPick) {
+  $$(`[${attr}]`, root).forEach(b => b.onclick = () => { $$(`[${attr}]`, root).forEach(x => x.setAttribute("aria-pressed", x === b)); onPick(b.getAttribute(attr)); });
+}
+
+
+function chrome() {
+  $$(".codetabs").forEach(box => $$(".seg button", box).forEach(b => b.onclick = () => {
+    $$(".seg button", box).forEach(x => x.setAttribute("aria-pressed", x === b));
+    $$("pre", box).forEach(p => p.hidden = p.dataset.lib !== b.dataset.lib);
+  }));
+  const toc = $("#tocList"), links = {};
+  $$("section.sec").forEach(sec => {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + sec.id; a.textContent = $("h2", sec).textContent.replace(/^\d+/, "").trim();
+    li.appendChild(a); toc.appendChild(li); links[sec.id] = a;
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { Object.values(links).forEach(a => a.classList.remove("active")); links[e.target.id].classList.add("active"); } }), { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  window.addEventListener("scroll", () => { const h = document.documentElement; $("#progress").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; }, { passive: true });
+  new MutationObserver(() => redrawers.forEach(f => f())).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => redrawers.forEach(f => f()));
+}
+
+const T = window.TITANIC_CLEAN, L = T.levels, N = T.survived.length, ALL = [...Array(N).keys()];
+const ORDER = { class: ["1st", "2nd", "3rd"], age_group: ["Child (0-12)", "Teen (13-17)", "Adult (18-59)", "Senior (60+)"], family: ["Alone", "2-4", "5+"], port: ["Cherbourg", "Queenstown", "Southampton"], sex: ["female", "male"], title: ["Master", "Miss", "Mrs", "Mr", "Rare"] };
+const NAMES = { sex: "sex", class: "class", age_group: "age group", port: "port", family: "family", title: "title" };
+const rgb = r => { const a = [215, 48, 39], b = [255, 255, 191], c = [26, 152, 80]; const t = r < .5 ? r * 2 : (r - .5) * 2, x = r < .5 ? a : b, y = r < .5 ? b : c; return x.map((v, k) => Math.round(v + (y[k] - v) * t)); };
+
+function twoWidget(root) {
+  let rcol = "class", ccol = "sex";
+  const opts = c => Object.keys(NAMES).map(k => `<option value="${k}" ${k === c ? "selected" : ""}>${NAMES[k]}</option>`).join("");
+  root.innerHTML = head("نسبة النجاة: عمود × عمود", "اللون من الأحمر (محدش نجا) للأخضر (كلهم نجوا)، والرقم الصغير عدد الركاب.") + `
+    <div class="optrow"><select class="sel" data-s="r">${opts(rcol)}</select><span>×</span><select class="sel" data-s="c">${opts(ccol)}</select></div>
+    <div class="heat" data-s="grid"></div><div class="status" data-s="msg" style="margin-top:.6rem"></div>`;
+  function draw() {
+    const rows = ORDER[rcol], cols = ORDER[ccol], code = (col, v) => L[col].indexOf(v);
+    let o = `<div class="h"></div>` + cols.map(c => `<div class="h">${c}</div>`).join(""), worst = null, best = null;
+    rows.forEach(r => { o += `<div class="h" style="text-align:right">${r}</div>`; cols.forEach(c => {
+      const ix = rcol === ccol ? (r === c ? ALL.filter(i => T[rcol][i] === code(rcol, r)) : []) : ALL.filter(i => T[rcol][i] === code(rcol, r) && T[ccol][i] === code(ccol, c));
+      if (!ix.length) { o += `<div style="background:var(--surface-2);color:var(--muted)">–</div>`; return; }
+      const s = ix.reduce((a, i) => a + T.survived[i], 0) / ix.length, col = rgb(s), dark = col[0] * .3 + col[1] * .59 + col[2] * .11 < 140;
+      if (ix.length >= 10) { if (!best || s > best[0]) best = [s, r, c, ix.length]; if (!worst || s < worst[0]) worst = [s, r, c, ix.length]; }
+      o += `<div style="background:rgb(${col});color:${dark ? "#fff" : "#1c1e22"}">${Math.round(s * 100)}%<small>n=${ix.length}</small></div>`; }); });
+    const g = $("[data-s=grid]", root); g.innerHTML = o; g.style.gridTemplateColumns = `120px repeat(${cols.length}, 1fr)`;
+    $("[data-s=msg]", root).textContent = best && worst && rcol !== ccol ? `أعلى خانة (10 ركاب أو أكتر): ${best[1]} × ${best[2]}، ${Math.round(best[0] * 100)}% من ${best[3]}. وأوطى خانة: ${worst[1]} × ${worst[2]}، ${Math.round(worst[0] * 100)}% من ${worst[3]}. خد بالك من الخانات الصغيرة.` : "اختار عمودين مختلفين.";
+  }
+  $("[data-s=r]", root).onchange = e => { rcol = e.target.value; draw(); }; $("[data-s=c]", root).onchange = e => { ccol = e.target.value; draw(); };
+  draw();
+}
+
+function portWidget(root) {
+  let mode = "surv";
+  root.innerHTML = head("ليه ركاب Cherbourg نجوا أكتر؟", "نسبة النجاة في كل ميناء، وبعدين مين ركب منين.", "النتيجة") + `
+    <div class="optrow"><div class="seg"><button data-m="surv" aria-pressed="true">نسبة النجاة</button><button data-m="mix" aria-pressed="false">توزيع الدرجات</button></div></div>
+    <canvas></canvas><div class="keys" data-s="keys"></div><div class="status" data-s="msg"></div>`;
+  const cv = $("canvas", root), ports = ORDER.port, cls = ORDER.class, CC = () => [cssv("--c1"), cssv("--c3"), cssv("--bad")];
+  function draw() {
+    const h = 200, { ctx, w } = setup(cv, h), pad = { l: 96, r: 50, t: 8, b: 8 }, bh = (h - pad.t - pad.b) / ports.length, W = w - pad.l - pad.r;
+    ports.forEach((p, k) => { const ix = ALL.filter(i => T.port[i] === L.port.indexOf(p)), y = pad.t + k * bh;
+      text(ctx, p, pad.l - 6, y + bh / 2, { col: "--ink", align: "right", base: "middle", font: "11.5px Inter, sans-serif" });
+      if (mode === "surv") { const s = ix.reduce((a, i) => a + T.survived[i], 0) / ix.length; ctx.fillStyle = cssv("--c1"); ctx.fillRect(pad.l, y + bh * .2, s * W, bh * .6);
+        text(ctx, Math.round(s * 100) + "%  (n=" + ix.length + ")", pad.l + s * W + 6, y + bh / 2, { base: "middle", font: "11px 'JetBrains Mono', monospace" }); }
+      else { let x = pad.l; cls.forEach((c, j) => { const sh = ix.filter(i => T.class[i] === L.class.indexOf(c)).length / ix.length; ctx.fillStyle = CC()[j]; ctx.fillRect(x, y + bh * .2, sh * W, bh * .6);
+        if (sh > .08) text(ctx, Math.round(sh * 100) + "%", x + sh * W / 2, y + bh / 2, { col: "#fff", align: "center", base: "middle", font: "bold 11px Inter, sans-serif" }); x += sh * W; }); } });
+    $("[data-s=keys]", root).innerHTML = mode === "mix" ? cls.map((c, j) => `<span><i style="background:${CC()[j]}"></i>${c} class</span>`).join("") : "";
+    $("[data-s=msg]", root).textContent = mode === "surv" ? "Cherbourg 55%، و Southampton 34%. هو الميناء نفسه؟" : "نص ركاب Cherbourg درجة أولى، و 94% من ركاب Queenstown درجة تالتة. تأثير الميناء أغلبه تأثير الدرجة.";
+  }
+  segPick(root, "data-m", v => { mode = v; draw(); });
+  draw(); onRedraw(draw);
+}
+
+function main() { twoWidget($("#wTwo")); portWidget($("#wPort")); }
+
+window.addEventListener("DOMContentLoaded", () => { chrome(); main(); });
+})();
+</script>
+</body>
+</html>

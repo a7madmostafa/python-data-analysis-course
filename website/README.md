@@ -106,8 +106,10 @@ a lesson page (article) for each, the rendered notebook, and links. Plan as of 2
 - ⬜ Deploy the multipage Titanic app on Community Cloud and link it
 
 ### 6. Projects (`6-projects/`)
-- ⬜ One page per project (the question, the data, the findings, the dashboard), its rendered `analysis.ipynb`,
-  and its app deployed on Community Cloud: Titanic, World Happiness, Airbnb NYC
+- ✅ One page per project (the question, the cleaning, the findings with widgets, the dashboard, the limits) and its
+  rendered `analysis.ipynb`: Titanic, World Happiness, Airbnb NYC (data in `assets/data/titanic_clean.js`,
+  `happiness.js`, `airbnb_prices.js`; README figures copied to `site/<project>/img/`)
+- ⬜ Deploy the three apps on Community Cloud (needs the owner's Streamlit account) and link them from the pages
 - ⬜ Bike Sharing: same, when it comes back (then remove its lines from `.gitignore`)
 
 ### 7. Final project (`7-final-project/`)
@@ -115,8 +117,7 @@ a lesson page (article) for each, the rendered notebook, and links. Plan as of 2
   course page links to it; `build_pages.py` publishes a brand-free copy on GitHub Pages
 
 ### Site-wide
-- ⬜ Lesson pages for parts 4–7: `course.json` entries, `render_notebook.py` for each notebook, pager links, and the
-  course page (`site/index.html`) items switched from "قريبًا" to links as each one is done
+- ✅ Lesson pages for parts 4–6: `course.json` entries, rendered notebooks, pager links, course-page items linked
 - ⬜ Notebooks from `4-visualization/` on read data with `../data/...`; to put them on Kaggle they need the
   `/kaggle/input` fallback our notebooks have, plus Kaggle datasets for Titanic, World Happiness, Airbnb (decide:
   Kaggle for these too, or only the rendered notebook on the site)

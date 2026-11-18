@@ -6,7 +6,8 @@ pages/_shell.css, the same look as the hand-written pages of lessons 1-8.
 
 A fragment starts with a JSON meta block, then the <section class="sec"> blocks, then optionally one <style> and
 one <script>. "primary": [label, url] replaces the notebook button (for a lesson without a notebook), and
-"no_rendered_notebook": true drops the "show the notebook here" button. The script runs inside the page's IIFE, after the helpers ($, $$, cssv, head, setup, text, axes,
+"no_rendered_notebook": true drops the "show the notebook here" button, "images": [repo paths] copies figures
+to site/<slug>/img/, and "next": [title, url] links the last lesson to a page outside course.json. The script runs inside the page's IIFE, after the helpers ($, $$, cssv, head, setup, text, axes,
 onRedraw, PAL, nf) and must define `function main() {...}`, called once the page has loaded.
 
     <!--meta {"title": "Matplotlib", "h1": "Matplotlib", "title_ar": "Matplotlib", "lead": "...",
@@ -22,6 +23,7 @@ from pathlib import Path
 import html
 import json
 import re
+import shutil
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -115,8 +117,10 @@ def build(slug):
                 if nxt else '<span class="iconbtn off" aria-hidden="true">←</span>')
     pg_prev = (f'<a class="pg" href="{lesson_link(prev)}"><span>→ الدرس اللي فات</span><b>{html.escape(t_ar(prev))}</b></a>'
                if prev else '<span class="pg off"><span>→ الدرس اللي فات</span><b>ده أول درس</b></span>')
+    if not nxt and meta.get("next"):            # the last lesson can point at a page outside course.json
+        top_next = f'<a class="iconbtn" href="{meta["next"][1]}" aria-label="الجاي: {html.escape(meta["next"][0])}" title="الجاي: {html.escape(meta["next"][0])}">←</a>'
     pg_next = (f'<a class="pg next" href="{lesson_link(nxt)}"><span>الدرس الجاي ←</span><b>{html.escape(t_ar(nxt))}</b></a>'
-               if nxt else f'<span class="pg next off"><span>الدرس الجاي ←</span><b>{html.escape(meta.get("next_soon", "قريبًا"))}</b></span>')
+               if nxt else f'<a class="pg next" href="{meta["next"][1]}"><span>الجاي ←</span><b>{html.escape(meta["next"][0])}</b></a>' if meta.get("next") else f'<span class="pg next off"><span>الدرس الجاي ←</span><b>{html.escape(meta.get("next_soon", "قريبًا"))}</b></span>')
 
     data_btn = (f'<a class="nb-btn" href="{meta["data_url"]}" target="_blank" rel="noopener">{meta.get("data_label", "🗂️ الداتا")}</a>'
                 if meta.get("data_url") else f'<a class="nb-btn" href="{DATASET}" target="_blank" rel="noopener">🗂️ داتا NileCart على Kaggle</a>')
@@ -203,6 +207,9 @@ window.addEventListener("DOMContentLoaded", () => {{ chrome(); {"main();" if "fu
 """
     out = ROOT / "website" / "site" / slug / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
+    for f in meta.get("images", []):             # figures from the repo, copied next to the page as img/<name>
+        (out.parent / "img").mkdir(exist_ok=True)
+        shutil.copyfile(ROOT / f, out.parent / "img" / Path(f).name)
     out.write_text(page, encoding="utf-8", newline="")
     print("wrote", out, f"({out.stat().st_size // 1024} KB)")
 

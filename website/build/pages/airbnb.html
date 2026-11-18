@@ -1,0 +1,111 @@
+<!--meta
+{"title": "Airbnb NYC Project",
+ "h1": "Airbnb NYC",
+ "kicker": "المشاريع · 3",
+ "lead": "<b>إيه اللي بيحدد سعر الليلة على Airbnb في نيويورك؟</b><br>الـ borough؟ نوع الأوضة؟ المسافة من النص؟ الـ reviews؟<br>وعيلة عايزة بيت كامل قريب من النص، تلاقي أحسن قيمة فين؟ تحليل لـ 48,895 listing، و dashboard بـ 4 صفحات وخريطة.",
+ "description": "مشروع Airbnb نيويورك 2019 بالعربي: 48,895 listing، تنضيف وحساب المسافة من Times Square، ونوع الأوضة والمسافة بيحددوا السعر، وأحسن قيمة لعيلة، و dashboard بـ Streamlit من 4 صفحات.",
+ "og_description": "إيه اللي بيحدد سعر الليلة؟ تحليل لـ 48,895 listing و dashboard بـ 4 صفحات.",
+ "extra_links": [["💻 الـ dashboard (الكود)", "https://github.com/a7madmostafa/python-data-analysis-course/tree/main/6-projects/03-airbnb-nyc"]],
+ "data_url": "https://www.kaggle.com/datasets/dgomonov/new-york-city-airbnb-open-data",
+ "data_label": "🗂️ داتا Airbnb NYC على Kaggle",
+ "next": ["المشروع النهائي", "/courses/da/final-project/"],
+ "footer": "الداتا: New York City Airbnb Open Data (Kaggle)، من Inside Airbnb (CC BY 4.0)، 2019. الأسعار المطلوبة بالدولار في الليلة، بعد تنضيف المشروع.",
+ "images": ["6-projects/03-airbnb-nyc/images/dashboard.png", "6-projects/03-airbnb-nyc/images/price_map.png"],
+ "scripts": ["../assets/data/airbnb_prices.js"]}
+-->
+    <section class="sec" id="q">
+      <div class="sec-head"><h2><span class="num">1</span>السؤال والداتا</h2></div>
+      <p>سطر لكل listing: المكان، ونوع الأوضة، والسعر، وأقل مدة إقامة، والـ reviews، والـ host، والإتاحة.</p>
+      <figure class="fig"><img src="img/price_map.png" alt="Price on the map" style="width:100%;border-radius:10px;background:#fff" loading="lazy"><figcaption>السعر على الخريطة (من النوت بوك).</figcaption></figure>
+    </section>
+
+    <section class="sec" id="clean">
+      <div class="sec-head"><h2><span class="num">2</span>قرارات التنضيف</h2></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>القرار</th><th>ليه</th></tr></thead>
+        <tbody>
+          <tr><td>شلنا اللي سعره $0 أو فوق $1,000، وأقل إقامة فوق سنة: 264 سطر (0.5%)</td><td>placeholders، مش أسعار حقيقية</td></tr>
+          <tr><td><span class="en">reviews_per_month</span> الفاضي اتملى بـ 0</td><td>هما بالظبط الـ listings اللي ملهاش reviews</td></tr>
+          <tr><td>الـ IQR outliers اتسابوا</td><td>شقة غالية في Manhattan مش غلطة</td></tr>
+          <tr><td>شلنا <span class="en">host_name</span></td><td>داتا شخصية</td></tr>
+          <tr><td>ضفنا المسافة من Times Square (haversine)، و distance bands، وأنواع الـ hosts</td><td>"المكان" بقى رقم نقدر نحلله</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="sec" id="find">
+      <div class="sec-head"><h2><span class="num">3</span>اللي لقيناه</h2></div>
+      <div class="cards">
+        <div class="card"><b>الليلة النموذجية $105</b>(median). نص الـ listings بين $69 و $175. الأسعار skewed جامد لليمين، فبنقارن بالـ median.</div>
+        <div class="card"><b>نوع الأوضة بيحدد المستوى</b>بيت كامل $160، وأوضة خاصة $70، وأوضة مشتركة $45، بنفس الترتيب في كل borough.</div>
+        <div class="card"><b>المكان = المسافة، مش اسم الـ borough</b>الـ median بينزل من $181 تحت 2 كم من Times Square لـ $75 بعد 10 كم، لكل نوع أوضة.</div>
+        <div class="card"><b>الـ reviews مش بتحدد السعر</b>(Spearman r = −0.05). و 86% من الـ hosts عندهم listing واحدة، بس أقل من 1% منهم ماسكين حوالي 10% من الـ listings.</div>
+      </div>
+      <h3 class="sub">المسافة × نوع الأوضة</h3>
+      <p>الـ median للسعر في كل خانة، من الداتا كلها. اختار borough:</p>
+      <div class="widget" id="wPrice"></div>
+      <div class="callout insight"><div class="ttl">💡 أحسن قيمة لعيلة</div>
+        بيت كامل في Queens على بُعد 2–5 كم من Times Square: $149 في الليلة، حوالي $40 أقل من Manhattan على نفس المسافة.
+        وبيت كامل في Brooklyn على 2–5 كم ($175) أغلى من واحد في Manhattan على 5–10 كم ($160): المسافة أهم من الاسم.</div>
+    </section>
+
+    <section class="sec" id="dash">
+      <div class="sec-head"><h2><span class="num">4</span>الـ Dashboard</h2></div>
+      <p>app بـ Streamlit من 4 صفحات على الداتا بعد التنضيف، بفلاتر للـ borough، ونوع الأوضة، والسعر:</p>
+      <figure class="fig"><img src="img/dashboard.png" alt="The dashboard" style="width:100%;border-radius:10px" loading="lazy"></figure>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الصفحة</th><th>بتوري إيه</th></tr></thead>
+        <tbody>
+          <tr><td>Overview</td><td>الـ listings، والـ hosts، و median السعر، ونسبة البيوت الكاملة، والـ listings حسب الـ borough، وأنواع الأوض، وأسعار الـ borough × نوع الأوضة</td></tr>
+          <tr><td>Prices</td><td>توزيع السعر، و median السعر حسب نوع الأوضة أو الـ borough أو المسافة أو نوع الـ host، وأغلى الأحياء</td></tr>
+          <tr><td>Map</td><td>لحد 5,000 listing على الخريطة، ملوّنين بالسعر</td></tr>
+          <tr><td>Listings</td><td>دوّر في أسامي الـ listings، وتصفّح النتايج، ونزّلها CSV</td></tr>
+        </tbody>
+      </table></div>
+<pre>03-airbnb-nyc/
+├── analysis.ipynb      <span class="c"># the analysis: questions, cleaning, exploration, answers</span>
+├── streamlit_app.py    <span class="c"># the dashboard: data, filters, navigation</span>
+├── views/              <span class="c"># the four pages</span>
+├── charts.py           <span class="c"># one function per chart (Plotly), shared by the notebook and the app</span>
+└── .streamlit/         <span class="c"># the theme</span></pre>
+<pre>uv run streamlit run 6-projects/03-airbnb-nyc/streamlit_app.py</pre>
+    </section>
+
+    <section class="sec" id="limits">
+      <div class="sec-head"><h2><span class="num">5</span>حدود التحليل</h2></div>
+      <div class="two">
+        <div class="path"><h4>أسعار مطلوبة</h4><p>مش الأسعار اللي اتدفعت فعلًا، و snapshot من 2019.</p></div>
+        <div class="path"><h4>ناقص</h4><p>36% من الـ listings مش متاحة للحجز، ومفيش مساحة ولا تقييم.</p></div>
+      </div>
+    </section>
+
+<style>
+.heat{display:grid;gap:3px;direction:ltr;font-family:"JetBrains Mono",monospace;font-size:.85rem}
+.heat div{padding:.45rem .3rem;text-align:center;border-radius:6px;line-height:1.25}
+.heat div small{display:block;font-size:.68rem;opacity:.75}
+.heat .h{background:transparent;color:var(--muted);font-family:Inter,sans-serif;font-size:.8rem}
+</style>
+<script>
+const P = window.AIRBNB_PRICES;
+function priceWidget(root) {
+  let bi = 0;
+  root.innerHTML = head("median سعر الليلة: المسافة من Times Square × نوع الأوضة", "كل خانة median، والرقم الصغير عدد الـ listings. الخانات اللي أقل من 30 listing باهتة.") + `
+    <div class="optrow"><div class="seg">${P.boroughs.map((b, k) => `<button data-b="${k}" aria-pressed="${k === bi}">${b}</button>`).join("")}</div></div>
+    <div class="heat" data-s="grid"></div><div class="status" data-s="msg" style="margin-top:.6rem"></div>`;
+  const all = P.tables.flatMap(t => t.median.flat()).filter(v => v !== null), lo = Math.log(Math.min(...all)), hi = Math.log(Math.max(...all));
+  const col = v => { const t = (Math.log(v) - lo) / (hi - lo), a = [247, 252, 245], b = [0, 90, 50]; return a.map((x, k) => Math.round(x + (b[k] - x) * t)); };
+  function draw() {
+    const T = P.tables[bi]; let o = `<div class="h"></div>` + P.rooms.map(r => `<div class="h">${r}</div>`).join("");
+    P.bands.forEach((b, i) => { o += `<div class="h" style="text-align:right">${b}</div>`; P.rooms.forEach((r, j) => { const v = T.median[i][j], n = T.count[i][j];
+      if (v === null || !n) { o += `<div style="background:var(--surface-2);color:var(--muted)">–</div>`; return; }
+      const c = col(v), dark = c[0] * .3 + c[1] * .59 + c[2] * .11 < 140; o += `<div style="background:rgb(${c});color:${dark ? "#fff" : "#1c1e22"};opacity:${n < 30 ? .45 : 1}">$${Math.round(v)}<small>n=${n.toLocaleString("en")}</small></div>`; }); });
+    const g = $("[data-s=grid]", root); g.innerHTML = o; g.style.gridTemplateColumns = "90px repeat(3, 1fr)";
+    const e = T.median.map(r => r[0]);
+    $("[data-s=msg]", root).textContent = bi === 0 ? `في كل نوع أوضة السعر بينزل كل ما تبعد: البيت الكامل من $${Math.round(e[0])} تحت 2 كم لـ $${Math.round(e[3])} بعد 10 كم.` :
+      `${P.boroughs[bi]}: بيت كامل على 2–5 كم بـ $${e[1] === null ? "–" : Math.round(e[1])}، قارنه بـ Manhattan على نفس المسافة ($${Math.round(P.tables[P.boroughs.indexOf("Manhattan")].median[1][0])}).`;
+  }
+  segPick(root, "data-b", v => { bi = +v; draw(); });
+  draw();
+}
+function main() { priceWidget($("#wPrice")); }
+</script>

@@ -1,0 +1,143 @@
+<!--meta
+{"title": "Titanic Project",
+ "h1": "Titanic",
+ "kicker": "المشاريع · 1",
+ "lead": "<b>مين نجا من الـ Titanic؟ وليه؟</b><br>تحليل استكشافي لـ 891 راكب: النوع، والدرجة، والسن، والعيلة، والميناء، والتذكرة قصاد النجاة،<br>و dashboard تفاعلي على الداتا بعد التنضيف. النوت بوك والـ app بيستخدموا نفس <span class=\"en\">charts.py</span>، فكل رسمة مكتوبة مرة واحدة.",
+ "description": "مشروع Titanic بالعربي: تحليل كامل لـ 891 راكب من الداتا الخام للإجابات، تنضيف وملء السن من الألقاب، وتأثير الميناء اللي طلع تأثير درجة، و dashboard بـ Streamlit.",
+ "og_description": "مين نجا من الـ Titanic، وليه؟ تحليل كامل و dashboard بـ Streamlit.",
+ "extra_links": [["💻 الـ dashboard (الكود)", "https://github.com/a7madmostafa/python-data-analysis-course/blob/main/6-projects/01-titanic/streamlit_app.py"]],
+ "data_url": "https://www.kaggle.com/competitions/titanic/data",
+ "data_label": "🗂️ داتا Titanic على Kaggle",
+ "footer": "الداتا: ملف الـ training بتاع Titanic من Kaggle، 891 راكب، بعد تنضيف المشروع (<span class=\"en\">data/titanic_clean.csv</span>).",
+ "images": ["6-projects/01-titanic/images/class_sex.png", "6-projects/01-titanic/images/port_mix.png"],
+ "scripts": ["../assets/data/titanic_clean.js"]}
+-->
+    <section class="sec" id="q">
+      <div class="sec-head"><h2><span class="num">1</span>الأسئلة والداتا</h2></div>
+      <p>ملف الـ training بتاع Titanic: 891 راكب، سطر لكل واحد، فيه الدرجة، والاسم، والنوع، والسن، والعيلة اللي معاه، والتذكرة، والأجرة، والكابينة، والميناء.</p>
+      <div class="cards">
+        <div class="card"><b>كام واحد نجا؟</b>والنوع والدرجة هما اللي قرروا؟ وأنهي فيهم أهم؟</div>
+        <div class="card"><b>الأطفال الأول؟</b>الأطفال اتنقذوا فعلًا قبل الكبار؟ والعيلة ساعدت؟</div>
+        <div class="card"><b>ليه Cherbourg؟</b>ركاب Cherbourg نجوا أكتر. ليه؟ وهل الأجرة فرقت بعد الدرجة؟</div>
+      </div>
+      <p>كل مشروع ماشي على نفس المراحل: أول بصّة، والأسئلة، والتنضيف، والـ feature engineering، والتحليل univariate و bivariate و multivariate، والإجابات، والخلاصة.</p>
+    </section>
+
+    <section class="sec" id="clean">
+      <div class="sec-head"><h2><span class="num">2</span>قرارات التنضيف</h2></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>العمود</th><th>المشكلة</th><th>القرار</th></tr></thead>
+        <tbody>
+          <tr><td class="en">Cabin</td><td>77% فاضي، وأغلبه مجرد مؤشر للدرجة</td><td>اتشال، ومعاه <span class="en">Ticket</span></td></tr>
+          <tr><td class="en">Embarked</td><td>2 فاضيين</td><td>اتملوا بـ Southampton، الأكتر</td></tr>
+          <tr><td class="en">Age</td><td>177 فاضي</td><td>اتملوا بـ median سن <b>اللقب</b> بتاع الراكب (Mr، Mrs، Miss، Master، Rare)، ومتعلّم عليهم في <span class="en">age_known</span></td></tr>
+          <tr><td class="en">Fare</td><td>£0 و £512</td><td>اتسابوا: قيم حقيقية</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout add"><div class="ttl">➕ ليه اللقب؟</div>
+        "Master" معناها ولد صغير، و "Miss" غالبًا أصغر من "Mrs". median السن لكل لقب أدق بكتير من median الكل، ومن غير ما نخترع حاجة:
+        العمود <span class="en">age_known</span> بيفكّرنا إن السن ده تقدير.</div>
+    </section>
+
+    <section class="sec" id="find">
+      <div class="sec-head"><h2><span class="num">3</span>اللي لقيناه</h2></div>
+      <div class="cards">
+        <div class="card"><b>342 من 891 نجوا (38%)</b></div>
+        <div class="card"><b>النوع أقوى عامل</b>74% من الستات نجوا، و 19% من الرجالة.</div>
+        <div class="card"><b>الدرجة حددت المستوى</b>97% من ستات الدرجة الأولى، ونص ستات الدرجة التالتة، و 14% من رجالة التالتة.</div>
+        <div class="card"><b>الأطفال</b>حوالي 58% نجوا: كل الـ 12 ولد في الأولى والتانية، و 39% من ولاد التالتة.</div>
+      </div>
+      <figure class="fig"><img src="img/class_sex.png" alt="Survival rate by class and sex" style="width:100%;border-radius:10px;background:#fff"><figcaption>نسبة النجاة حسب الدرجة والنوع (من النوت بوك).</figcaption></figure>
+      <h3 class="sub">مجموعتين مع بعض</h3>
+      <p>اختار عمودين، وشوف نسبة النجاة لكل تركيبة، وعدد الركاب في كل خانة:</p>
+      <div class="widget" id="wTwo"></div>
+      <h3 class="sub">تأثير الميناء: تأثير درجة</h3>
+      <div class="widget" id="wPort"></div>
+    </section>
+
+    <section class="sec" id="dash">
+      <div class="sec-head"><h2><span class="num">4</span>الـ Dashboard</h2></div>
+      <p>app بـ Streamlit فيه فلاتر للدرجة، والنوع، والميناء، والسن: KPIs (الركاب، والناجيين، ونسبة النجاة، و median الأجرة) و 4 tabs.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الـ Tab</th><th>بيوري إيه</th></tr></thead>
+        <tbody>
+          <tr><td>Who survived?</td><td>نسبة النجاة وعدد الركاب حسب النوع، أو الدرجة، أو الفئة العمرية، أو اللقب، أو حجم العيلة، أو الميناء</td></tr>
+          <tr><td>Two groups</td><td>نسبة النجاة لكل تركيبة من عمودين، وتوزيع الدرجات في كل ميناء</td></tr>
+          <tr><td>Ages and fares</td><td>أعمار الناجيين والضحايا، والأجرة حسب الدرجة والنتيجة</td></tr>
+          <tr><td>Passengers</td><td>الركاب بعد الفلترة، وتنزّلهم CSV</td></tr>
+        </tbody>
+      </table></div>
+<pre>uv run streamlit run 6-projects/01-titanic/streamlit_app.py      <span class="c"># from the repository folder, after uv sync</span></pre>
+<pre>01-titanic/
+├── analysis.ipynb      <span class="c"># the analysis: questions, cleaning, exploration, answers</span>
+├── streamlit_app.py    <span class="c"># the dashboard: data, filters, KPIs, tabs</span>
+├── charts.py           <span class="c"># one function per chart (Plotly), shared by the notebook and the app</span>
+└── images/             <span class="c"># figures used in the README</span></pre>
+    </section>
+
+    <section class="sec" id="limits">
+      <div class="sec-head"><h2><span class="num">5</span>حدود التحليل</h2></div>
+      <div class="two">
+        <div class="path"><h4>الداتا ناقصة</h4><p>891 من حوالي 1,300 راكب، ومفيش طاقم السفينة. والسن متقدّر لـ 177 راكب.</p></div>
+        <div class="path"><h4>اللي مش موجود</h4><p>مجموعات صغيرة، ومفيش معلومة الناس كانت فين لما السفينة خبطت في جبل التلج.</p></div>
+      </div>
+    </section>
+
+<style>
+.heat{display:grid;gap:3px;direction:ltr;font-family:"JetBrains Mono",monospace;font-size:.82rem}
+.heat div{padding:.4rem .3rem;text-align:center;border-radius:6px;line-height:1.25}
+.heat div small{display:block;font-size:.68rem;opacity:.75}
+.heat .h{background:transparent;color:var(--muted);font-family:Inter,sans-serif;font-size:.78rem}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+</style>
+<script>
+const T = window.TITANIC_CLEAN, L = T.levels, N = T.survived.length, ALL = [...Array(N).keys()];
+const ORDER = { class: ["1st", "2nd", "3rd"], age_group: ["Child (0-12)", "Teen (13-17)", "Adult (18-59)", "Senior (60+)"], family: ["Alone", "2-4", "5+"], port: ["Cherbourg", "Queenstown", "Southampton"], sex: ["female", "male"], title: ["Master", "Miss", "Mrs", "Mr", "Rare"] };
+const NAMES = { sex: "sex", class: "class", age_group: "age group", port: "port", family: "family", title: "title" };
+const rgb = r => { const a = [215, 48, 39], b = [255, 255, 191], c = [26, 152, 80]; const t = r < .5 ? r * 2 : (r - .5) * 2, x = r < .5 ? a : b, y = r < .5 ? b : c; return x.map((v, k) => Math.round(v + (y[k] - v) * t)); };
+
+function twoWidget(root) {
+  let rcol = "class", ccol = "sex";
+  const opts = c => Object.keys(NAMES).map(k => `<option value="${k}" ${k === c ? "selected" : ""}>${NAMES[k]}</option>`).join("");
+  root.innerHTML = head("نسبة النجاة: عمود × عمود", "اللون من الأحمر (محدش نجا) للأخضر (كلهم نجوا)، والرقم الصغير عدد الركاب.") + `
+    <div class="optrow"><select class="sel" data-s="r">${opts(rcol)}</select><span>×</span><select class="sel" data-s="c">${opts(ccol)}</select></div>
+    <div class="heat" data-s="grid"></div><div class="status" data-s="msg" style="margin-top:.6rem"></div>`;
+  function draw() {
+    const rows = ORDER[rcol], cols = ORDER[ccol], code = (col, v) => L[col].indexOf(v);
+    let o = `<div class="h"></div>` + cols.map(c => `<div class="h">${c}</div>`).join(""), worst = null, best = null;
+    rows.forEach(r => { o += `<div class="h" style="text-align:right">${r}</div>`; cols.forEach(c => {
+      const ix = rcol === ccol ? (r === c ? ALL.filter(i => T[rcol][i] === code(rcol, r)) : []) : ALL.filter(i => T[rcol][i] === code(rcol, r) && T[ccol][i] === code(ccol, c));
+      if (!ix.length) { o += `<div style="background:var(--surface-2);color:var(--muted)">–</div>`; return; }
+      const s = ix.reduce((a, i) => a + T.survived[i], 0) / ix.length, col = rgb(s), dark = col[0] * .3 + col[1] * .59 + col[2] * .11 < 140;
+      if (ix.length >= 10) { if (!best || s > best[0]) best = [s, r, c, ix.length]; if (!worst || s < worst[0]) worst = [s, r, c, ix.length]; }
+      o += `<div style="background:rgb(${col});color:${dark ? "#fff" : "#1c1e22"}">${Math.round(s * 100)}%<small>n=${ix.length}</small></div>`; }); });
+    const g = $("[data-s=grid]", root); g.innerHTML = o; g.style.gridTemplateColumns = `120px repeat(${cols.length}, 1fr)`;
+    $("[data-s=msg]", root).textContent = best && worst && rcol !== ccol ? `أعلى خانة (10 ركاب أو أكتر): ${best[1]} × ${best[2]}، ${Math.round(best[0] * 100)}% من ${best[3]}. وأوطى خانة: ${worst[1]} × ${worst[2]}، ${Math.round(worst[0] * 100)}% من ${worst[3]}. خد بالك من الخانات الصغيرة.` : "اختار عمودين مختلفين.";
+  }
+  $("[data-s=r]", root).onchange = e => { rcol = e.target.value; draw(); }; $("[data-s=c]", root).onchange = e => { ccol = e.target.value; draw(); };
+  draw();
+}
+
+function portWidget(root) {
+  let mode = "surv";
+  root.innerHTML = head("ليه ركاب Cherbourg نجوا أكتر؟", "نسبة النجاة في كل ميناء، وبعدين مين ركب منين.", "النتيجة") + `
+    <div class="optrow"><div class="seg"><button data-m="surv" aria-pressed="true">نسبة النجاة</button><button data-m="mix" aria-pressed="false">توزيع الدرجات</button></div></div>
+    <canvas></canvas><div class="keys" data-s="keys"></div><div class="status" data-s="msg"></div>`;
+  const cv = $("canvas", root), ports = ORDER.port, cls = ORDER.class, CC = () => [cssv("--c1"), cssv("--c3"), cssv("--bad")];
+  function draw() {
+    const h = 200, { ctx, w } = setup(cv, h), pad = { l: 96, r: 50, t: 8, b: 8 }, bh = (h - pad.t - pad.b) / ports.length, W = w - pad.l - pad.r;
+    ports.forEach((p, k) => { const ix = ALL.filter(i => T.port[i] === L.port.indexOf(p)), y = pad.t + k * bh;
+      text(ctx, p, pad.l - 6, y + bh / 2, { col: "--ink", align: "right", base: "middle", font: "11.5px Inter, sans-serif" });
+      if (mode === "surv") { const s = ix.reduce((a, i) => a + T.survived[i], 0) / ix.length; ctx.fillStyle = cssv("--c1"); ctx.fillRect(pad.l, y + bh * .2, s * W, bh * .6);
+        text(ctx, Math.round(s * 100) + "%  (n=" + ix.length + ")", pad.l + s * W + 6, y + bh / 2, { base: "middle", font: "11px 'JetBrains Mono', monospace" }); }
+      else { let x = pad.l; cls.forEach((c, j) => { const sh = ix.filter(i => T.class[i] === L.class.indexOf(c)).length / ix.length; ctx.fillStyle = CC()[j]; ctx.fillRect(x, y + bh * .2, sh * W, bh * .6);
+        if (sh > .08) text(ctx, Math.round(sh * 100) + "%", x + sh * W / 2, y + bh / 2, { col: "#fff", align: "center", base: "middle", font: "bold 11px Inter, sans-serif" }); x += sh * W; }); } });
+    $("[data-s=keys]", root).innerHTML = mode === "mix" ? cls.map((c, j) => `<span><i style="background:${CC()[j]}"></i>${c} class</span>`).join("") : "";
+    $("[data-s=msg]", root).textContent = mode === "surv" ? "Cherbourg 55%، و Southampton 34%. هو الميناء نفسه؟" : "نص ركاب Cherbourg درجة أولى، و 94% من ركاب Queenstown درجة تالتة. تأثير الميناء أغلبه تأثير الدرجة.";
+  }
+  segPick(root, "data-m", v => { mode = v; draw(); });
+  draw(); onRedraw(draw);
+}
+
+function main() { twoWidget($("#wTwo")); portWidget($("#wPort")); }
+</script>

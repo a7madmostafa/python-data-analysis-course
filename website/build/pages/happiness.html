@@ -1,0 +1,126 @@
+<!--meta
+{"title": "World Happiness Project",
+ "h1": "World Happiness",
+ "kicker": "المشاريع · 2",
+ "lead": "<b>إيه اللي ماشي مع البلد السعيدة؟</b><br>تحليل استكشافي لـ World Happiness Report 2021 (149 بلد)، وبصّة قريبة على مصر،<br>و dashboard تفاعلي على الداتا بعد التنضيف.",
+ "description": "مشروع World Happiness 2021 بالعربي: 149 بلد، والـ correlation مش causation، والدعم الاجتماعي جوه كل فئة دخل، ومصر ترتيبها 132 ليه، و dashboard بـ Streamlit فيه خريطة.",
+ "og_description": "إيه اللي ماشي مع البلد السعيدة؟ ومصر فين؟ تحليل كامل و dashboard.",
+ "extra_links": [["💻 الـ dashboard (الكود)", "https://github.com/a7madmostafa/python-data-analysis-course/blob/main/6-projects/02-world-happiness/streamlit_app.py"]],
+ "data_url": "https://www.kaggle.com/datasets/ajaypalsinghlo/world-happiness-report-2021",
+ "data_label": "🗂️ داتا World Happiness على Kaggle",
+ "footer": "الداتا: World Happiness Report 2021 (من Gallup World Poll، متوسط 2018–2020)، 149 بلد، بعد تنضيف المشروع (<span class=\"en\">data/world_happiness_clean.csv</span>).",
+ "images": ["6-projects/02-world-happiness/images/support_by_income.png"],
+ "scripts": ["../assets/data/happiness.js"]}
+-->
+    <section class="sec" id="q">
+      <div class="sec-head"><h2><span class="num">1</span>الأسئلة والداتا</h2></div>
+      <p>سطر لكل بلد: الـ ladder score (السعادة من 0 لـ 10)، وفترة الثقة بتاعته، و 6 عوامل، وتقسيم التقرير للسكور لأجزاء.</p>
+      <div class="cards">
+        <div class="card"><b>السعادة متوزعة إزاي؟</b>وأنهي مناطق الأسعد؟</div>
+        <div class="card"><b>أنهي عوامل ماشية معاها؟</b>هي الفلوس وبس؟ والدعم الاجتماعي بيفرق بين بلاد نفس الدخل؟</div>
+        <div class="card"><b>مصر فين؟</b>وإيه اللي بيشدّها لتحت؟</div>
+      </div>
+    </section>
+
+    <section class="sec" id="clean">
+      <div class="sec-head"><h2><span class="num">2</span>قرارات التنضيف</h2></div>
+      <div class="cards">
+        <div class="card"><b>اتشال</b>أعمدة عدم التأكد و Dystopia. تقسيم التقرير اتحفظ لوحده لتحليل مصر.</div>
+        <div class="card"><b>اتراجع</b>قواعد validation (المدى، وسطر واحد لكل بلد): مفيش فاضي ولا مكرر.</div>
+        <div class="card"><b>اتساب</b>الـ generosity السالبة وكل الـ IQR outliers: قيم حقيقية، مش أخطاء.</div>
+        <div class="card"><b>اتضاف</b>الترتيب، والـ GDP بالدولار، و 3 فئات دخل بنفس الحجم (50، 49، 50 بلد).</div>
+      </div>
+    </section>
+
+    <section class="sec" id="find">
+      <div class="sec-head"><h2><span class="num">3</span>اللي لقيناه</h2></div>
+      <div class="cards">
+        <div class="card"><b>متماثلة حوالين 5.5</b>من أفغانستان (2.52) لفنلندا (7.84).</div>
+        <div class="card"><b>الفلوس والصحة والدعم</b>الأكتر ارتباطًا بالسعادة (r = 0.79، 0.77، 0.76)، وبيتحركوا مع بعض كمان: correlation، مش causation.</div>
+        <div class="card"><b>الفلوس مش كل حاجة</b>بلاد بنفس الـ GDP ممكن يبقى الفرق بينهم نقطتين.</div>
+        <div class="card"><b>الدعم الاجتماعي بيفرق</b>جوه كل فئة دخل (r من 0.48 لـ 0.67).</div>
+      </div>
+      <h3 class="sub">كل عامل قصاد السعادة</h3>
+      <p>اختار عامل. كل نقطة بلد، واللون فئة الدخل، ومصر متعلّم عليها:</p>
+      <div class="widget" id="wFactor"></div>
+      <figure class="fig"><img src="img/support_by_income.png" alt="Social support matters in every income group" style="width:100%;border-radius:10px;background:#fff"><figcaption>الدعم الاجتماعي والسعادة، panel لكل فئة دخل (من النوت بوك).</figcaption></figure>
+      <h3 class="sub">مصر</h3>
+      <div class="widget" id="wEgypt"></div>
+      <div class="callout insight"><div class="ttl">💡 مصر 132 من 149</div>
+        رغم إنها في فئة الدخل المتوسطة (86 في الـ GDP)، ترتيبها أوطى في الدعم الاجتماعي، والصحة، والحرية، والكرم،
+        والسكور بتاعها أقل بـ 0.78 من اللي عواملها بتتوقعه.</div>
+    </section>
+
+    <section class="sec" id="dash">
+      <div class="sec-head"><h2><span class="num">4</span>الـ Dashboard</h2></div>
+      <p>app بـ Streamlit فيه فلاتر للمنطقة، وفئة الدخل، ومدى السعادة، وبلد تركّز عليه (مصر بالـ default):</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الـ Tab</th><th>بيوري إيه</th></tr></thead>
+        <tbody>
+          <tr><td>Overview</td><td>KPIs (عدد البلاد، ومتوسط السعادة، وأسعد بلد، وترتيب البلد المختار)، وخريطة العالم ملوّنة بالسعادة أو أي عامل، والتوزيع</td></tr>
+          <tr><td>Groups</td><td>متوسط السعادة وانتشارها حسب المنطقة أو فئة الدخل</td></tr>
+          <tr><td>Factors</td><td>أي عامل قصاد السعادة مع الـ correlation، و correlation كل العوامل</td></tr>
+          <tr><td>Compare</td><td>البلد المختار قصاد بلاد تختارها على أي عمود، وجدول تنزّله</td></tr>
+        </tbody>
+      </table></div>
+<pre>uv run streamlit run 6-projects/02-world-happiness/streamlit_app.py</pre>
+    </section>
+
+    <section class="sec" id="limits">
+      <div class="sec-head"><h2><span class="num">5</span>حدود التحليل</h2></div>
+      <div class="two">
+        <div class="path"><h4>بلاد، مش ناس</h4><p>إصدار واحد (متوسطات 2018–2020)، والوحدة بلد كامل.</p></div>
+        <div class="path"><h4>correlation بس</h4><p>مفيش تجربة تقول إيه بيسبب إيه، وإجابات الاستبيان بتتأثر بالثقافة.</p></div>
+      </div>
+    </section>
+
+<style>
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+</style>
+<script>
+const H = window.HAPPY, N = H.country.length, ALL = [...Array(N).keys()], EG = H.country.indexOf("Egypt");
+const F = { log_gdp: "GDP (log)", social_support: "Social support", life_expectancy: "Life expectancy", freedom: "Freedom", generosity: "Generosity", corruption: "Corruption (lower is better)" };
+const INC = ["Low", "Middle", "High"], IC = () => [cssv("--bad"), cssv("--c3"), cssv("--c1")];
+const corr = (a, b) => { const m = x => x.reduce((s, v) => s + v, 0) / x.length, ma = m(a), mb = m(b); let n = 0, da = 0, db = 0; a.forEach((x, i) => { n += (x - ma) * (b[i] - mb); da += (x - ma) ** 2; db += (b[i] - mb) ** 2; }); return n / Math.sqrt(da * db); };
+
+function factorWidget(root) {
+  let f = "log_gdp", by = false;
+  root.innerHTML = head("happiness ~ عامل", "اختار العامل. شغّل \"جوه كل فئة دخل\" عشان تشوف الـ r لكل فئة لوحدها.") + `
+    <div class="optrow"><select class="sel">${Object.entries(F).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>
+      <label class="chk"><input type="checkbox" data-k="by"> r جوه كل فئة دخل</label></div>
+    <canvas></canvas><div class="keys">${INC.map((g, k) => `<span><i style="background:${IC()[k]}"></i>${g} income</span>`).join("")}</div><div class="stats" data-s="st" style="margin-top:.6rem"></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const h = 280, { ctx, w } = setup(cv, h), pad = { l: 34, r: 14, t: 12, b: 28 }, x = H[f], lo = Math.min(...x), hi = Math.max(...x);
+    const sx = v => pad.l + (v - lo) / (hi - lo) * (w - pad.l - pad.r), sy = v => h - pad.b - (v - 2) / 6 * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); [3, 5, 7].forEach(v => text(ctx, v, pad.l - 5, sy(v) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" }));
+    text(ctx, F[f] + " →", w - pad.r, h - 8, { align: "right", font: "10.5px Inter, sans-serif" }); text(ctx, "happiness", pad.l + 4, pad.t + 8, { font: "10.5px Inter, sans-serif" });
+    ALL.forEach(i => { if (i === EG) return; ctx.fillStyle = IC()[INC.indexOf(H.income_group[i])]; ctx.globalAlpha = .7; ctx.beginPath(); ctx.arc(sx(x[i]), sy(H.happiness[i]), 4, 0, 7); ctx.fill(); }); ctx.globalAlpha = 1;
+    ctx.strokeStyle = cssv("--ink"); ctx.lineWidth = 2; ctx.fillStyle = cssv("--c3"); ctx.beginPath(); ctx.arc(sx(x[EG]), sy(H.happiness[EG]), 7, 0, 7); ctx.fill(); ctx.stroke();
+    text(ctx, "Egypt", sx(x[EG]) + 10, sy(H.happiness[EG]) + 4, { col: "--ink", font: "bold 12px Inter, sans-serif" });
+    const items = [["r (all 149)", corr(x, H.happiness)]];
+    if (by) INC.forEach(g => { const ix = ALL.filter(i => H.income_group[i] === g); items.push([`r (${g})`, corr(ix.map(i => x[i]), ix.map(i => H.happiness[i]))]); });
+    $("[data-s=st]", root).innerHTML = items.map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v.toFixed(2)}</b></div>`).join("");
+  }
+  $("select", root).onchange = e => { f = e.target.value; draw(); }; $("[data-k=by]", root).onchange = e => { by = e.target.checked; draw(); };
+  draw(); onRedraw(draw);
+}
+
+function egyptWidget(root) {
+  const cols = { happiness: "Happiness", log_gdp: "GDP", social_support: "Social support", life_expectancy: "Life expectancy", freedom: "Freedom", generosity: "Generosity", corruption: "Corruption" };
+  root.innerHTML = head("ترتيب مصر في كل عمود", "1 = الأحسن من 149. في الفساد، الأقل أحسن.", "مصر") + `<canvas></canvas>`;
+  const cv = $("canvas", root);
+  const ranks = Object.keys(cols).map(c => { const better = c === "corruption" ? (a, b) => a < b : (a, b) => a > b; return [cols[c], 1 + ALL.filter(i => better(H[c][i], H[c][EG])).length]; });
+  function draw() {
+    const h = 250, { ctx, w } = setup(cv, h), pad = { l: 110, r: 60, t: 8, b: 22 }, bh = (h - pad.t - pad.b) / ranks.length, sx = r => pad.l + r / 149 * (w - pad.l - pad.r);
+    ctx.strokeStyle = cssv("--line"); ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(sx(75), pad.t); ctx.lineTo(sx(75), h - pad.b); ctx.stroke(); ctx.setLineDash([]);
+    text(ctx, "middle (75)", sx(75), h - 6, { align: "center", font: "10px Inter, sans-serif" });
+    ranks.forEach(([c, r], k) => { const y = pad.t + k * bh; ctx.fillStyle = r > 100 ? cssv("--bad") : r > 75 ? cssv("--c3") : cssv("--c1"); ctx.fillRect(pad.l, y + bh * .2, sx(r) - pad.l, bh * .6);
+      text(ctx, c, pad.l - 6, y + bh / 2, { col: "--ink", align: "right", base: "middle", font: "11.5px Inter, sans-serif" });
+      text(ctx, "#" + r, sx(r) + 5, y + bh / 2, { base: "middle", font: "bold 11px 'JetBrains Mono', monospace" }); });
+  }
+  draw(); onRedraw(draw);
+}
+
+function main() { factorWidget($("#wFactor")); egyptWidget($("#wEgypt")); }
+</script>
