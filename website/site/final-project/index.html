@@ -3,61 +3,93 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Final Project · Suggested Datasets</title>
-<meta name="description" content="Six datasets for the final project, with download links and suggested questions.">
+<title>Final Project · Python Data Analysis · Zero Grad</title>
+<meta name="description" content="The final project of the Zero Grad Python Data Analysis course: pick one of six real datasets, analyse it in a notebook, and publish a Streamlit app.">
+<meta property="og:title" content="Final Project · Final Project · Zero Grad">
+<meta property="og:description" content="The final project of the Zero Grad Python Data Analysis course: pick one of six real datasets, analyse it in a notebook, and publish a Streamlit app.">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/final-project/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/final-project/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<script src="/assets/js/theme.js"></script>
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script>
-try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
-</script>
 </head>
 <body>
-<header class="site-head"><div class="wrap">
-  <a class="brand" href="index.html">Final Project · <span>Suggested Datasets</span></a>
-  <nav><a href="index.html#datasets">All datasets</a></nav>
-</div></header>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="You are here"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">Data Analysis</a><span class="sep">›</span><span class="here">Final project</span></nav>
+    <div class="top-actions"><button class="iconbtn" type="button" data-theme-toggle aria-label="Switch theme" title="Light / dark">◐</button></div>
+  </div>
+</header>
 <main class="wrap">
 
 <section class="hero">
   <p class="eyebrow">Final project</p>
-  <h1>Pick a dataset. Ask good questions. Tell the story.</h1>
-  <p class="lead">Six real, recent datasets for your final project: a full analysis in a notebook, then a Streamlit app that tells what you found. Each page explains the data, where to download it, what to watch out for, and questions to get you started.</p>
+  <h1>One dataset. Your questions. A notebook and a live app.</h1>
+  <p class="lead">The lessons taught the tools and the projects showed them at work. Now it is your turn: one complete analysis of a dataset you have never seen, from the first look to a public dashboard.</p>
+</section>
+
+<section id="task">
+  <h2 class="section">The task</h2>
+  <p>Pick <strong>one</strong> of the six datasets below and build two things:</p>
+  <div class="deliver">
+    <div><span class="n">1</span><h3>An analysis notebook</h3><p>Asks clear questions, cleans the data with every decision explained, explores it with the right charts, and ends with answers, conclusions and limitations.</p></div>
+    <div><span class="n">2</span><h3>A Streamlit app</h3><p>Lets someone else explore what you found, deployed with a public link.</p></div>
+  </div>
+  <div class="panel table-wrap">
+    <p><strong>Required</strong>, in one GitHub repository:</p>
+    <table><thead><tr><th>What</th><th>Details</th></tr></thead><tbody>
+      <tr><td><code>analysis.ipynb</code></td><td>the analysis notebook, executed, with its outputs saved</td></tr>
+      <tr><td><code>app.py</code></td><td>the Streamlit app</td></tr>
+      <tr><td>a public link</td><td>the app deployed on <a href="https://share.streamlit.io" target="_blank" rel="noopener">Streamlit Community Cloud</a></td></tr>
+    </tbody></table>
+    <p>Everything else (how you organise the files, which tools you use around them) is your choice. The structure further down is a suggestion.</p>
+  </div>
 </section>
 
 <section id="datasets">
+  <h2 class="section">Pick a dataset</h2>
+  <p>Each dataset has its own page: what the data holds, where to download it, what to watch out for, questions to start from and ideas for the app. All six are real, recent and big enough to be interesting (tens of thousands of rows or more), and each needs some cleaning.</p>
   <div class="grid">
-    <a class="card" href="datasets/nyc-crashes.html">
+<a class="card" href="datasets/nyc-crashes.html">
   <span class="emoji" aria-hidden="true">🚦</span>
-  <h2>NYC Motor Vehicle Crashes</h2>
+  <h3>NYC Motor Vehicle Crashes</h3>
   <p>Every crash the police reported in New York in 2024: time, place, causes, vehicles and the people injured or killed.</p>
   <ul class="tags"><li>~91k rows</li><li>Time</li><li>Map</li><li>Safety</li></ul>
   <span class="more">Details, download and ideas →</span>
 </a><a class="card" href="datasets/egypt-used-cars.html">
   <span class="emoji" aria-hidden="true">🚗</span>
-  <h2>Used Car Prices in Egypt</h2>
+  <h3>Used Car Prices in Egypt</h3>
   <p>Two snapshots of Hatla2ee, Egypt's biggest used-car marketplace: August 2025 and August 2026.</p>
   <ul class="tags"><li>~49k rows</li><li>Two files</li><li>Egypt</li><li>Prices</li></ul>
   <span class="more">Details, download and ideas →</span>
 </a><a class="card" href="datasets/heart-health.html">
   <span class="emoji" aria-hidden="true">❤️</span>
-  <h2>Heart Disease Indicators (CDC 2022)</h2>
+  <h3>Heart Disease Indicators (CDC 2022)</h3>
   <p>A US health survey of 445,000 adults: habits, body measures, other conditions, and whether they ever had a heart attack.</p>
   <ul class="tags"><li>~445k rows</li><li>Health</li><li>Map (states)</li><li>Survey</li></ul>
   <span class="more">Details, download and ideas →</span>
 </a><a class="card" href="datasets/developer-survey.html">
   <span class="emoji" aria-hidden="true">💻</span>
-  <h2>Stack Overflow Developer Survey</h2>
+  <h3>Stack Overflow Developer Survey</h3>
   <p>Every year since 2011, tens of thousands of developers answer about languages, tools, salary, remote work and AI. Take one year, or compare several.</p>
   <ul class="tags"><li>~65k rows a year</li><li>Survey</li><li>One or more years</li><li>Egypt inside</li></ul>
   <span class="more">Details, download and ideas →</span>
 </a><a class="card" href="datasets/olympic-medals.html">
   <span class="emoji" aria-hidden="true">🏅</span>
-  <h2>120 Years of Olympic History</h2>
+  <h3>120 Years of Olympic History</h3>
   <p>Every Olympic athlete from Athens 1896 to Rio 2016: age, height, weight, country, sport, event and medal.</p>
   <ul class="tags"><li>~271k rows</li><li>Sport</li><li>Time</li><li>Egypt inside</li></ul>
   <span class="more">Details, download and ideas →</span>
 </a><a class="card" href="datasets/linkedin-jobs.html">
   <span class="emoji" aria-hidden="true">💼</span>
-  <h2>LinkedIn Job Postings (US, 2024)</h2>
+  <h3>LinkedIn Job Postings (US, 2024)</h3>
   <p>124,000 job postings from LinkedIn in the United States, March–April 2024, in several linked tables.</p>
   <ul class="tags"><li>~124k rows</li><li>Several tables</li><li>Salaries</li><li>Map (states)</li></ul>
   <span class="more">Details, download and ideas →</span>
@@ -65,21 +97,89 @@ try { const t = localStorage.getItem("theme"); if (t) document.documentElement.d
   </div>
 </section>
 
-<section>
-  <h2 class="section">How to use these pages</h2>
+<section id="workflow">
+  <h2 class="section">The workflow</h2>
+  <div class="panel table-wrap">
+    <table><thead><tr><th>Stage</th><th>What it means</th></tr></thead><tbody>
+      <tr><td>1. First look</td><td>shape, types, a few rows, the meaning of every column, missing values</td></tr>
+      <tr><td>2. Questions</td><td>5–7 questions, each naming the columns it needs</td></tr>
+      <tr><td>3. Cleaning</td><td>scope, types, missing values, duplicates, impossible values, outliers; a cleaning log</td></tr>
+      <tr><td>4. Feature engineering</td><td>the columns that make the questions easier (dates, groups, ratios)</td></tr>
+      <tr><td>5. Univariate</td><td>one column at a time: typical value, spread, shape</td></tr>
+      <tr><td>6. Bivariate</td><td>two columns: what moves with what</td></tr>
+      <tr><td>7. Multivariate</td><td>three or more: does the pattern hold inside groups?</td></tr>
+      <tr><td>8. Answers</td><td>each question, answered with a number</td></tr>
+      <tr><td>9. Conclusion</td><td>findings, limitations, next steps</td></tr>
+      <tr><td>App</td><td>the charts that carry the answers, with filters, in a Streamlit app</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<section id="structure">
+  <h2 class="section">Suggested structure</h2>
   <div class="panel">
-    <ul class="clean">
-      <li><strong>The questions are a starting point, not a checklist.</strong> Answer some of them, drop others, and add your own. The best projects find a question nobody wrote down.</li>
-      <li><strong>Look before you clean.</strong> The "watch out" lists point at problems in the data, but they don't give the answer: deciding what to do is your job, and explaining why is part of the analysis.</li>
-      <li><strong>Follow the workflow:</strong> first look → questions → cleaning → analysis → conclusions → app.</li>
-      <li><strong>Keep your files small.</strong> Push the cleaned data your app needs, not the raw download. GitHub refuses files over 100 MB.</li>
+<pre><code>my-project/
+├── analysis.ipynb       required: the analysis, executed, with outputs
+├── app.py               required: the Streamlit app
+├── README.md            suggested: the question, key findings, a screenshot, the live link, how to run it
+├── data/                suggested: the cleaned data the app reads (not the raw download if it is large)
+├── charts.py            optional: one function per chart, shared by the notebook and the app
+├── pyproject.toml       recommended (uv): the dependencies
+└── uv.lock              recommended (uv): their exact versions</code></pre>
+    <p>Build it as its own GitHub repository, so it can be deployed on its own.</p>
+    <p><strong><code>charts.py</code> (optional).</strong> Keep every chart in one function in <code>charts.py</code> and import it from both the notebook and the app. A chart is then written once, looks the same in both places, and a fix reaches both. It is a convenience, not a rule: drawing the charts directly in the notebook and in <code>app.py</code> is fine.</p>
+    <p><strong>uv (recommended).</strong> <a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener">uv</a> records the exact version of every package in <code>uv.lock</code>, so the project runs the same on your laptop, on someone else's, and on Community Cloud, which installs from <code>uv.lock</code>; <code>uv sync</code> sets everything up in one command. Not mandatory: a <code>requirements.txt</code> works too. Community Cloud does need <strong>one</strong> dependency file (<code>uv.lock</code>, <code>pyproject.toml</code> or <code>requirements.txt</code>) next to <code>app.py</code> or at the root of the repository, or the deployed app will not find pandas or Plotly.</p>
+  </div>
+</section>
+
+<section id="checklist">
+  <h2 class="section">Before you call it finished</h2>
+  <div class="panel">
+    <h3>Analysis</h3>
+    <ul class="check">
+      <li>Every column used is explained, and every cleaning decision says <em>why</em>.</li>
+      <li>Each question is answered with a number, not an impression.</li>
+      <li>Each chart has a title that states the finding, readable axis labels, and a sentence below it.</li>
+      <li>Comparisons use the right summary (median for skewed data, rates for groups of different sizes).</li>
+      <li>At least one pattern is checked inside groups before it is trusted.</li>
+      <li>The limitations are honest: what the data cannot tell.</li>
+    </ul>
+    <h3>App</h3>
+    <ul class="check">
+      <li>It opens without errors, and every chart reads the filtered data.</li>
+      <li>An empty filter shows a message instead of a crash.</li>
+      <li>The data is loaded once (<code>@st.cache_data</code>).</li>
+      <li>It is deployed on Streamlit Community Cloud, and the link is in the README.</li>
+    </ul>
+    <h3>Repository</h3>
+    <ul class="check">
+      <li>It holds <code>analysis.ipynb</code> (with outputs) and <code>app.py</code>, and the README links to the live app.</li>
+      <li>A fresh clone runs: <code>uv sync</code> then <code>uv run streamlit run app.py</code> (or <code>pip install -r requirements.txt</code> then <code>streamlit run app.py</code>).</li>
+      <li>No file over 100 MB, no secrets, no <code>.venv/</code>.</li>
     </ul>
   </div>
 </section>
 
-<section>
-  <h2 class="section">Reading compressed and multi-file downloads</h2>
+<section id="examples">
+  <h2 class="section">Examples to learn from</h2>
+  <div class="panel table-wrap">
+    <table><thead><tr><th>Project</th><th>Data</th><th>What to look at</th></tr></thead><tbody>
+      <tr><td>Titanic</td><td>891 passengers</td><td>missing ages filled by title; a port effect that is mostly a class effect</td></tr>
+      <tr><td>World Happiness</td><td>149 countries</td><td>correlation vs causation; one country under the microscope</td></tr>
+      <tr><td>Airbnb NYC</td><td>48,895 listings</td><td>a multipage app with a map; distance as a feature</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<section id="tips">
+  <h2 class="section">How to use the dataset pages</h2>
   <div class="panel">
+    <ul class="clean">
+      <li><strong>The questions are a starting point, not a checklist.</strong> Answer some of them, drop others, and add your own. The best projects find a question nobody wrote down.</li>
+      <li><strong>Look before you clean.</strong> The "watch out" lists point at problems in the data, but they don't give the answer: deciding what to do is your job, and explaining why is part of the analysis.</li>
+      <li><strong>Keep your files small.</strong> Push the cleaned data your app needs, not the raw download. GitHub refuses files over 100 MB.</li>
+    </ul>
+    <h3>Reading compressed and multi-file downloads</h3>
     <p>Many downloads are zips. pandas can read a <code>.zip</code> or <code>.gz</code> that holds <strong>one</strong> CSV directly. For a zip with several files, open the one you need:</p>
 <pre><code>import pandas as pd
 import zipfile
@@ -93,6 +193,7 @@ df = pd.read_csv(z.open("the_file_you_need.csv"))</code></pre>
 </section>
 
 </main>
-<footer class="site-foot"><div class="wrap">Python Data Analysis · Final project. The data belongs to its publishers. Check each source's terms before you reuse it.</div></footer>
+
+<footer class="site-foot"><div class="wrap">Zero Grad · Python Data Analysis · Final project. The data belongs to its publishers: check each source's terms before you reuse it.</div></footer>
 </body>
 </html>
