@@ -50,6 +50,11 @@
       "title_ar": "ليه نرسم؟",
       "notebook": "4-visualization/01_principles.ipynb",
       "kaggle_slug": "zero-grad-da-why-visualize"
+    },
+    "matplotlib": {
+      "title": "Matplotlib",
+      "title_ar": "Matplotlib",
+      "notebook": "4-visualization/02_matplotlib.ipynb"
     }
   }
 }

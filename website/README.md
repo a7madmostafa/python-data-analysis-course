@@ -8,6 +8,8 @@ zero-grad.com and Kaggle. Sister repo of `ML Course`; every ZeroGrad course is i
 Every lesson has two parts:
 
 1. **The lesson page** (`website/site/<lesson>/index.html`): the explanation, figures, diagrams and interactive widgets, in Arabic, same look as the ML course.
+   Lessons 1–8 are hand-written HTML; from Matplotlib on, each page's content is a fragment in `website/build/pages/<lesson>.html`
+   and `website/build/lesson_page.py` wraps it in the shared shell (`pages/_shell.css`, top bar, hero, table of contents, pager).
 2. **The solved notebook** (in the study folders, e.g. `2-numpy/numpy.ipynb`; `course.json` maps each lesson to its file): all the code with outputs, published on Kaggle and rendered to `website/site/<lesson>/notebook/index.html`.
 
 No quizzes, no labs, no unsolved exercises.
@@ -44,6 +46,7 @@ python website/build/build_pandas.py
 python website/build/build_grouping.py
 python website/build/build_cleaning.py
 python website/build/build_viz.py
+python website/build/lesson_page.py --all            # pages from Matplotlib on, from website/build/pages/<lesson>.html
 python website/build/render_notebook.py --all         # website/site/<lesson>/notebook/index.html
 python website/build/make_dataset_metadata.py --push  # Kaggle dataset About, column notes, cover
 python website/build/export_to_site.py                # copy website/site/ to ../zero-grad/site/courses/da
@@ -90,7 +93,7 @@ a lesson page (article) for each, the rendered notebook, and links. Plan as of 2
 ### 4. Visualization (`4-visualization/`)
 - ✅ Principles ("Why visualize, and which chart", page `site/viz/`): our draft and the earlier `01_principles` merged into
   `4-visualization/01_principles.ipynb`, built by `build_viz.py`; all charts static Matplotlib / Seaborn. Not on Kaggle yet
-- ⬜ Matplotlib (`02_matplotlib`): page + rendered notebook
+- ✅ Matplotlib (`02_matplotlib`): page + rendered notebook; the notebook buttons point to GitHub (not on Kaggle)
 - ⬜ Seaborn (`03_seaborn`): page + rendered notebook
 - ⬜ Plotly (`04_plotly`): page + rendered notebook (the interactive figures need checking in the rendered HTML)
 - ⬜ More charts (`05_more_charts`): page + rendered notebook

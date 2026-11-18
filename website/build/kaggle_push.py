@@ -32,8 +32,8 @@ def push(slug):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit(__doc__)
-    if sys.argv[1] == "--all":   # drafts (website/drafts/) are pushed only by name
-        slugs = [s for s, l in COURSE["lessons"].items() if not l["notebook"].startswith("website/drafts/")]
+    if sys.argv[1] == "--all":   # only the lessons that are on Kaggle (have a kaggle_slug)
+        slugs = [s for s, l in COURSE["lessons"].items() if l.get("kaggle_slug")]
     else:
         slugs = sys.argv[1:]
     for s in slugs:

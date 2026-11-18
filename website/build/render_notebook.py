@@ -58,13 +58,16 @@ img{max-width:100%;height:auto}
 BAR = """
 <header class="zg-bar"><div class="zg-in">
   <nav class="zg-crumbs" aria-label="أنت هنا"><a href="/">Zero Grad</a><span class="sep">›</span><a href="{base}/">كورس Data Analysis</a><span class="sep">›</span><a href="{base}/{slug}/">{title_ar}</a><span class="sep">›</span><span class="here">النوت بوك</span></nav>
-  <div class="zg-actions"><a class="zg-btn" href="{base}/{slug}/">← الدرس</a><a class="zg-btn primary" href="{kaggle}" target="_blank" rel="noopener">Open in Kaggle</a><button class="zg-theme" type="button" data-theme-toggle aria-label="Switch to dark mode"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></div>
+  <div class="zg-actions"><a class="zg-btn" href="{base}/{slug}/">← الدرس</a><a class="zg-btn primary" href="{kaggle}" target="_blank" rel="noopener">{open_label}</a><button class="zg-theme" type="button" data-theme-toggle aria-label="Switch to dark mode"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></div>
 </div></header>
 """
 
 
 def kaggle_url(lesson):
-    return f"https://www.kaggle.com/code/{COURSE['kaggle_user']}/{lesson['kaggle_slug']}"
+    """Kaggle when the lesson is on Kaggle, otherwise the notebook on GitHub (saved with its outputs)."""
+    if lesson.get("kaggle_slug"):
+        return f"https://www.kaggle.com/code/{COURSE['kaggle_user']}/{lesson['kaggle_slug']}"
+    return "https://github.com/a7madmostafa/python-data-analysis-course/blob/main/" + lesson["notebook"]
 
 
 # JupyterLab's own colours sit in one `:root {...}` block of the lab template; the dark one is scoped to the dark theme
@@ -99,7 +102,8 @@ def render(slug):
     exporter = HTMLExporter(template_name="lab")
     exporter.exclude_input_prompt = False
     html, _ = exporter.from_notebook_node(nb, resources={"metadata": {"name": lesson["title"]}})
-    bar = BAR.format(base=COURSE["site_base"], slug=slug, title_ar=lesson["title_ar"], kaggle=kaggle_url(lesson))
+    bar = BAR.format(base=COURSE["site_base"], slug=slug, title_ar=lesson["title_ar"], kaggle=kaggle_url(lesson),
+                     open_label="Open in Kaggle" if lesson.get("kaggle_slug") else "Open on GitHub")
     html = html.replace("</head>", dark_theme_css(nb) + HEAD + SYNC + "</head>", 1)
     html = html.replace("<body", "<body data-zg", 1)
     i = html.index(">", html.index("<body data-zg")) + 1
@@ -111,6 +115,6 @@ def render(slug):
 
 
 if __name__ == "__main__":
-    slugs = list(COURSE["lessons"]) if "--all" in sys.argv else sys.argv[1:]
+    slugs = [s for s, l in COURSE["lessons"].items() if l.get("notebook")] if "--all" in sys.argv else sys.argv[1:]
     for s in slugs:
         render(s)

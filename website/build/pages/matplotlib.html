@@ -1,0 +1,513 @@
+<!--meta
+{"title": "Matplotlib",
+ "h1": "Matplotlib",
+ "lead": "Matplotlib هي المكتبة اللي تحت أغلب الرسومات في Python:<br>الـ <span class=\"en\">.plot()</span> بتاع pandas و Seaborn الاتنين بيرسموا بيها.<br>في الدرس ده هنحوّل جدول مبيعات NileCart لـ charts: lines، و scatter، و histograms، و bars،<br>وبعدين نحط كذا chart في figure واحدة، ونكتب عليها، ونحفظها.",
+ "description": "درس Matplotlib بالعربي: الـ Figure والـ Axes، والـ line والـ scatter والـ histogram والـ bar والـ box plot، وكذا رسمة في figure واحدة، والـ annotations، والحفظ، على داتا NileCart.",
+ "og_description": "Figure و Axes، وكل رسمة بتفاصيلها، بالعربي وعلى داتا NileCart.",
+ "next_soon": "Seaborn",
+ "scripts": ["../assets/data/vizlib.js"]}
+-->
+    <section class="sec" id="fig">
+      <div class="sec-head"><h2><span class="num">1</span>الـ Figure والـ Axes</h2></div>
+      <p>كلمتين هتشوفهم في كل رسالة error من Matplotlib:</p>
+      <div class="two">
+        <div class="path"><h4>Figure</h4><p>الصورة كلها، اللوحة اللي بنرسم عليها.<br>ممكن تشيل chart واحد أو كذا chart.</p></div>
+        <div class="path"><h4>Axes</h4><p>chart واحد جوه الـ Figure، ليه محور x ومحور y، وداتا، وعنوان، و legend.<br>(مش "axis": الـ Axes هي الرسمة كلها.)</p></div>
+      </div>
+      <figure class="fig"><div class="fig-scroll" id="anatomy"></div>
+        <figcaption>كل جزء في الرسمة ليه method على الـ Axes: <span class="en">ax.set_title</span>، و <span class="en">ax.set_xlabel</span>، و <span class="en">ax.legend</span>، وهكذا.</figcaption></figure>
+      <h3 class="sub">طريقتين للرسم</h3>
+      <div class="codetabs">
+        <div class="seg" role="tablist"><button aria-pressed="false" data-lib="plt">pyplot</button><button aria-pressed="true" data-lib="oo">object-oriented</button><button aria-pressed="false" data-lib="pd">pandas</button></div>
+<pre data-lib="plt" hidden>plt.plot(monthly.index, monthly.values)       <span class="c"># plt.* draws on "the current Axes"</span>
+plt.title(<span class="s">"Revenue by month"</span>)
+plt.show()</pre>
+<pre data-lib="oo">fig, ax = plt.subplots()                      <span class="c"># hold the Figure and the Axes</span>
+ax.plot(monthly.index, monthly.values)        <span class="c"># and call their methods</span>
+ax.set_title(<span class="s">"Revenue by month"</span>)
+plt.show()</pre>
+<pre data-lib="pd" hidden>ax = monthly.plot(marker=<span class="s">"o"</span>, title=<span class="s">"Revenue by month"</span>)   <span class="c"># pandas draws with Matplotlib</span>
+type(ax)                                                      <span class="c"># matplotlib Axes</span></pre>
+      </div>
+      <p>نفس الصورة 3 مرات. الـ pyplot كويس لبصّة سريعة، بس أول ما يبقى فيه أكتر من chart، "الـ Axes الحالية" بتلخبط.<br>
+        باقي الدرس بالـ <b>object-oriented</b>: <span class="en">fig, ax = plt.subplots()</span>، وبعدين <span class="en">ax.something(...)</span>.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>pyplot</th><th>object-oriented</th></tr></thead>
+        <tbody>
+          <tr><td class="en">plt.title(...)</td><td class="en">ax.set_title(...)</td></tr>
+          <tr><td class="en">plt.xlabel(...)</td><td class="en">ax.set_xlabel(...)</td></tr>
+          <tr><td class="en">plt.xlim(...)</td><td class="en">ax.set_xlim(...)</td></tr>
+          <tr><td>كذا واحدة مرة واحدة</td><td class="en">ax.set(title=..., xlabel=..., ylabel=...)</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout add"><div class="ttl">➕ pandas بترجّع Axes</div>
+        عشان كده كل اللي في الدرس ده شغال كمان على رسومات pandas: <span class="en">ax = df.plot(...)</span> وبعدين <span class="en">ax.set_title(...)</span>.</div>
+    </section>
+
+    <section class="sec" id="lines">
+      <div class="sec-head"><h2><span class="num">2</span>الـ Line</h2></div>
+      <p><span class="en">ax.plot(x, y)</span> بيوصّل النقط بالترتيب بخطوط مستقيمة.<br>
+        نقطتين = خط مستقيم واحد. نقط أكتر = مسار. إيراد 2025 كل ربع سنة:</p>
+      <div class="two">
+        <div class="path bad"><h4>Q1 و Q4 بس</h4><p>خط طالع: "نمو ثابت".</p></div>
+        <div class="path good"><h4>الأربع أرباع</h4><p>2.88M، 2.72M، 2.57M، وبعدين <b>5.51M</b>:<br>9 شهور ثابتين، وبعدين نطّة في Q4.</p></div>
+      </div>
+      <p>نقطتين بيخبّوا كتير.</p>
+      <div class="callout warn"><div class="ttl">⚠️ لو اديته list واحدة</div>
+        <span class="en">ax.plot(monthly.values)</span> بيعتبرها قيم y، ويخترع x = 0، 1، 2، …<br>
+        يناير بقى عند 0. ادّي الـ x دايمًا.</div>
+      <h3 class="sub">شكل الخط</h3>
+      <p>كل خط ليه marker، و linestyle، ولون، وتخانة. جرّب:</p>
+      <div class="widget" id="wStyle"></div>
+      <p>الـ <b>format string</b> اختصار: الـ marker والخط واللون في string واحد، بأي ترتيب.<br>
+        <span class="en">"ro"</span> = دواير حمرا من غير خط، <span class="en">"k--s"</span> = خط أسود متقطّع ومربعات.</p>
+      <div class="callout warn"><div class="ttl">⚠️ <span class="en">ax.plot(x, y, "o")</span> = markers بس</div>
+        يعني scatter سريع. من غير format string، الـ <span class="en">plot</span> دايمًا بيوصّل النقط، حتى لو ترتيبها ملوش معنى.</div>
+    </section>
+
+    <section class="sec" id="several">
+      <div class="sec-head"><h2><span class="num">3</span>كذا خط</h2></div>
+      <p>أغلب الأسئلة مقارنات: 2025 كسبت 2024؟ أسهل طريقة: <span class="en">ax.plot</span> مرتين.</p>
+      <p>أو <b>array بعدين</b>: كل <b>عمود</b> بيبقى خط. pivot table صفوفها الشهور وأعمدتها السنين هي بالظبط كده:</p>
+<pre>pv = sales.pivot_table(index=<span class="s">"month"</span>, columns=<span class="s">"year"</span>, values=<span class="s">"revenue"</span>, aggfunc=<span class="s">"sum"</span>)
+pv.shape                       <span class="c"># (12, 2): 12 x-positions, 2 lines</span>
+ax.plot(pv.index, pv.values)   <span class="c"># x matches the ROWS of y</span>
+ax.plot(pv.index, pv.values.T) <span class="c"># ValueError: x and y must have same first dimension</span></pre>
+      <div class="voice">y.shape = (m, n), len(x) = m  →  n lines<small>عدد الـ x لازم يساوي عدد صفوف الـ y، وكل عمود خط</small></div>
+      <p>وفيه طريقتين كمان لنفس الرسمة: <span class="en">ax.plot(x, y1, "o-", x, y2, "s--")</span> في call واحد،<br>
+        أو اختصار pandas <span class="en">pv.plot(marker="o")</span>، اللي بيحط الـ legend كمان.</p>
+    </section>
+
+    <section class="sec" id="labels">
+      <div class="sec-head"><h2><span class="num">4</span>عناوين، و labels، و legend، و ticks</h2></div>
+      <p>الرسومات اللي فاتت كويسة للاستكشاف، بس مش لحد تاني: مفيش عنوان، ولا وحدات، والشهور 2، 4، 6، ومش عارف أنهي خط أنهي سنة. نفس الرسمة متشطّبة:</p>
+<pre>fig, ax = plt.subplots(figsize=(<span class="s">10</span>, <span class="s">4</span>))
+ax.plot(pv.index, pv[<span class="s">2024</span>], <span class="s">"o-"</span>, color=<span class="s">"#9AA5B1"</span>, label=<span class="s">"2024"</span>)
+ax.plot(pv.index, pv[<span class="s">2025</span>], <span class="s">"o-"</span>, color=<span class="s">"#0F766E"</span>, lw=<span class="s">2.5</span>, label=<span class="s">"2025"</span>)
+ax.set_title(<span class="s">"Monthly revenue: the end-of-year peak repeats"</span>)
+ax.set_xlabel(<span class="s">"Month"</span>)
+ax.set_ylabel(<span class="s">"Revenue (EGP)"</span>)
+ax.set_xticks(range(<span class="s">1</span>, <span class="s">13</span>), month_names)          <span class="c"># positions, then the labels</span>
+ax.set_ylim(<span class="s">0</span>, <span class="k">None</span>)                               <span class="c"># start the y-axis at 0</span>
+ax.yaxis.set_major_formatter(<span class="s">"{x:,.0f}"</span>)          <span class="c"># 2500000 -> 2,500,000</span>
+ax.grid(<span class="k">True</span>, axis=<span class="s">"y"</span>, alpha=<span class="s">0.3</span>)
+ax.legend(title=<span class="s">"Year"</span>, loc=<span class="s">"upper left"</span>)</pre>
+      <h3 class="sub">الـ legend</h3>
+      <div class="cards">
+        <div class="card"><b><span class="en">label=</span> على كل خط</b><span class="en">ax.legend()</span> بيلم كل خط ليه label. الخط اللي من غير label مش هيظهر.</div>
+        <div class="card"><b>⚠️ <span class="en">ax.legend(["a", "b"])</span></b>بيسمّي الخطوط <b>بترتيب رسمها</b>، وبيبوظ من غير ما يقولك لو غيّرت ترتيب الكود.</div>
+        <div class="card"><b><span class="en">loc=</span></b><span class="en">"best"</span> (الـ default) بيختار أفضى ركن. <span class="en">"upper left"</span> وأخواتها بيثبّتوه.</div>
+      </div>
+      <h3 class="sub">شكل كل الرسومات مرة واحدة</h3>
+      <p>الـ <b>style</b> بيغيّر شكل كل رسمة بعده: <span class="en">plt.style.use("ggplot")</span>، أو لبلوك واحد بس: <span class="en">with plt.style.context("ggplot"):</span>.<br>
+        وتحت كل style فيه <span class="en">plt.rcParams</span>، dictionary كبير بالـ defaults. تظبطه مرة في أول النوت بوك، وكل الرسومات تاخد نفس الشكل:</p>
+<pre>plt.rcParams.update({
+    <span class="s">"figure.figsize"</span>: (<span class="s">8</span>, <span class="s">4.5</span>),
+    <span class="s">"axes.spines.top"</span>: <span class="k">False</span>, <span class="s">"axes.spines.right"</span>: <span class="k">False</span>,   <span class="c"># no box around the plot</span>
+    <span class="s">"axes.grid"</span>: <span class="k">True</span>, <span class="s">"grid.alpha"</span>: <span class="s">0.3</span>,
+    <span class="s">"axes.formatter.limits"</span>: (-<span class="s">7</span>, <span class="s">9</span>),                         <span class="c"># plain numbers, no "1e6"</span>
+    <span class="s">"axes.prop_cycle"</span>: mpl.cycler(color=[<span class="s">"#0F766E"</span>, <span class="s">"#E89B2D"</span>, <span class="s">"#D95D4A"</span>]),
+})</pre>
+    </section>
+
+    <section class="sec" id="scatter">
+      <div class="sec-head"><h2><span class="num">5</span>الـ Scatter</h2></div>
+      <p>الـ bars والـ lines بيورّوا رقم واحد لكل مجموعة. الـ <b>scatter</b> بيوري <b>كل سطر</b> كنقطة، برقمين على x و y:<br>
+        الـ chart بتاع "ده ماشي مع ده؟". الأوردر الأكبر معناه ربح أكبر؟</p>
+      <div class="widget" id="wScatter"></div>
+<pre><span class="k">for</span> cat, part <span class="k">in</span> sales.groupby(<span class="s">"category"</span>):               <span class="c"># one call per group = a legend for free</span>
+    ax.scatter(part[<span class="s">"revenue"</span>], part[<span class="s">"profit"</span>], label=cat, alpha=<span class="s">0.6</span>, s=<span class="s">20</span>)
+
+points = ax.scatter(elec[<span class="s">"revenue"</span>], elec[<span class="s">"profit"</span>], c=elec[<span class="s">"discount"</span>], cmap=<span class="s">"viridis"</span>,
+                    s=elec[<span class="s">"quantity"</span>] * <span class="s">15</span>)                   <span class="c"># colour and size from numbers</span>
+fig.colorbar(points, ax=ax, label=<span class="s">"discount"</span>)</pre>
+      <div class="callout insight"><div class="ttl">💡 اللي الـ scatter قاله</div>
+        32 سطر خسرانين، <b>كلهم Electronics</b>، وكلهم بخصم 20%: الخصم الكبير بينزّل السعر تحت التكلفة.</div>
+    </section>
+
+    <section class="sec" id="hist">
+      <div class="sec-head"><h2><span class="num">6</span>الـ Histogram</h2></div>
+      <p>"الأوردر العادي شكله إيه؟" سؤال عن <b>توزيع</b> رقم واحد. الـ histogram بيقطّع المدى لـ <i>bins</i> ويعدّ القيم في كل واحد.<br>
+        مش bar chart: الـ bar بيقارن <b>فئات</b>، والـ histogram الـ bars بتاعته لازقة في بعض لأن الـ bins متصلة.</p>
+      <div class="widget" id="wHist"></div>
+      <p>عدد الـ bins بيغيّر الصورة: قليل بيخبّي الشكل، وكتير بيحوّله noise. جرّب كذا قيمة دايمًا.<br>
+        وللفلوس، الـ <b>log axis</b> غالبًا هو الصح: كل خطوة ×10 بدل +10,000، فالكشكول بـ 45 جنيه واللابتوب بـ 300,000 الاتنين باينين.
+        بس الـ bins لازم تبقى متساوية <i>على الـ log</i>، وده اللي <span class="en">np.logspace</span> بيعمله:</p>
+<pre>log_bins = np.logspace(np.log10(rev.min()), np.log10(rev.max()), <span class="s">30</span>)
+ax.hist(rev, bins=log_bins, edgecolor=<span class="s">"white"</span>)
+ax.set_xscale(<span class="s">"log"</span>)
+
+<span class="k">for</span> cat <span class="k">in</span> [<span class="s">"Accessories"</span>, <span class="s">"Furniture"</span>, <span class="s">"Electronics"</span>]:     <span class="c"># compare groups: overlap them</span>
+    ax.hist(rev[sales[<span class="s">"category"</span>] == cat], bins=log_bins, alpha=<span class="s">0.5</span>, density=<span class="k">True</span>, label=cat)</pre>
+      <div class="callout add"><div class="ttl">➕ <span class="en">density=True</span></div>
+        بيخلّي مساحة كل histogram = 1، فبتقارن <b>الأشكال</b> حتى لو المجموعات أحجامها مختلفة جدًا.</div>
+    </section>
+
+    <section class="sec" id="bars">
+      <div class="sec-head"><h2><span class="num">7</span>الـ Bars والـ Pie</h2></div>
+      <p><span class="en">ax.bar(categories, heights)</span> بيقارن رقم واحد لكل فئة. 3 عادات بتخلّيه كويس:<br>
+        <b>رتّب</b> (إلا لو الفئات ليها ترتيب طبيعي زي الشهور)، و<b>أفقي</b> (<span class="en">barh</span>) لو الأسامي طويلة، و<b>ابدأ من صفر</b>.<br>
+        و <span class="en">ax.bar_label(bars)</span> بيكتب القيمة فوق كل bar.</p>
+      <h3 class="sub">الـ grouped bars: المطب</h3>
+      <p>عايز 2024 جنب 2025 لكل فئة. أول محاولة بتدّي السنتين نفس أسامي الفئات كـ x. جرّب التلات طرق:</p>
+      <div class="widget" id="wGroup"></div>
+      <div class="callout warn"><div class="ttl">⚠️ Matplotlib مفيهاش argument للـ group</div>
+        كل series بتزقّها بإيدك: لـ series اتنين، كل bar عرضه 0.4، واحد يتزق 0.2 شمال والتاني 0.2 يمين.<br>
+        النص مبيتزقّش (<span class="en">cy.index - 0.2</span> = <span class="en">TypeError</span>)، فالأماكن بتبقى الأرقام 0، 1، 2، 3، و <span class="en">set_xticks</span> بيرجّع الأسامي.<br>
+        pandas بتعملها في سطر: <span class="en">cy.plot(kind="bar")</span>، و <span class="en">stacked=True</span> للـ stacked.</div>
+      <p>الـ <b>pie</b> لأجزاء من كل واحد، ولعدد <b>قليل</b> من الشرايح بس. bar مترتّب غالبًا أوضح (شوف <a href="/courses/da/viz/">درس ليه نرسم</a>).
+        لـ 5 مناطق مقبول: <span class="en">ax.pie(values, labels=..., autopct="%1.1f%%", startangle=90)</span>.</p>
+    </section>
+
+    <section class="sec" id="grid">
+      <div class="sec-head"><h2><span class="num">8</span>كذا رسمة في figure واحدة</h2></div>
+      <div class="codetabs">
+        <div class="seg" role="tablist"><button aria-pressed="false" data-lib="plt">pyplot</button><button aria-pressed="true" data-lib="oo">object-oriented</button></div>
+<pre data-lib="plt" hidden>plt.figure(figsize=(<span class="s">10</span>, <span class="s">3.5</span>))
+plt.subplot(<span class="s">1</span>, <span class="s">2</span>, <span class="s">1</span>)            <span class="c"># 1 row, 2 columns, plot 1 (counts from 1!)</span>
+plt.barh(segments.index, segments.values)
+plt.subplot(<span class="s">1</span>, <span class="s">2</span>, <span class="s">2</span>)            <span class="c"># plot 2</span>
+plt.hist(sales[<span class="s">"quantity"</span>], bins=<span class="s">10</span>)</pre>
+<pre data-lib="oo">fig, axs = plt.subplots(<span class="s">2</span>, <span class="s">2</span>, figsize=(<span class="s">10</span>, <span class="s">6</span>), sharex=<span class="k">True</span>, layout=<span class="s">"constrained"</span>)
+<span class="k">for</span> ax, cat <span class="k">in</span> zip(axs.flat, categories):    <span class="c"># axs is an array of Axes</span>
+    ax.plot(by_cat_month.index, by_cat_month[cat], marker=<span class="s">"o"</span>)
+    ax.set_title(cat)
+fig.suptitle(<span class="s">"Monthly revenue by category"</span>)  <span class="c"># one title for the whole figure</span></pre>
+      </div>
+      <div class="callout warn"><div class="ttl">⚠️ كل رسمة ليها scale لوحدها</div>
+        ده صح لو بتقارن <b>أشكال</b> (كل الفئات بتعلى في نوفمبر وديسمبر).<br>
+        لو بتقارن <b>أحجام</b>، شارك المحور بـ <span class="en">sharey=True</span>: Electronics بالملايين، و Stationery بتبقى خط مفرود.</div>
+      <h3 class="sub">Layouts مش متساوية</h3>
+      <p><span class="en">subplot_mosaic</span> بترسم الـ layout كنص: كل حرف رسمة، والحرف المتكرر بيكبّر رسمته. اكتب الـ mosaic بنفسك:</p>
+      <div class="widget" id="wMosaic"></div>
+      <p>نفس الفكرة بـ <span class="en">plt.subplot</span>: كل call بيتخيّل grid لوحده. <span class="en">subplot(2, 1, 1)</span> = النص اللي فوق كله،
+        و <span class="en">subplot(2, 3, 4)</span> و <span class="en">5</span> و <span class="en">6</span> = الصف اللي تحت.</p>
+    </section>
+
+    <section class="sec" id="box">
+      <div class="sec-head"><h2><span class="num">9</span>الـ Box plot</h2></div>
+      <p>ملخّص التوزيع في 5 أرقام (أقل قيمة، و Q1، و median، و Q3، وأعلى قيمة)، والقيم الشاذة نقط.<br>
+        بيقارن عمود رقمي بين فئات كتير من غير زحمة. إيراد السطر حسب الفئة:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الفئة</th><th>Q1</th><th>median</th><th>Q3</th><th>max</th></tr></thead>
+        <tbody>
+          <tr><td class="en">Stationery</td><td><bdi>120</bdi></td><td><bdi>228</bdi></td><td><bdi>315</bdi></td><td><bdi>630</bdi></td></tr>
+          <tr><td class="en">Accessories</td><td><bdi>1,284</bdi></td><td><bdi>2,400</bdi></td><td><bdi>4,320</bdi></td><td><bdi>12,600</bdi></td></tr>
+          <tr><td class="en">Furniture</td><td><bdi>3,152</bdi></td><td><bdi>7,220</bdi></td><td><bdi>19,950</bdi></td><td><bdi>58,500</bdi></td></tr>
+          <tr><td class="en">Electronics</td><td><bdi>22,050</bdi></td><td><bdi>41,800</bdi></td><td><bdi>75,600</bdi></td><td><bdi>336,000</bdi></td></tr>
+        </tbody>
+      </table></div>
+<pre>groups = [sales.loc[sales[<span class="s">"category"</span>] == c, <span class="s">"revenue"</span>] <span class="k">for</span> c <span class="k">in</span> order]   <span class="c"># one list per group</span>
+bp = ax.boxplot(groups, tick_labels=order, vert=<span class="k">False</span>, patch_artist=<span class="k">True</span>, showfliers=<span class="k">False</span>)
+<span class="k">for</span> box, color <span class="k">in</span> zip(bp[<span class="s">"boxes"</span>], [<span class="s">"lightblue"</span>, <span class="s">"khaki"</span>, <span class="s">"salmon"</span>, <span class="s">"lightgreen"</span>]):
+    box.set_facecolor(color)                                             <span class="c"># patch_artist=True makes boxes fillable</span>
+ax.set_xscale(<span class="s">"log"</span>)</pre>
+      <p>الـ median بتاع Electronics 41,800 جنيه، و Stationery 228: عشان كده الـ log scale لازم.</p>
+    </section>
+
+    <section class="sec" id="annot">
+      <div class="sec-head"><h2><span class="num">10</span>كتابة على الرسمة، ومحاور التواريخ</h2></div>
+      <p>لما يبقى فيه حاجة واحدة لازم القارئ يشوفها، اكتبها عليها:</p>
+<pre>ax.annotate(<span class="s">f"Peak: {peak_val:,.0f}"</span>, xy=(peak_date, peak_val),              <span class="c"># the point</span>
+            xytext=(pd.Timestamp(<span class="s">"2024-05-01"</span>), peak_val),                     <span class="c"># where the text goes</span>
+            arrowprops={<span class="s">"arrowstyle"</span>: <span class="s">"-&gt;"</span>})
+ax.axhline(average, color=<span class="s">"grey"</span>, linestyle=<span class="s">":"</span>)                          <span class="c"># a reference line</span>
+ax.text(x, y, <span class="s">"monthly average"</span>)                                           <span class="c"># plain text</span>
+ax.axvspan(pd.Timestamp(<span class="s">"2024-11-01"</span>), pd.Timestamp(<span class="s">"2024-12-31"</span>), alpha=<span class="s">0.15</span>)  <span class="c"># shade a period</span></pre>
+      <p>أعلى شهر: ديسمبر 2024، 2,670,815 جنيه.</p>
+      <h3 class="sub">محور التواريخ</h3>
+      <p>سنتين إيراد يومي = 731 نقطة، والـ ticks الافتراضية بتبقى زحمة.<br>
+        الـ <b>locator</b> بيقرر <b>فين</b> الـ ticks، والـ <b>formatter</b> بيقرر <b>شكلها</b>:</p>
+<pre>ax.xaxis.set_major_locator(mdates.MonthLocator(interval=<span class="s">3</span>))     <span class="c"># a tick every 3 months</span>
+ax.xaxis.set_major_formatter(mdates.DateFormatter(<span class="s">"%b %Y"</span>))   <span class="c"># Jan 2024</span>
+fig.autofmt_xdate()                                            <span class="c"># tilt the labels</span>
+smooth = daily.rolling(<span class="s">30</span>, center=<span class="k">True</span>).mean()                   <span class="c"># a 30-day average shows the trend</span></pre>
+    </section>
+
+    <section class="sec" id="save">
+      <div class="sec-head"><h2><span class="num">11</span>الحفظ</h2></div>
+<pre>fig.savefig(<span class="s">"output/revenue_by_region.png"</span>, dpi=<span class="s">150</span>, bbox_inches=<span class="s">"tight"</span>)
+plt.show()</pre>
+      <p>الامتداد بيحدد النوع: <span class="en">.png</span> للسلايدز والرسايل، و <span class="en">.svg</span> أو <span class="en">.pdf</span> للطباعة.
+        و <span class="en">bbox_inches="tight"</span> عشان العناوين متتقصّش.</p>
+      <div class="callout warn"><div class="ttl">⚠️ <span class="en">savefig</span> قبل <span class="en">plt.show()</span></div>
+        بعد الـ show الـ figure بتتقفل، والصورة اللي هتتحفظ فاضية.</div>
+    </section>
+
+    <section class="sec" id="case">
+      <div class="sec-head"><h2><span class="num">12</span>Case study: الخصم بيكسّب؟</h2></div>
+      <p>سؤال التخطيط للـ White Friday الجاي: <b>المحل يفضل يدّي 20% خصم؟</b><br>
+        الخصم رقم <b>ليه ترتيب</b> (0 ← 5 ← 10 ← 20%)، فخط لكل فئة بيوري الاتجاه، وخط عند الصفر بيوري المحل بيبدأ يخسر فين.</p>
+      <div class="widget" id="wDisc"></div>
+      <div class="callout insight"><div class="ttl">💡 النتيجة والتوصية</div>
+        الربح بينزل مع الخصم في كل الفئات ما عدا Furniture، اللي بالكاد بتتحرك لحد 20%.<br>
+        Electronics بتنزل أسرع: من حوالي +10,400 جنيه للسطر من غير خصم، لحوالي −1,750 عند 20%. هامشها رفيع، فالـ 20% بتنزّل السعر تحت التكلفة.<br>
+        <b>التوصية:</b> نخلّي خصومات الـ White Friday، بس Electronics بحد أقصى 10%.</div>
+    </section>
+
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">13</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sheet">
+        <div class="card"><h4>البداية</h4><span class="en">fig, ax = plt.subplots(figsize=(w, h))</span></div>
+        <div class="card"><h4>الرسومات</h4><span class="en">ax.plot · ax.scatter · ax.hist · ax.bar / barh · ax.pie · ax.boxplot</span></div>
+        <div class="card"><h4>الـ labels</h4><span class="en">ax.set(title=, xlabel=, ylabel=) · ax.legend() · ax.set_xticks(pos, labels)</span></div>
+        <div class="card"><h4>كذا رسمة</h4><span class="en">plt.subplots(r, c, sharey=, layout="constrained") · fig.subplot_mosaic("AAB;CCB")</span></div>
+        <div class="card"><h4>الكتابة</h4><span class="en">ax.annotate · ax.text · ax.axhline · ax.axvspan</span></div>
+        <div class="card"><h4>الحفظ</h4><span class="en">fig.savefig("x.png", dpi=150, bbox_inches="tight")</span> قبل الـ show</div>
+      </div>
+    </section>
+
+<style>
+.mos-in{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;width:100%;min-height:96px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;resize:vertical}
+.mos-grid{display:grid;gap:6px;direction:ltr;margin-top:.8rem;min-height:180px}
+.mos-grid div{border-radius:10px;display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-weight:700;color:#fff;font-size:1.1rem}
+.codeout{direction:ltr;text-align:left;font-family:"JetBrains Mono",monospace;font-size:.82rem;background:var(--board);color:#e6e6e6;border-radius:10px;padding:.6rem .8rem;margin-top:.6rem;overflow-x:auto;white-space:pre}
+</style>
+<script>
+const V = window.VL, L = V.levels;
+const YEAR = V.date.map(d => +d.slice(0, 4)), MON = V.date.map(d => +d.slice(5, 7));
+const MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const sumBy = (keyFn, valArr, filt = () => true) => { const o = {}; valArr.forEach((v, i) => { if (!filt(i)) return; const k = keyFn(i); o[k] = (o[k] || 0) + v; }); return o; };
+const fmtM = v => (v / 1e6).toFixed(1) + "M";
+
+/* ---------- figure: anatomy of a Matplotlib chart ---------- */
+function anatomy() {
+  const m = sumBy(i => MON[i], V.revenue, i => YEAR[i] === 2025), ys = MO.map((_, k) => m[k + 1]);
+  const W = 680, H = 320, x0 = 90, x1 = 470, y0 = 60, y1 = 250, max = Math.ceil(Math.max(...ys) / 5e5) * 5e5;
+  const sx = k => x0 + k / 11 * (x1 - x0), sy = v => y1 - v / max * (y1 - y0);
+  const tag = (x, y, t, tx, ty, anchor = "start") => `<line x1="${x}" y1="${y}" x2="${tx}" y2="${ty}" style="stroke:var(--chalk-o);stroke-width:1"/><circle cx="${x}" cy="${y}" r="3" style="fill:var(--chalk-o)"/><text x="${tx + (anchor === "start" ? 4 : -4)}" y="${ty + 4}" font-size="11.5" text-anchor="${anchor}" style="fill:var(--chalk-o);font-family:'JetBrains Mono',monospace">${t}</text>`;
+  let o = `<rect x="4" y="4" width="${W - 8}" height="${H - 8}" rx="12" style="fill:none;stroke:var(--muted);stroke-dasharray:6 5"/>`;
+  o += `<text x="16" y="24" font-size="12" font-weight="700" style="fill:var(--muted)">Figure</text>`;
+  o += `<rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" style="fill:var(--surface-2);stroke:var(--line)"/>`;
+  o += `<text x="${x0 + 6}" y="${y0 + 16}" font-size="11" font-weight="700" style="fill:var(--muted)">Axes</text>`;
+  [0, 0.5e6, 1e6, 1.5e6, 2e6, 2.5e6].filter(v => v <= max).forEach(v => o += `<text x="${x0 - 6}" y="${sy(v) + 4}" text-anchor="end" font-size="10.5">${v / 1e6}M</text>`);
+  [0, 3, 6, 9, 11].forEach(k => o += `<text x="${sx(k)}" y="${y1 + 16}" text-anchor="middle" font-size="10.5">${MO[k]}</text>`);
+  o += `<polyline fill="none" points="${ys.map((v, k) => sx(k) + "," + sy(v)).join(" ")}" style="stroke:var(--c1);stroke-width:2.2"/>`;
+  ys.forEach((v, k) => o += `<circle cx="${sx(k)}" cy="${sy(v)}" r="3.4" style="fill:var(--c1)"/>`);
+  o += `<text x="${(x0 + x1) / 2}" y="${y0 - 14}" text-anchor="middle" font-size="14" font-weight="700">2025 revenue by month</text>`;
+  o += `<text x="${(x0 + x1) / 2}" y="${y1 + 36}" text-anchor="middle" font-size="12">Month</text>`;
+  o += `<text x="28" y="${(y0 + y1) / 2}" text-anchor="middle" font-size="12" transform="rotate(-90 28 ${(y0 + y1) / 2})">Revenue (EGP)</text>`;
+  o += `<rect x="${x0 + 14}" y="${y0 + 26}" width="62" height="22" rx="4" style="fill:var(--surface);stroke:var(--line)"/><line x1="${x0 + 20}" x2="${x0 + 36}" y1="${y0 + 37}" y2="${y0 + 37}" style="stroke:var(--c1);stroke-width:2.2"/><text x="${x0 + 40}" y="${y0 + 41}" font-size="11">2025</text>`;
+  o += tag((x0 + x1) / 2 + 80, y0 - 18, "ax.set_title", 500, 30);
+  o += tag(x0 + 70, y0 + 37, "ax.legend", 500, 80);
+  o += tag(sx(10), sy(ys[10]), "ax.plot", 500, 130);
+  o += tag(x1, y1 - 60, "ax.set_ylim", 500, 170);
+  o += tag(sx(9), y1 + 12, "ax.set_xticks", 500, 230);
+  o += tag((x0 + x1) / 2 + 20, y1 + 32, "ax.set_xlabel", 500, 280);
+  o += tag(28, y0 + 30, "ax.set_ylabel", 16, 46);
+  $("#anatomy").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Anatomy of a Matplotlib chart" xmlns="http://www.w3.org/2000/svg">${o}</svg>`;
+}
+
+/* ---------- widget: style a line ---------- */
+function styleWidget(root) {
+  const m = sumBy(i => MON[i], V.revenue, i => YEAR[i] === 2025), ys = MO.map((_, k) => m[k + 1]);
+  const st = { marker: "o", ls: "--", color: "--c1", lw: 2 };
+  const MK = { o: "o", s: "s", "^": "^", D: "D", None: "None" }, LS = { "-": "-", "--": "--", ":": ":", "-.": "-.", None: "None" };
+  const COL = { "--c1": ["#0F766E", "g"], "--bad": ["red", "r"], "--c2": ["tab:blue", "b"], "--ink": ["black", "k"] };
+  root.innerHTML = head("شكّل الخط", "إيراد 2025 كل شهر. غيّر الـ marker والـ linestyle واللون والتخانة، وشوف الكود.") + `
+    <div class="optrow"><span class="muted">marker</span><div class="seg">${Object.keys(MK).map(k => `<button data-mk="${k}" aria-pressed="${k === st.marker}">${k}</button>`).join("")}</div></div>
+    <div class="optrow"><span class="muted">linestyle</span><div class="seg">${Object.keys(LS).map(k => `<button data-ls="${k}" aria-pressed="${k === st.ls}">${k}</button>`).join("")}</div></div>
+    <div class="optrow"><span class="muted">color</span><div class="seg">${Object.entries(COL).map(([k, v]) => `<button data-co="${k}" aria-pressed="${k === st.color}">${v[0]}</button>`).join("")}</div>
+      <div class="ctl" style="min-width:160px;flex:1"><label>linewidth <output data-o="lw">2</output></label><input type="range" min="0.5" max="6" step="0.5" value="2" data-r="lw"></div></div>
+    <canvas></canvas><div class="codeout" data-s="code"></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const h = 220, { ctx, w } = setup(cv, h), pad = { l: 46, r: 12, t: 14, b: 26 }, max = Math.max(...ys) * 1.08;
+    const sx = k => pad.l + k / 11 * (w - pad.l - pad.r), sy = v => h - pad.b - v / max * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    [0.5e6, 1e6, 1.5e6, 2e6].forEach(v => text(ctx, v / 1e6 + "M", pad.l - 5, sy(v) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" }));
+    MO.forEach((t, k) => k % 2 === 0 && text(ctx, t, sx(k), h - 8, { align: "center", font: "10px Inter, sans-serif" }));
+    const c = cssv(st.color);
+    if (st.ls !== "None") {
+      ctx.strokeStyle = c; ctx.lineWidth = st.lw;
+      ctx.setLineDash({ "-": [], "--": [st.lw * 4, st.lw * 2.5], ":": [st.lw, st.lw * 1.8], "-.": [st.lw * 5, st.lw * 2, st.lw, st.lw * 2] }[st.ls]);
+      ctx.beginPath(); ys.forEach((v, k) => k ? ctx.lineTo(sx(k), sy(v)) : ctx.moveTo(sx(k), sy(v))); ctx.stroke(); ctx.setLineDash([]);
+    }
+    if (st.marker !== "None") ys.forEach((v, k) => {
+      const x = sx(k), y = sy(v), r = 3 + st.lw; ctx.fillStyle = cssv("--surface"); ctx.strokeStyle = c; ctx.lineWidth = 1.6; ctx.beginPath();
+      if (st.marker === "o") ctx.arc(x, y, r, 0, 7);
+      else if (st.marker === "s") ctx.rect(x - r, y - r, 2 * r, 2 * r);
+      else if (st.marker === "^") { ctx.moveTo(x, y - r * 1.2); ctx.lineTo(x + r, y + r * .8); ctx.lineTo(x - r, y + r * .8); ctx.closePath(); }
+      else { ctx.moveTo(x, y - r * 1.2); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.2); ctx.lineTo(x - r, y); ctx.closePath(); }
+      ctx.fill(); ctx.stroke();
+    });
+    const fs = (st.marker === "None" ? "" : st.marker) + (st.ls === "None" ? "" : st.ls) + COL[st.color][1];
+    $("[data-s=code]", root).textContent =
+      `ax.plot(x, y, marker="${st.marker}", linestyle="${st.ls}", color="${COL[st.color][0]}", linewidth=${st.lw})\n` +
+      (st.marker === "None" && st.ls === "None" ? "# nothing to draw: no marker and no line" : `ax.plot(x, y, "${fs}", lw=${st.lw})      # the same, as a format string`);
+  }
+  segPick(root, "data-mk", v => { st.marker = v; draw(); });
+  segPick(root, "data-ls", v => { st.ls = v; draw(); });
+  segPick(root, "data-co", v => { st.color = v; draw(); });
+  $("[data-r=lw]", root).oninput = e => { st.lw = +e.target.value; $("[data-o=lw]", root).textContent = st.lw; draw(); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: scatter, colour by category or discount ---------- */
+function scatterWidget(root) {
+  let mode = "none";
+  root.innerHTML = head("الربح والإيراد لكل سطر", "كل نقطة سطر أوردر. لوّن بالفئة، وبعدين لوّن Electronics بالخصم.") + `
+    <div class="optrow"><div class="seg"><button data-m="none" aria-pressed="true">لون واحد</button><button data-m="cat" aria-pressed="false">c = الفئة</button><button data-m="disc" aria-pressed="false">Electronics: c = الخصم</button></div></div>
+    <canvas></canvas><div class="keys" data-s="keys"></div><div class="status" data-s="msg"></div>`;
+  const cv = $("canvas", root), E = L.category.indexOf("Electronics");
+  const DC = { 0: "#440154", 5: "#3b528b", 10: "#21918c", 20: "#fde725" };
+  function draw() {
+    const h = cv.clientWidth < 460 ? 250 : 290, { ctx, w } = setup(cv, h), pad = { l: 52, r: 12, t: 12, b: 30 };
+    const idx = V.revenue.map((_, i) => i).filter(i => mode !== "disc" || V.category[i] === E);
+    const xmax = Math.max(...idx.map(i => V.revenue[i])) * 1.03, ymin = Math.min(0, ...idx.map(i => V.profit[i])) * 1.1, ymax = Math.max(...idx.map(i => V.profit[i])) * 1.05;
+    const sx = v => pad.l + v / xmax * (w - pad.l - pad.r), sy = v => h - pad.b - (v - ymin) / (ymax - ymin) * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    ctx.strokeStyle = cssv("--ink"); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad.l, sy(0)); ctx.lineTo(w - pad.r, sy(0)); ctx.stroke();
+    text(ctx, "0", pad.l - 5, sy(0) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" });
+    text(ctx, nf(ymax / 1.05), pad.l - 5, pad.t + 8, { align: "right", font: "10px 'JetBrains Mono', monospace" });
+    text(ctx, "revenue (EGP) →", w - pad.r, h - 8, { align: "right", font: "10px Inter, sans-serif" });
+    text(ctx, nf(xmax / 1.03), w - pad.r - 90, h - 8, { align: "right", font: "10px 'JetBrains Mono', monospace" });
+    const pal = PAL();
+    idx.forEach(i => {
+      ctx.fillStyle = mode === "cat" ? pal[V.category[i]] : mode === "disc" ? DC[V.discount[i]] : cssv("--c1");
+      ctx.globalAlpha = .65; ctx.beginPath(); ctx.arc(sx(V.revenue[i]), sy(V.profit[i]), mode === "disc" ? 1.6 + V.quantity[i] * 1.1 : 2.6, 0, 7); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    $("[data-s=keys]", root).innerHTML = mode === "cat" ? L.category.map((c, k) => `<span><i style="background:${pal[k]}"></i>${c}</span>`).join("") :
+      mode === "disc" ? Object.entries(DC).map(([d, c]) => `<span><i style="background:${c}"></i>discount ${d}%</span>`).join("") + "<span>· الحجم = الكمية</span>" : "";
+    const loss = V.profit.map((p, i) => i).filter(i => V.profit[i] < 0);
+    $("[data-s=msg]", root).textContent = mode === "none" ? "غالبًا آه، بس فيه كذا \"دراع\"، وشوية نقط تحت الصفر. مين دول؟" :
+      mode === "cat" ? `كل النقط اللي تحت الصفر Electronics: ${loss.length} سطر خسران، و ${loss.filter(i => V.category[i] === E).length} منهم Electronics.` :
+      `النقط الصفرا (خصم 20%) هي اللي تحت الصفر: ${loss.filter(i => V.discount[i] === 20).length} من الـ ${loss.length} سطر الخسرانين.`;
+  }
+  segPick(root, "data-m", v => { mode = v; draw(); });
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: histogram bins + log ---------- */
+function histWidget(root) {
+  let bins = 30, log = false;
+  const rev = V.revenue, mean = rev.reduce((a, b) => a + b, 0) / rev.length, sorted = [...rev].sort((a, b) => a - b), median = (sorted[rev.length / 2 - 1] + sorted[rev.length / 2]) / 2;
+  root.innerHTML = head("الـ bins والـ log", "إيراد كل سطر أوردر (1,466 سطر). غيّر عدد الـ bins، وجرّب الـ log axis.") + `
+    <div class="wgrid cols"><div><canvas></canvas></div>
+      <div class="controls"><div class="ctl"><label>bins <output data-o="b">30</output></label><input type="range" min="3" max="100" value="30" data-r="b"></div>
+        <label class="chk"><input type="checkbox" data-c="log"> <span class="en">ax.set_xscale("log")</span> + <span class="en">np.logspace</span></label>
+        <div class="stats"><div class="stat"><span>median</span><b>${nf(median)}</b></div><div class="stat"><span>mean</span><b>${nf(mean)}</b></div></div>
+        <div class="status" data-s="msg"></div></div></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const h = 250, { ctx, w } = setup(cv, h), pad = { l: 36, r: 12, t: 12, b: 30 };
+    const lo = log ? Math.log10(sorted[0]) : 0, hi = log ? Math.log10(sorted[sorted.length - 1]) : sorted[sorted.length - 1];
+    const tf = v => log ? Math.log10(v) : v, counts = new Array(bins).fill(0);
+    rev.forEach(v => { counts[Math.min(bins - 1, Math.floor((tf(v) - lo) / (hi - lo) * bins))]++; });
+    const max = Math.max(...counts), bw = (w - pad.l - pad.r) / bins, sx = v => pad.l + (tf(v) - lo) / (hi - lo) * (w - pad.l - pad.r);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    counts.forEach((c, k) => { const bh = c / max * (h - pad.t - pad.b); ctx.fillStyle = cssv("--c1"); ctx.globalAlpha = .85; ctx.fillRect(pad.l + k * bw + .5, h - pad.b - bh, Math.max(bw - 1, .5), bh); });
+    ctx.globalAlpha = 1;
+    [[median, "--ink", "median", 10], [mean, "--bad", "mean", 26]].forEach(([v, c, t, dy]) => { ctx.strokeStyle = cssv(c); ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(sx(v), pad.t); ctx.lineTo(sx(v), h - pad.b); ctx.stroke(); ctx.setLineDash([]); text(ctx, t, sx(v) + 4, pad.t + dy, { col: c }); });
+    text(ctx, nf(max), pad.l - 4, pad.t + 8, { align: "right", font: "10px 'JetBrains Mono', monospace" });
+    const ticks = log ? [100, 1000, 10000, 100000] : [0, 100000, 200000, 300000];
+    ticks.forEach(t => text(ctx, t >= 1000 ? t / 1000 + "k" : String(t), sx(Math.max(t, log ? 1 : 0)), h - 10, { align: "center", font: "10px 'JetBrains Mono', monospace" }));
+    $("[data-s=msg]", root).textContent = log ? "على الـ log الشكل بان: كل فئة ليها نطاق سعر، والكشكول واللابتوب الاتنين في الصورة." :
+      bins <= 6 ? "bins قليلة: كل حاجة في أول bar، والشكل مستخبّي." : `${Math.round(counts[0] / rev.length * 100)}% من السطور في أول bar: عمود skewed جامد لليمين، والـ mean بعيد عن الـ median.`;
+  }
+  $("[data-r=b]", root).oninput = e => { bins = +e.target.value; $("[data-o=b]", root).textContent = bins; draw(); };
+  $("[data-c=log]", root).onchange = e => { log = e.target.checked; draw(); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: grouped bars ---------- */
+function groupWidget(root) {
+  const cats = L.category, y24 = sumBy(i => V.category[i], V.revenue, i => YEAR[i] === 2024), y25 = sumBy(i => V.category[i], V.revenue, i => YEAR[i] === 2025);
+  let mode = "same";
+  const CODE = {
+    same: `ax.bar(cy.index, cy[2024], label="2024")\nax.bar(cy.index, cy[2025], label="2025")     # drawn on top of 2024!`,
+    shift: `x = np.arange(len(cy))                        # 0, 1, 2, 3\nax.bar(x - 0.2, cy[2024], width=0.4, label="2024")\nax.bar(x + 0.2, cy[2025], width=0.4, label="2025")\nax.set_xticks(x, cy.index)`,
+    edge: `ax.bar(cy.index, cy[2024], width=-0.4, align="edge", label="2024")   # grows to the left\nax.bar(cy.index, cy[2025], width=0.4, align="edge", label="2025")`,
+    stack: `ax.bar(cy.index, cy[2024], label="2024")\nax.bar(cy.index, cy[2025], bottom=cy[2024], label="2025")   # starts on top of 2024`,
+  };
+  root.innerHTML = head("2024 جنب 2025", "إيراد كل فئة في السنتين. جرّب نفس الـ x، وبعدين زق الـ bars، وبعدين stacked.") + `
+    <div class="optrow"><div class="seg"><button data-m="same" aria-pressed="true">نفس الـ x</button><button data-m="shift" aria-pressed="false">x ± 0.2</button><button data-m="edge" aria-pressed="false">align="edge"</button><button data-m="stack" aria-pressed="false">bottom=</button></div></div>
+    <canvas></canvas><div class="keys"><span><i style="background:var(--muted)"></i>2024</span><span><i style="background:var(--c1)"></i>2025</span></div>
+    <div class="codeout" data-s="code"></div><div class="status" data-s="msg"></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const h = 240, { ctx, w } = setup(cv, h), pad = { l: 46, r: 12, t: 12, b: 26 };
+    const max = (mode === "stack" ? Math.max(...cats.map((_, k) => y24[k] + y25[k])) : Math.max(...Object.values(y24), ...Object.values(y25))) * 1.08;
+    const sy = v => h - pad.b - v / max * (h - pad.t - pad.b), gw = (w - pad.l - pad.r) / cats.length;
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    [5e6, 10e6, 15e6, 20e6].filter(v => v < max).forEach(v => text(ctx, v / 1e6 + "M", pad.l - 5, sy(v) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" }));
+    cats.forEach((c, k) => {
+      const cx = pad.l + k * gw + gw / 2, bw = gw * .4;
+      const bar = (x, wd, v, base, col) => { ctx.fillStyle = cssv(col); ctx.globalAlpha = col === "--muted" ? .75 : .9; ctx.fillRect(x, sy(base + v), wd, sy(base) - sy(base + v)); ctx.globalAlpha = 1; };
+      if (mode === "same") { bar(cx - gw * .3, gw * .6, y24[k], 0, "--muted"); bar(cx - gw * .3, gw * .6, y25[k], 0, "--c1"); }
+      else if (mode === "stack") { bar(cx - gw * .3, gw * .6, y24[k], 0, "--muted"); bar(cx - gw * .3, gw * .6, y25[k], y24[k], "--c1"); }
+      else { bar(cx - bw, bw, y24[k], 0, "--muted"); bar(cx, bw, y25[k], 0, "--c1"); }
+      text(ctx, c, cx, h - 8, { col: "--ink", align: "center", font: "11px Inter, sans-serif" });
+    });
+    $("[data-s=code]", root).textContent = CODE[mode];
+    const A = cats.indexOf("Accessories");
+    $("[data-s=msg]", root).textContent = {
+      same: `مفيش error، بس شكلها stacked وهي مش كده: 2025 قاعدة قدّام 2024. الرمادي باين بس لما 2024 أكبر، وفي Accessories (${fmtM(y24[A])} مقابل ${fmtM(y25[A])}) 2024 مستخبّية خالص.`,
+      shift: "كل سنة اتزقّت ناحية: دلوقتي بتقارن الطولين جنب بعض.", edge: "نفس النتيجة من غير أرقام: العرض السالب بيكبّر الـ bar ناحية الشمال.",
+      stack: "stacked بجد: كل طبقة بتبدأ فوق اللي قبلها. الطول الكلي = السنتين مع بعض." }[mode];
+  }
+  segPick(root, "data-m", v => { mode = v; draw(); });
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: subplot_mosaic ---------- */
+function mosaicWidget(root) {
+  root.innerHTML = head("ارسم الـ layout", "كل حرف رسمة، والحرف المتكرر بيكبّرها. كل صف لازم يبقى نفس الطول، و . = خانة فاضية.") + `
+    <textarea class="mos-in" spellcheck="false">AAB\nCCB</textarea>
+    <div class="mos-grid" data-s="grid"></div><div class="codeout" data-s="code"></div><div class="status" data-s="msg"></div>`;
+  const ta = $("textarea", root), cols = [cssv("--c1"), cssv("--c3"), cssv("--c2"), cssv("--c4"), cssv("--bad"), cssv("--chalk-g")];
+  function draw() {
+    const rows = ta.value.split("\n").map(r => r.trim()).filter(Boolean), g = $("[data-s=grid]", root), msg = $("[data-s=msg]", root);
+    g.innerHTML = ""; msg.textContent = "";
+    if (!rows.length) return;
+    if (new Set(rows.map(r => r.length)).size > 1) { msg.textContent = "ValueError: كل الصفوف لازم يبقى ليها نفس عدد الحروف."; return; }
+    const letters = [...new Set(rows.join("").replace(/\./g, ""))];
+    for (const ch of letters) {
+      const cells = []; rows.forEach((r, i) => [...r].forEach((c, j) => c === ch && cells.push([i, j])));
+      const r0 = Math.min(...cells.map(c => c[0])), r1 = Math.max(...cells.map(c => c[0])), c0 = Math.min(...cells.map(c => c[1])), c1 = Math.max(...cells.map(c => c[1]));
+      if (cells.length !== (r1 - r0 + 1) * (c1 - c0 + 1)) { msg.textContent = `ValueError: الحرف ${ch} لازم يعمل مستطيل.`; g.innerHTML = ""; return; }
+      const d = document.createElement("div"); d.textContent = ch; d.style.gridArea = `${r0 + 1} / ${c0 + 1} / ${r1 + 2} / ${c1 + 2}`; d.style.background = cols[letters.indexOf(ch) % cols.length]; g.appendChild(d);
+    }
+    g.style.gridTemplateColumns = `repeat(${rows[0].length}, 1fr)`; g.style.gridTemplateRows = `repeat(${rows.length}, minmax(60px, 1fr))`;
+    $("[data-s=code]", root).textContent = `axd = fig.subplot_mosaic("${rows.join(";")}")\n` + letters.map(c => `axd["${c}"].plot(...)`).join("\n");
+    msg.textContent = `${letters.length} Axes في dictionary اسمه axd، كل واحدة بالحرف بتاعها.`;
+  }
+  ta.oninput = draw; draw();
+}
+
+/* ---------- widget: discount and profit ---------- */
+function discWidget(root) {
+  const D = [0, 5, 10, 20], cats = L.category;
+  const prof = cats.map((_, c) => D.map(d => { const ix = V.profit.map((_, i) => i).filter(i => V.category[i] === c && V.discount[i] === d); return ix.reduce((a, i) => a + V.profit[i], 0) / ix.length; }));
+  let on = cats.map(() => true);
+  root.innerHTML = head("متوسط الربح للسطر حسب الخصم", "خط لكل فئة. شيل وحط الفئات، وبص فين الخط بيعدّي الصفر.", "النتيجة") + `
+    <div class="btns">${cats.map((c, k) => `<label class="chk"><input type="checkbox" checked data-k="${k}"> ${c}</label>`).join("")}</div>
+    <canvas style="margin-top:.6rem"></canvas><div class="tbl-wrap"><table class="tbl" data-s="tbl"></table></div>`;
+  const cv = $("canvas", root);
+  $("[data-s=tbl]", root).innerHTML = `<thead><tr><th>الخصم</th>${cats.map(c => `<th class="en">${c}</th>`).join("")}</tr></thead><tbody>` +
+    D.map((d, j) => `<tr><td><bdi>${d}%</bdi></td>${cats.map((_, c) => `<td><bdi style="${prof[c][j] < 0 ? "color:var(--bad);font-weight:700" : ""}">${nf(prof[c][j])}</bdi></td>`).join("")}</tr>`).join("") + "</tbody>";
+  function draw() {
+    const h = 260, { ctx, w } = setup(cv, h), pad = { l: 56, r: 100, t: 12, b: 28 };
+    const vis = prof.filter((_, c) => on[c]).flat(), ymin = Math.min(0, ...vis) * 1.15 - 200, ymax = Math.max(...vis, 1) * 1.1;
+    const sx = d => pad.l + d / 20 * (w - pad.l - pad.r), sy = v => h - pad.b - (v - ymin) / (ymax - ymin) * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    ctx.strokeStyle = cssv("--ink"); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(pad.l, sy(0)); ctx.lineTo(w - pad.r, sy(0)); ctx.stroke();
+    text(ctx, "0", pad.l - 5, sy(0) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" });
+    text(ctx, nf(ymax / 1.1), pad.l - 5, pad.t + 8, { align: "right", font: "10px 'JetBrains Mono', monospace" });
+    D.forEach(d => text(ctx, d + "%", sx(d), h - 8, { align: "center", font: "10.5px 'JetBrains Mono', monospace" }));
+    const pal = PAL();
+    prof.forEach((p, c) => { if (!on[c]) return; ctx.strokeStyle = pal[c]; ctx.fillStyle = pal[c]; ctx.lineWidth = 2.2; ctx.beginPath();
+      p.forEach((v, j) => j ? ctx.lineTo(sx(D[j]), sy(v)) : ctx.moveTo(sx(D[j]), sy(v))); ctx.stroke();
+      p.forEach((v, j) => { ctx.beginPath(); ctx.arc(sx(D[j]), sy(v), 3.5, 0, 7); ctx.fill(); });
+      text(ctx, cats[c], sx(20) + 8, sy(p[3]) + 4, { col: pal[c], font: "bold 11px Inter, sans-serif" }); });
+  }
+  $$("[data-k]", root).forEach(b => b.onchange = () => { on[+b.dataset.k] = b.checked; draw(); });
+  draw(); onRedraw(draw);
+}
+
+function main() {
+  anatomy(); styleWidget($("#wStyle")); scatterWidget($("#wScatter")); histWidget($("#wHist"));
+  groupWidget($("#wGroup")); mosaicWidget($("#wMosaic")); discWidget($("#wDisc"));
+}
+</script>
