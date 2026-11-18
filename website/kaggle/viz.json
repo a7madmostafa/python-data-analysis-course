@@ -1,7 +1,7 @@
 {
   "id": "a7madmostafa/zero-grad-da-why-visualize",
   "title": "Zero Grad DA: Why Visualize and Which Chart",
-  "code_file": "viz.ipynb",
+  "code_file": "01_principles.ipynb",
   "language": "python",
   "kernel_type": "notebook",
   "is_private": true,

@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Why Visualize</title>
-<meta name="description" content="ليه نرسم الداتا، وإزاي السؤال بيختار الـ chart، وقواعد الـ chart الواضح، والمكتبات التلاتة Matplotlib و Seaborn و Plotly في سطور، على داتا NileCart.">
+<meta name="description" content="مبادئ الـ Visualization: ليه نرسم الداتا، وإزاي السؤال ونوع المتغير بيختاروا الـ chart، وقواعد الـ chart الواضح، وإزاي chart صح ممكن يضلّلك، على داتا NileCart.">
 <meta property="og:title" content="ليه نرسم؟ وإزاي نختار الـ chart · Zero Grad">
-<meta property="og:description" content="السؤال بيختار الـ chart، وقواعد الـ chart الواضح، بالعربي وعلى داتا NileCart.">
+<meta property="og:description" content="السؤال بيختار الـ chart، وقواعد الـ chart الواضح، وإزاي تقرا الـ chart صح، بالعربي وعلى داتا NileCart.">
 <meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
 <meta property="og:url" content="https://zero-grad.com/courses/da/viz/">
 <meta name="twitter:card" content="summary_large_image">
@@ -235,7 +235,7 @@ a.pg:hover{border-color:var(--accent)}
   <div class="topbar-in">
     <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here">ليه نرسم؟</span></nav>
     <div class="top-actions">
-      <a class="iconbtn" href="/courses/da/cleaning/" aria-label="الدرس اللي فات: تنضيف الداتا" title="الدرس اللي فات: تنضيف الداتا">→</a><a class="iconbtn" href="/courses/da/distribution/" aria-label="الدرس الجاي: Distribution" title="الدرس الجاي: Distribution">←</a>
+      <a class="iconbtn" href="/courses/da/cleaning/" aria-label="الدرس اللي فات: تنضيف الداتا" title="الدرس اللي فات: تنضيف الداتا">→</a><span class="iconbtn off" aria-hidden="true">←</span>
       <button class="iconbtn" id="themeBtn" type="button" data-theme-toggle aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
     </div>
   </div>
@@ -247,10 +247,10 @@ a.pg:hover{border-color:var(--accent)}
     <div class="hero">
       <div class="kicker">Zero Grad · كورس Data Analysis · Visualization</div>
       <h1>Why Visualize?</h1>
-      <p class="lead">باقي قسم الـ Visualization ماشي <b>بنوع الـ chart</b>، مش بالمكتبة:<br>
-        Distribution، و Comparison، و Relationship، و Composition، و Change over time، و Multivariate.<br>
-        الدرس ده بيجهّز الطريق: ليه نرسم أصلًا، وإزاي السؤال هو اللي بيختار الـ chart،<br>
-        وإيه اللي بيخلّي الـ chart واضح، والمكتبات التلاتة اللي هنستخدمها، في سطور.</p>
+      <p class="lead">قبل أي مكتبة رسم، 4 أسئلة:<br>
+        <b>ليه</b> نرسم أصلًا؟ و<b>أنهي</b> chart بيجاوب أنهي سؤال؟<br>
+        وإيه اللي بيخلّي الـ chart <b>واضح</b>؟ وإزاي chart محسوب صح ممكن <b>يضلّلك</b>؟<br>
+        وبعد كده كل مكتبة ليها درس: Matplotlib، و Seaborn، و Plotly.</p>
       <div class="nb-links">
         <a class="nb-btn primary" id="kaggleLink" href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
         <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
@@ -277,28 +277,52 @@ a.pg:hover{border-color:var(--accent)}
       <figure class="fig"><div class="fig-scroll" id="anscFig"></div>
         <figcaption>خط مستقيم، ومنحنى، وخط فيه نقطة واحدة بعيدة، وعمود نقط ومعاه نقطة واحدة بعيدة. 4 حكايات، وجدول ملخّص واحد.</figcaption></figure>
       <div class="voice">draw before you summarise<small>ارسم قبل ما تلخّص: نفس الأرقام الملخّصة ممكن تيجي من داتا مختلفة خالص</small></div>
-      <h3 class="sub">الجدول بيخبّي اللي الـ chart بيوريه</h3>
-      <p>إيراد NileCart في كل شهر كجدول فيه 24 رقم: كل الأرقام موجودة، بس محتاج تقراهم واحد واحد عشان تلاقي الحكاية.<br>
-        نفس الأرقام كخط: الـ peak بتاع نوفمبر وديسمبر بيبان في ثانية، peak لكل سنة.</p>
-      <div class="two">
-        <div class="path"><h4>الجدول</h4><p>عشان <b>تدوّر على قيمة</b>: إيراد سبتمبر 2025 كام بالظبط؟</p></div>
-        <div class="path"><h4>الـ Chart</h4><p>عشان <b>تشوف نمط</b>: إمتى الإيراد بيعلى؟ وفيه تكرار؟</p></div>
+      <h3 class="sub">نفس الإحصائيات، وسنتين مختلفين</h3>
+      <p>إيراد NileCart في كل شهر، 2024 و 2025، بالمليون جنيه.<br>
+        نلخّص كل سنة بالأرقام المعتادة:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>السنة</th><th>mean</th><th>std</th><th>median</th></tr></thead>
+        <tbody>
+          <tr><td><bdi>2024</bdi></td><td><bdi>0.81</bdi></td><td><bdi>0.49</bdi></td><td><bdi>0.59</bdi></td></tr>
+          <tr><td><bdi>2025</bdi></td><td><bdi>0.81</bdi></td><td><bdi>0.44</bdi></td><td><bdi>0.64</bdi></td></tr>
+        </tbody>
+      </table></div>
+      <p>نفس المتوسط بالظبط، وتشتت قريب. بالأرقام، السنتين شبه بعض. ارسمهم:</p>
+      <figure class="fig"><div class="fig-scroll" id="yearsFig"></div>
+        <figcaption>2024 بدأت واطية، ونطّت في سبتمبر، والـ peak في ديسمبر. 2025 بدأت أعلى، وفضلت تحت 0.85 مليون لحد أكتوبر، والـ peak في نوفمبر.</figcaption></figure>
+      <p>الأرقام الملخّصة بتعصر العمود في رقم واحد. الـ chart بيحتفظ بـ<b>النمط</b>: الاتجاه، والموسمية، والتجمّعات، والقيم الشاذة، والأخطاء.</p>
+      <h3 class="sub">رقم، ولا جدول، ولا chart؟</h3>
+      <div class="cards">
+        <div class="card"><b>رقم</b>لمعلومة واحدة: "السطر النموذجي من الأوردرات المكتملة بـ 3,600 جنيه".</div>
+        <div class="card"><b>جدول</b>عشان <b>تدوّر على قيمة</b> بالظبط: إيراد سبتمبر 2025 كام؟ أوردرات عميل معيّن.</div>
+        <div class="card"><b>Chart</b>عشان <b>تشوف نمط</b>: شكل، أو مقارنة، أو قيمة شاذة. إمتى الإيراد بيعلى؟</div>
       </div>
+      <p>لو جملة واحدة بتقولها، مش محتاج chart.</p>
+      <h3 class="sub">بتستكشف، ولا بتشرح؟</h3>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th></th><th>استكشاف (لنفسك)</th><th>شرح (لغيرك)</th></tr></thead>
+        <tbody>
+          <tr><td>كام chart</td><td>كتير وسريع، ومش لازم يبقى حلو</td><td>chart واحد لكل رسالة، متظبّط</td></tr>
+          <tr><td>الهدف</td><td>تلاقي أنماط، وأخطاء، وأسئلة جديدة</td><td>اللي بيقرا يفهم النقطة في 5 ثواني</td></tr>
+          <tr><td>العنوان</td><td>بيقول إيه المرسوم: <span class="en">"Revenue by month"</span></td><td>بيقول معناه: "نوفمبر وديسمبر بيجيبوا تلت الإيراد"</td></tr>
+        </tbody>
+      </table></div>
+      <p>الـ EDA أغلبه استكشاف. التقرير والـ dashboard شرح.</p>
     </section>
 
     <!-- 2 -->
     <section class="sec" id="choose">
       <div class="sec-head"><h2><span class="num">2</span>السؤال هو اللي بيختار الـ chart</h2></div>
       <p>ابدأ من السؤال، مش من نوع الـ chart.<br>
-        تقريبًا أي سؤال عن جدول بيقع في واحدة من 6 عائلات، ولكل عيلة رسماتها، ودرسها في الكورس ده:</p>
+        تقريبًا أي سؤال عن جدول بيقع في واحدة من 6 عائلات، ولكل عيلة رسماتها:</p>
       <div class="widget" id="wChoose"></div>
       <div class="tbl-wrap"><table class="tbl">
         <thead><tr><th>السؤال</th><th>العيلة</th><th>رسمات</th></tr></thead>
         <tbody>
-          <tr><td>الأرقام شكلها إيه؟</td><td><a href="/courses/da/distribution/">Distribution</a></td><td>histogram، box، violin، ECDF</td></tr>
+          <tr><td>الأرقام شكلها إيه؟</td><td>Distribution</td><td>histogram، box، violin</td></tr>
           <tr><td>مين أكبر؟ مين الأول؟</td><td>Comparison &amp; Ranking</td><td>bar مترتّب، dot plot</td></tr>
           <tr><td>رقمين بيتحركوا مع بعض؟</td><td>Relationship</td><td>scatter، heatmap للـ correlation</td></tr>
-          <tr><td>الكل متكوّن من إيه؟</td><td>Composition</td><td>stacked bar، treemap (والـ pie لـ 2 أو 3 أجزاء بس)</td></tr>
+          <tr><td>الكل متكوّن من إيه؟</td><td>Composition</td><td>stacked bar، treemap (والـ pie لأجزاء قليلة بس)</td></tr>
           <tr><td>بيتغيّر إزاي مع الوقت؟</td><td>Change over time</td><td>line، area</td></tr>
           <tr><td>أكتر من متغير مرة واحدة؟</td><td>Multivariate &amp; Maps</td><td>heatmap، small multiples، خرايط</td></tr>
         </tbody>
@@ -306,6 +330,44 @@ a.pg:hover{border-color:var(--accent)}
       <div class="callout warn"><div class="ttl">⚠️ سؤال واحد، chart واحد</div>
         الـ chart اللي بيحاول يجاوب 3 أسئلة مبيجاوبش ولا واحد.<br>
         لو عندك 3 أسئلة، اعمل 3 charts.</div>
+      <h3 class="sub">وبعدين بص على نوع المتغير</h3>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>النوع</th><th>مثال من <span class="en">sales</span></th><th>بنرسمه بـ</th></tr></thead>
+        <tbody>
+          <tr><td>رقم متصل</td><td><span class="en">revenue</span>، <span class="en">profit</span></td><td>مكان على محور (x أو y)</td></tr>
+          <tr><td>رقم منفصل</td><td><span class="en">quantity</span></td><td>مكان، أو bar لكل قيمة</td></tr>
+          <tr><td>فئة من غير ترتيب (nominal)</td><td><span class="en">category</span>، <span class="en">region</span></td><td>bars منفصلة، أو لون</td></tr>
+          <tr><td>فئة ليها ترتيب (ordinal)</td><td>الخصم 0 / 5 / 10 / 20%</td><td>bars أو line، <b>بنفس الترتيب</b></td></tr>
+          <tr><td>وقت</td><td><span class="en">order_date</span>، الشهر</td><td>المحور الأفقي من الشمال لليمين، غالبًا line</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout warn"><div class="ttl">⚠️ الترتيب جزء من الداتا</div>
+        محور الوقت أو الفئات اللي ليها ترتيب عمره ما يترتّب بالقيمة.<br>
+        يناير قبل فبراير، حتى لو فبراير أكبر.</div>
+      <h3 class="sub">المكان والطول أدق من الزاوية واللون</h3>
+      <p>العين بتقارن <b>الأماكن</b> على محور واحد و<b>الأطوال</b> بدقة. الزوايا والمساحات ودرجات اللون أقل بكتير.<br>
+        جرّب في الـ widget فوق سؤال "مين أكبر؟" بالـ pie: الدلتا وصعيد مصر والقناة شبه بعض، والـ bars بتقول 2.0 و 1.8 و 1.6 مليون.</p>
+      <div class="voice">position › length › angle › shade › hue<small>من الأدق للأضعف: المكان، الطول، الزاوية والمساحة، درجة اللون، نوع اللون</small></div>
+      <p>الـ pie مقبول بس لأجزاء قليلة (5 بالكتير) من كل واحد، ولما نسب تقريبية تكفي.</p>
+      <h3 class="sub">جدول اختيار الـ chart</h3>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الـ Chart</th><th>بنستخدمه لـ</th><th>بنقرا منه</th></tr></thead>
+        <tbody>
+          <tr><td class="en">Bar</td><td>مقارنة فئات</td><td>الفروق والترتيب</td></tr>
+          <tr><td class="en">Line</td><td>اتجاه مع الوقت أو تسلسل مترتّب</td><td>الاتجاه، والتغيّر، والموسمية</td></tr>
+          <tr><td class="en">Histogram</td><td>توزيع رقم واحد</td><td>الشكل، والتشتت، والـ skew</td></tr>
+          <tr><td class="en">Scatter</td><td>العلاقة بين رقمين</td><td>الارتباط، والتجمّعات، والنقط الغريبة</td></tr>
+          <tr><td class="en">Box</td><td>مقارنة توزيعات</td><td>الـ median، والـ quartiles، والـ outliers</td></tr>
+          <tr><td class="en">Violin</td><td>مقارنة شكل التوزيعات</td><td>الكثافة، وأكتر من قمة</td></tr>
+          <tr><td class="en">Count plot</td><td>تكرار الفئات</td><td>الأكتر والأقل</td></tr>
+          <tr><td class="en">Stacked bar</td><td>تكوين الفئات</td><td>الإجمالي وأجزاؤه</td></tr>
+          <tr><td class="en">Heatmap</td><td>قيم على بُعدين</td><td>الأماكن السخنة والأنماط</td></tr>
+          <tr><td class="en">Pair plot</td><td>كذا رقم مع بعض</td><td>كل علاقة بين اتنين</td></tr>
+          <tr><td class="en">Pie</td><td>أجزاء قليلة من كل واحد</td><td>نسب تقريبية (5 شرايح بالكتير)</td></tr>
+        </tbody>
+      </table></div>
+      <p>نفس السؤال بمتغيرات مختلفة ممكن يحتاج chart مختلف: "الإيراد بيختلف إزاي حسب الفئة؟" bar للإجمالي،<br>
+        بس box لو السؤال عن تشتت السطور الواحدة.</p>
     </section>
 
     <!-- 3 -->
@@ -327,17 +389,62 @@ a.pg:hover{border-color:var(--accent)}
       <div class="callout add"><div class="ttl">➕ الـ line chart حالة تانية</div>
         الـ line بيوري <b>التغيّر</b>، مش الحجم، فالمحور بتاعه مش لازم يبدأ من صفر.<br>
         الصفر شرط للـ bar والـ area، اللي فيهم الطول أو المساحة هي القيمة.</div>
+      <h3 class="sub">تشريح الـ chart الأمين</h3>
+      <div class="cards">
+        <div class="card"><b>1. عنوان</b>بيقول الرسالة</div>
+        <div class="card"><b>2. أسماء المحاور</b>ومعاها الوحدة: جنيه، %، عدد</div>
+        <div class="card"><b>3. Scale</b>بيبدأ من صفر للـ bars، وأرقامه مقروءة</div>
+        <div class="card"><b>4. Legend</b>بس لو فيه أكتر من series</div>
+        <div class="card"><b>5. Annotation</b>بتشاور على الحاجة الوحيدة اللي عايزك تاخد بالك منها</div>
+        <div class="card"><b>6. المصدر</b>الداتا جاية منين</div>
+      </div>
+      <figure class="fig"><div class="fig-scroll" id="anatFig"></div>
+        <figcaption>نفس السنتين، بس العنوان بقى هو الخلاصة، والمحور من صفر، وفيه سهم على الـ peak، والمصدر تحت.</figcaption></figure>
     </section>
 
     <!-- 4 -->
+    <section class="sec" id="read">
+      <div class="sec-head"><h2><span class="num">4</span>اقرا الـ chart صح</h2></div>
+      <p>الـ chart ممكن يكون محسوب صح، ويضلّلك برضه.<br>
+        المحور المقصوص أول فخ (شفناه فوق). وفيه 3 كمان:</p>
+      <h3 class="sub">عدد، ولا نسبة؟</h3>
+      <p>المجموعات الكبيرة عندها من كل حاجة أكتر. عشان تقارن مجموعات أحجامها مختلفة، اقسم على الحجم.</p>
+      <div class="widget" id="wRate"></div>
+      <h3 class="sub">متوسط، ولا median؟</h3>
+      <p>في عمود فيه skew، الـ mean والـ median بيحكوا حكايتين مختلفين. سطر الأوردر المكتمل في NileCart:</p>
+      <div class="stats" style="margin:1rem 0">
+        <div class="stat"><span>median</span><b>3,600</b></div>
+        <div class="stat"><span>mean</span><b>18,075</b></div>
+        <div class="stat"><span>skew</span><b>3.7</b></div>
+      </div>
+      <p>شوية أوردرات كبيرة سحبوا المتوسط لـ 5 أضعاف السطر النموذجي.<br>
+        في الداتا اللي فيها skew، قول الـ median، أو ارسم التوزيع كله. واسم المحور لازم يقول الرقم ده إيه: عدد، ولا %، ولا متوسط.</p>
+      <h3 class="sub">مين مش موجود؟ وكام واحد؟</h3>
+      <div class="two">
+        <div class="path"><h4>Sampling bias</h4><p>جدول المبيعات فيه بس الناس اللي اشتروا.<br>اللي عمرهم ما طلبوا، أو مشيوا بعد تجربة وحشة، مش باينين.<br>اسأل: <b>مين مكانش ممكن يدخل الداتا دي؟</b></p></div>
+        <div class="path"><h4>مجموعات صغيرة</h4><p>متوسط أو نسبة من كام سطر = noise.<br>الـ segment الـ Unknown في الأوردرات المكتملة سطر <b>واحد</b>، ومتوسطه مبيقولش حاجة.<br>اكتب حجم المجموعة جنبها، أو شيلها.</p></div>
+      </div>
+      <h3 class="sub">قبل ما تصدّق أي chart</h3>
+      <div class="tbl-wrap"><table class="tbl">
+        <tbody>
+          <tr><td><b>المحور</b></td><td>محور الـ bar بيبدأ من صفر؟ linear ولا log؟</td></tr>
+          <tr><td><b>المقياس</b></td><td>عدد، ولا %، ولا mean، ولا median؟ لكل إيه؟</td></tr>
+          <tr><td><b>الشكل</b></td><td>bins تانية أو log scale هيغيّروا الحكاية؟</td></tr>
+          <tr><td><b>المجموعات</b></td><td>فيه مجموعات صغيرة؟ مين مش موجود؟</td></tr>
+          <tr><td><b>السبب</b></td><td>ممكن متغير تالت يفسّر النمط؟</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 5 -->
     <section class="sec" id="libs">
-      <div class="sec-head"><h2><span class="num">4</span>المكتبات التلاتة</h2></div>
+      <div class="sec-head"><h2><span class="num">5</span>المكتبات التلاتة</h2></div>
       <div class="libs">
         <div class="card" style="--c:var(--c2)"><b>Matplotlib</b>الأساس: كل مكتبات الرسم في Python مبنية عليه أو بتقلّده.<br>كل تفصيلة بإيدك.<br><code class="i">fig, ax = plt.subplots()</code></div>
         <div class="card" style="--c:var(--c1)"><b>Seaborn</b>بياخد جدول وأسماء أعمدة، وبيجمّع ويحسب لوحده.<br>الأسرع في الاستكشاف.<br><code class="i">sns.barplot(data=, x=, y=, hue=)</code></div>
         <div class="card" style="--c:var(--c4)"><b>Plotly</b>نفس فكرة Seaborn، بس الـ chart صفحة ويب: hover و zoom وتخبّي series.<br><code class="i">px.line(df, x=, y=, color=)</code></div>
       </div>
-      <p>نفس الـ chart، إيراد كل شهر لكل فئة، في التلاتة:</p>
+      <p>كل مكتبة ليها درس لوحدها جاي. هنا بس لمحة: نفس الـ chart، إيراد كل شهر لكل فئة، في التلاتة:</p>
       <div class="codetabs">
         <div class="seg" role="tablist"><button aria-pressed="true" data-lib="mpl">Matplotlib</button><button aria-pressed="false" data-lib="sns">Seaborn</button><button aria-pressed="false" data-lib="px">Plotly</button></div>
 <pre data-lib="mpl">m = done.groupby([<span class="s">"month"</span>, <span class="s">"category"</span>])[<span class="s">"revenue"</span>].sum().unstack()   <span class="c"># you shape the data</span>
@@ -370,15 +477,11 @@ fig.show()</pre>
         <div class="path bad"><h4>✗ <span class="en">sns.barplot</span> بيحسب الـ mean</h4><p>الـ default هو المتوسط، ومعاه error bar (confidence interval).<br>اعرف الـ bar ده رقم إيه: <span class="en">estimator="sum"</span> أو <span class="en">"median"</span>، و <span class="en">errorbar=None</span>.</p></div>
         <div class="path bad"><h4>✗ <span class="en">px.bar</span> مبيجمّعش</h4><p>بيرسم حتة bar لكل سطر.<br>اعمل <span class="en">groupby</span> الأول، وبعدين ارسم.</p></div>
       </div>
-      <h3 class="sub">الحفظ</h3>
-<pre>fig.savefig(<span class="s">"revenue.png"</span>, dpi=<span class="s">150</span>, bbox_inches=<span class="s">"tight"</span>)       <span class="c"># Matplotlib / Seaborn: an image for slides</span>
-fig.write_html(<span class="s">"revenue.html"</span>, include_plotlyjs=<span class="s">"cdn"</span>)          <span class="c"># Plotly: a page anyone can open</span></pre>
-      <p><span class="en">bbox_inches="tight"</span> عشان العناوين والـ labels متتقصّش من الصورة.</p>
     </section>
 
-    <!-- 5 -->
+    <!-- 6 -->
     <section class="sec" id="mistakes">
-      <div class="sec-head"><h2><span class="num">5</span>أخطاء شائعة</h2></div>
+      <div class="sec-head"><h2><span class="num">6</span>أخطاء شائعة</h2></div>
       <div class="two">
         <div class="path bad"><h4>✗ تختار الـ chart الأول</h4><p>"عايز أعمل pie" قبل ما تعرف السؤال.</p></div>
         <div class="path good"><h4>✓ السؤال الأول</h4><p>وبعدين العيلة، وبعدين الـ chart.</p></div>
@@ -388,18 +491,23 @@ fig.write_html(<span class="s">"revenue.html"</span>, include_plotlyjs=<span cla
         <div class="path good"><h4>✓ لون واحد للنقطة</h4><p>والباقي رمادي.</p></div>
         <div class="path bad"><h4>✗ عنوان "Chart 1"</h4><p>القارئ لازم يخمّن إنت عايز تقول إيه.</p></div>
         <div class="path good"><h4>✓ العنوان هو الخلاصة</h4><p>جملة فيها اللي لقيته.</p></div>
+        <div class="path bad"><h4>✗ عدد بين مجموعات مختلفة الحجم</h4><p>الأكبر هيكسب دايمًا.</p></div>
+        <div class="path good"><h4>✓ نسبة</h4><p>اقسم على حجم المجموعة.</p></div>
+        <div class="path bad"><h4>✗ متوسط لعمود فيه skew</h4><p>كام قيمة كبيرة بيسحبوه بعيد.</p></div>
+        <div class="path good"><h4>✓ الـ median، أو التوزيع كله</h4><p>واكتب على المحور أنهي رقم.</p></div>
       </div>
     </section>
 
-    <!-- 6 -->
+    <!-- 7 -->
     <section class="sec" id="sheet">
-      <div class="sec-head"><h2><span class="num">6</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sec-head"><h2><span class="num">7</span>الخلاصة في كارت واحد</h2></div>
       <div class="sheet">
         <div class="card"><h4>ارسم الأول</h4>نفس الملخّص ممكن ييجي من داتا مختلفة<br>الجدول للبحث، والـ chart للنمط</div>
         <div class="card"><h4>السؤال بيختار</h4>Distribution · Comparison · Relationship<br>Composition · Time · Multivariate</div>
+        <div class="card"><h4>ونوع المتغير</h4>متصل · منفصل · فئة · فئة مترتّبة · وقت<br>المكان والطول أدق من الزاوية واللون</div>
         <div class="card"><h4>الـ chart الواضح</h4>صفر للـ bars · رتّب · لون واحد<br>عنوان بالخلاصة · وحدات · من غير زيادة</div>
+        <div class="card"><h4>اقراه صح</h4>عدد ولا نسبة · mean ولا median<br>مجموعات صغيرة · مين مش موجود</div>
         <div class="card"><h4>المكتبات</h4><span class="en">plt.subplots()</span> · <span class="en">sns.*(data=, x=, y=, hue=)</span> · <span class="en">px.*</span></div>
-        <div class="card"><h4>الحفظ</h4><span class="en">savefig(..., dpi=150, bbox_inches="tight")</span><br><span class="en">write_html(...)</span></div>
       </div>
       <div class="nb-links">
         <a class="nb-btn primary" data-kaggle href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
@@ -407,7 +515,7 @@ fig.write_html(<span class="s">"revenue.html"</span>, include_plotlyjs=<span cla
       </div>
     </section>
 
-    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/cleaning/"><span>→ الدرس اللي فات</span><b>تنضيف الداتا</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><a class="pg next" href="/courses/da/distribution/"><span>الدرس الجاي ←</span><b>شكل الأرقام: <span class="en">Distribution</span></b></a></nav>
+    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/cleaning/"><span>→ الدرس اللي فات</span><b>تنضيف الداتا</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><span class="pg next off"><span>الدرس الجاي ←</span><b class="en">Matplotlib</b></span></nav>
 
     <footer>
       الداتا: NileCart، متجر وهمي في القاهرة، بالجنيه المصري.<br>
@@ -457,6 +565,67 @@ function anscFig() {
   });
   o += `<text x="${10 + 2 * (pw + gap) - gap / 2}" y="${26 + ph + 22}" text-anchor="middle" font-size="11.5" style="fill:var(--chalk-o)">the dashed line is the same fit in all four: y = 3 + 0.5x</text>`;
   $("#anscFig").innerHTML = `<svg viewBox="0 0 ${10 + 4 * (pw + gap)} ${26 + ph + 34}" role="img" aria-label="Anscombe's quartet" xmlns="http://www.w3.org/2000/svg">${o}</svg>`;
+}
+
+/* ---------- figures: the two years, plain and with the anatomy of an honest chart ---------- */
+function yearsSvg(honest) {
+  const W = 640, H = honest ? 300 : 250, pad = { l: 46, r: 16, t: honest ? 40 : 14, b: honest ? 46 : 28 };
+  const y24 = V.monthly.slice(0, 12), y25 = V.monthly.slice(12, 24), MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const lo = honest ? 0 : 0.3e6, hi = 2.2e6;
+  const sx = i => pad.l + i / 11 * (W - pad.l - pad.r), sy = v => H - pad.b - (v - lo) / (hi - lo) * (H - pad.t - pad.b);
+  let o = "";
+  const ticks = honest ? [0, 0.5e6, 1e6, 1.5e6, 2e6] : [0.5e6, 1e6, 1.5e6, 2e6];
+  ticks.forEach(t => o += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${sy(t)}" y2="${sy(t)}" style="stroke:var(--line)"/><text x="${pad.l - 6}" y="${sy(t) + 4}" text-anchor="end" font-size="11" style="fill:var(--muted)">${(t / 1e6).toFixed(1)}</text>`);
+  MO.forEach((m, i) => o += `<text x="${sx(i)}" y="${H - pad.b + 16}" text-anchor="middle" font-size="11" style="fill:var(--muted)">${m}</text>`);
+  [[y24, "var(--muted)", "2024"], [y25, "var(--c1)", "2025"]].forEach(([d, c, lab], k) => {
+    o += `<polyline fill="none" points="${d.map((v, i) => sx(i) + "," + sy(v)).join(" ")}" style="stroke:${c};stroke-width:2.2"/>`;
+    d.forEach((v, i) => o += `<circle cx="${sx(i)}" cy="${sy(v)}" r="3.2" style="fill:${c}"/>`);
+    o += `<rect x="${pad.l + 10 + k * 70}" y="${pad.t + 6}" width="12" height="12" rx="3" style="fill:${c}"/><text x="${pad.l + 27 + k * 70}" y="${pad.t + 16}" font-size="12">${lab}</text>`;
+  });
+  if (honest) {
+    const nd = (a => (a.slice(10).reduce((s, v) => s + v, 0)) / a.reduce((s, v) => s + v, 0));
+    const pct = Math.round((nd(y24) + nd(y25)) / 2 * 100);
+    o += `<text x="${pad.l}" y="20" font-size="14" font-weight="700">Nov–Dec bring ${pct}% of the year's revenue, every year</text>`;
+    o += `<text x="${pad.l}" y="34" font-size="11" style="fill:var(--muted)">revenue, million EGP</text>`;
+    o += `<text x="${sx(6.2)}" y="${sy(1.95e6)}" font-size="12" style="fill:var(--chalk-o)">White Friday + New Year</text>`;
+    o += `<line x1="${sx(9.05)}" y1="${sy(1.98e6)}" x2="${sx(10.8)}" y2="${sy(y24[11]) + 2}" style="stroke:var(--chalk-o);stroke-width:1.5" marker-end="url(#arr)"/>`;
+    o += `<text x="${pad.l}" y="${H - 6}" font-size="10.5" style="fill:var(--muted)">Source: NileCart sales, completed orders, 2024–2025</text>`;
+  } else {
+    o += `<text x="${pad.l}" y="${pad.t - 2}" font-size="10.5" style="fill:var(--muted)">million EGP</text>`;
+  }
+  const defs = `<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--chalk-o)"/></marker></defs>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="NileCart revenue per month, 2024 and 2025" xmlns="http://www.w3.org/2000/svg">${defs}${o}</svg>`;
+}
+
+/* ---------- widget: counts or rates ---------- */
+function rateWidget(root) {
+  const R = V.returns, n = R.cats.length;
+  let rate = false;
+  root.innerHTML = head("عدد، ولا نسبة؟", "المرتجعات في كل فئة، من كل سطور الأوردرات. بدّل بين العدد والنسبة، وشوف الحكاية بتتغيّر إزاي.") + `
+    <div class="optrow"><div class="seg"><button data-m="0" aria-pressed="true">عدد المرتجعات</button><button data-m="1" aria-pressed="false">نسبة المرتجعات</button></div></div>
+    <canvas></canvas>
+    <div class="status" data-s="msg" style="margin-top:.6rem"></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const h = cv.clientWidth < 460 ? 230 : 260, { ctx, w } = setup(cv, h), pad = { l: 16, r: 16, t: 28, b: 40 };
+    const vals = R.cats.map((c, i) => rate ? R.returns[i] / R.lines[i] * 100 : R.returns[i]), max = Math.max(...vals) * 1.15;
+    const bw = (w - pad.l - pad.r) / n;
+    vals.forEach((v, i) => {
+      const x = pad.l + i * bw + bw * .18, bh = v / max * (h - pad.t - pad.b), y = h - pad.b - bh;
+      ctx.fillStyle = rate ? cssv("--c1") : cssv("--muted"); ctx.globalAlpha = rate ? .9 : .6; ctx.fillRect(x, y, bw * .64, bh); ctx.globalAlpha = 1;
+      text(ctx, rate ? v.toFixed(1) + "%" : String(v), x + bw * .32, y - 6, { col: "--ink", align: "center", font: "bold 12px 'JetBrains Mono', monospace" });
+      text(ctx, R.cats[i], x + bw * .32, h - pad.b + 16, { col: "--ink", align: "center", font: "11.5px Inter, sans-serif" });
+      text(ctx, R.lines[i] + " lines", x + bw * .32, h - pad.b + 31, { align: "center", font: "10px 'JetBrains Mono', monospace" });
+    });
+    ctx.strokeStyle = cssv("--line"); ctx.beginPath(); ctx.moveTo(pad.l, h - pad.b); ctx.lineTo(w - pad.r, h - pad.b); ctx.stroke();
+    text(ctx, rate ? "Return rate (%)" : "Number of returns", pad.l, 16, { col: "--ink", font: "bold 13px Inter, sans-serif" });
+    const ix = c => R.cats.indexOf(c), A = ix("Accessories"), F = ix("Furniture"), E = ix("Electronics");
+    $("[data-s=msg]", root).textContent = rate
+      ? `بالنسبة: Accessories (${(R.returns[A] / R.lines[A] * 100).toFixed(1)}%) و Furniture (${(R.returns[F] / R.lines[F] * 100).toFixed(1)}%) قريبين من بعض. Accessories بتبيع أكتر وخلاص.\nالمشكلة الحقيقية في Electronics: سطر من كل 7 بيرجع.`
+      : `بالعدد: Accessories عندها ${R.returns[A]} مرتجع، تقريبًا 3 أضعاف Furniture (${R.returns[F]}). يبقى Accessories فيها مشكلة؟\nبص على عدد السطور تحت كل bar الأول.`;
+  }
+  $$("[data-m]", root).forEach(b => b.onclick = () => { rate = b.dataset.m === "1"; $$("[data-m]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  draw(); onRedraw(draw);
 }
 
 /* ---------- small chart painters ---------- */
@@ -543,7 +712,7 @@ const P = {
 function chooseWidget(root) {
   const Q = [
     { k: "dist", q: "الأرقام شكلها إيه؟", s: "إيراد السطر الواحد", fam: "Distribution", good: "histogram (log scale)", draw: "hist", bad: "line بترتيب الملف", badDraw: "rowline",
-      why: "الـ histogram بيوري فين القيم متجمّعة وقد إيه متفرّقة: أغلب السطور بين 1,000 و 10,000 جنيه، وذيل لحد 300,000.", badWhy: "الـ line بيوصّل سطر بسطر بترتيب الملف، والترتيب ده ملوش معنى: خطوط طالعة نازلة مبتقولش حاجة.", link: "/courses/da/distribution/" },
+      why: "الـ histogram بيوري فين القيم متجمّعة وقد إيه متفرّقة: أغلب السطور بين 1,000 و 10,000 جنيه، وذيل لحد 300,000.", badWhy: "الـ line بيوصّل سطر بسطر بترتيب الملف، والترتيب ده ملوش معنى: خطوط طالعة نازلة مبتقولش حاجة." },
     { k: "cmp", q: "مين أكبر؟", s: "الإيراد حسب المنطقة", fam: "Comparison & Ranking", good: "bar أفقي مترتّب", draw: "hbar", bad: "pie", badDraw: "pieReg",
       why: "الأطوال بتتقارن بالعين بسهولة، والترتيب بيقول مين الأول من غير ما تقرا.", badWhy: "العين ضعيفة في مقارنة الزوايا: الدلتا وصعيد مصر والقناة شبه بعض، ومش واضح مين أكبر." },
     { k: "rel", q: "رقمين بيتحركوا مع بعض؟", s: "سعر القطعة والإيراد", fam: "Relationship", good: "scatter", draw: "scatter", bad: "line بين النقط", badDraw: "scatterline",
@@ -643,7 +812,8 @@ function chrome() {
 window.addEventListener("DOMContentLoaded", () => {
   chrome();
   anscFig();
-  chooseWidget($("#wChoose")); fixWidget($("#wFix"));
+  $("#yearsFig").innerHTML = yearsSvg(false); $("#anatFig").innerHTML = yearsSvg(true);
+  chooseWidget($("#wChoose")); fixWidget($("#wFix")); rateWidget($("#wRate"));
 });
 })();
 </script>

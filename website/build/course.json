@@ -48,7 +48,7 @@
     "viz": {
       "title": "Why Visualize, and Which Chart",
       "title_ar": "ليه نرسم؟",
-      "notebook": "website/drafts/viz.ipynb",
+      "notebook": "4-visualization/01_principles.ipynb",
       "kaggle_slug": "zero-grad-da-why-visualize"
     }
   }
