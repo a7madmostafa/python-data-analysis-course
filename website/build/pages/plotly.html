@@ -1,0 +1,360 @@
+<!--meta
+{"title": "Plotly",
+ "h1": "Plotly",
+ "lead": "Plotly بترسم charts <b>تفاعلية</b>: hover عشان الأرقام، واسحب عشان تعمل zoom، ودبل كليك يرجّعها، وكليك على الـ legend يخبّي series.<br>لو عارف Seaborn و Matplotlib، فإنت عارف أغلبها:<br><span class=\"en\">px</span> زي Seaborn، و <span class=\"en\">go</span> زي الـ object-oriented بتاع Matplotlib.<br>الدرس كله على داتا Airbnb في نيويورك، والرسومات اللي هنا Plotly حقيقية: جرّب الـ hover والـ zoom.",
+ "description": "درس Plotly بالعربي: Plotly Express و graph_objects، والـ update_layout، والـ subplots، والـ hover، والـ animation والـ sliders، والخرايط والـ 3D، والحفظ كـ HTML، على داتا Airbnb نيويورك.",
+ "og_description": "رسومات تفاعلية: hover و zoom والخرايط، بالعربي وعلى داتا Airbnb نيويورك.",
+ "next_soon": "رسومات تانية",
+ "data_url": "https://www.kaggle.com/datasets/dgomonov/new-york-city-airbnb-open-data",
+ "data_label": "🗂️ داتا Airbnb NYC على Kaggle",
+ "footer": "الداتا: Airbnb في نيويورك 2019 بعد التنضيف (التنضيف خطوة خطوة في مشروع Airbnb)، الأسعار بالدولار في الليلة.<br>\n      الرسومات هنا على عيّنة 2,000 listing وجداول صغيرة، زي النوت بوك بالظبط.",
+ "scripts": ["https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js", "../assets/data/airbnb.js"]}
+-->
+    <section class="sec" id="model">
+      <div class="sec-head"><h2><span class="num">1</span>الفكرة</h2></div>
+      <p>كل figure في Plotly عبارة عن حاجتين: <b>data</b> (list من الـ traces) و <b>layout</b> (كل حاجة تانية).<br>
+        <span class="en">print(fig)</span> بيوريك الـ dictionary ده بالظبط.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Matplotlib</th><th>Plotly</th></tr></thead>
+        <tbody>
+          <tr><td class="en">Figure</td><td class="en">go.Figure</td></tr>
+          <tr><td class="en">Axes</td><td class="en">layout.xaxis / yaxis</td></tr>
+          <tr><td>الـ artist بتاع <span class="en">ax.plot()</span></td><td>trace (<span class="en">go.Scatter</span>، <span class="en">go.Bar</span>…)</td></tr>
+          <tr><td><span class="en">ax.set_title()</span> وأخواتها</td><td class="en">fig.update_layout()</td></tr>
+          <tr><td class="en">plt.show()</td><td class="en">fig.show()</td></tr>
+        </tbody>
+      </table></div>
+      <p>الـ median لسعر الليلة في كل borough. شغّل الـ updates واحدة واحدة:</p>
+      <div class="widget" id="wLayout"></div>
+    </section>
+
+    <section class="sec" id="px">
+      <div class="sec-head"><h2><span class="num">2</span>Plotly Express (زي Seaborn)</h2></div>
+      <p>call واحد على DataFrame. الأسامي بس اللي بتتغيّر:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Seaborn</th><th>px</th></tr></thead>
+        <tbody>
+          <tr><td class="en">hue</td><td class="en">color</td></tr>
+          <tr><td class="en">style</td><td class="en">symbol / line_dash</td></tr>
+          <tr><td class="en">col / row</td><td class="en">facet_col / facet_row</td></tr>
+          <tr><td class="en">col_wrap</td><td class="en">facet_col_wrap</td></tr>
+          <tr><td class="en">palette</td><td class="en">color_discrete_sequence / color_continuous_scale</td></tr>
+          <tr><td class="en">order</td><td class="en">category_orders</td></tr>
+        </tbody>
+      </table></div>
+<pre>px.scatter(sample, x=<span class="s">"distance_km"</span>, y=<span class="s">"price"</span>, color=<span class="s">"room_type"</span>, size=<span class="s">"number_of_reviews"</span>,
+           hover_data=[<span class="s">"neighbourhood"</span>], trendline=<span class="s">"ols"</span>)            <span class="c"># trendline needs statsmodels</span>
+px.line(long, x=<span class="s">"last_review"</span>, y=<span class="s">"listings"</span>, color=<span class="s">"borough"</span>)               <span class="c"># px likes LONG data</span>
+px.line(wide, x=<span class="s">"last_review"</span>, y=[<span class="s">"Manhattan"</span>, <span class="s">"Brooklyn"</span>, <span class="s">"Queens"</span>])     <span class="c"># wide works too</span>
+px.histogram(sample, y=<span class="s">"price"</span>, nbins=<span class="s">50</span>, marginal=<span class="s">"box"</span>)                    <span class="c"># aggregates for you</span>
+px.box(sample, x=<span class="s">"borough"</span>, y=<span class="s">"price"</span>, color=<span class="s">"room_type"</span>, log_y=<span class="k">True</span>)
+px.ecdf(sample, x=<span class="s">"price"</span>, color=<span class="s">"room_type"</span>)
+px.imshow(df[cols].corr(method=<span class="s">"spearman"</span>), text_auto=<span class="s">".2f"</span>, zmin=-<span class="s">1</span>, zmax=<span class="s">1</span>)    <span class="c"># fix -1..1 or the colours lie</span>
+px.scatter_matrix(sample, dimensions=[<span class="s">"price"</span>, <span class="s">"distance_km"</span>, <span class="s">"number_of_reviews"</span>])
+px.pie(hoods, names=<span class="s">"borough"</span>, values=<span class="s">"listings"</span>, hole=<span class="s">0.4</span>)                   <span class="c"># pie DOES sum per name</span></pre>
+      <h3 class="sub">⚠️ الـ px.bar مبيجمّعش</h3>
+      <p><span class="en">sns.barplot</span> بيحسب المتوسط لوحده. <span class="en">px.bar</span> بيرسم اللي بيوصله:
+        ادّيله سطور خام، وهيرصّ حتة رفيعة لكل listing، فكل bar يبقى <b>مجموع</b> الأسعار.</p>
+      <div class="widget" id="wAgg"></div>
+      <div class="callout add"><div class="ttl">➕ عايز Plotly يجمّع لوحده؟</div>
+        <span class="en">px.histogram(sample, x="borough", y="price", histfunc="avg")</span>: histogram بـ <span class="en">histfunc</span> = bar مجمّع، زي <span class="en">sns.barplot</span>.</div>
+      <h3 class="sub">Facets</h3>
+<pre>fig = px.scatter(sample, x=<span class="s">"distance_km"</span>, y=<span class="s">"price"</span>, facet_col=<span class="s">"borough"</span>, facet_row=<span class="s">"room_type"</span>, log_y=<span class="k">True</span>)
+fig.for_each_annotation(<span class="k">lambda</span> a: a.update(text=a.text.split(<span class="s">"="</span>)[-<span class="s">1</span>]))       <span class="c"># "borough=Bronx" -> "Bronx"</span></pre>
+    </section>
+
+    <section class="sec" id="go">
+      <div class="sec-head"><h2><span class="num">3</span>graph_objects (زي Matplotlib OO)</h2></div>
+      <p>trace واحد = call واحد لـ <span class="en">ax.plot()</span>. والـ <span class="en">mode</span>: <span class="en">lines</span> · <span class="en">markers</span> · <span class="en">lines+markers</span> · <span class="en">text</span>.</p>
+<pre>fig = go.Figure()
+fig.add_trace(go.Bar(x=stats.index, y=stats[<span class="s">"median"</span>], name=<span class="s">"median"</span>))                     <span class="c"># mix trace types</span>
+fig.add_trace(go.Scatter(x=stats.index, y=stats[<span class="s">"mean"</span>], name=<span class="s">"mean"</span>, mode=<span class="s">"lines+markers"</span>))
+
+go.Figure([                                                                              <span class="c"># fill between (= ax.fill_between)</span>
+    go.Scatter(x=band.index, y=band[<span class="s">0.75</span>], line_width=<span class="s">0</span>, showlegend=<span class="k">False</span>),
+    go.Scatter(x=band.index, y=band[<span class="s">0.25</span>], fill=<span class="s">"tonexty"</span>, line_width=<span class="s">0</span>, name=<span class="s">"Q1-Q3"</span>),
+    go.Scatter(x=band.index, y=band[<span class="s">0.5</span>], name=<span class="s">"median"</span>),
+])</pre>
+      <div id="pMix" class="plot"></div>
+      <p>في كل borough المتوسط فوق الـ median: شوية listings غالية بيشدّوه لفوق (الأسعار skewed لليمين).</p>
+    </section>
+
+    <section class="sec" id="style">
+      <div class="sec-head"><h2><span class="num">4</span>الشكل: الـ <span class="en">update_*</span></h2></div>
+      <p>الـ <b>magic underscore</b>: <span class="en">xaxis_title="X"</span> هي نفسها <span class="en">xaxis=dict(title="X")</span>.</p>
+<pre>fig.update_layout(title=dict(text=<span class="s">"..."</span>, x=<span class="s">0.5</span>), xaxis_title=<span class="s">"..."</span>, template=<span class="s">"simple_white"</span>,
+                  legend=dict(orientation=<span class="s">"h"</span>, y=-<span class="s">0.2</span>))                  <span class="c"># everything outside the traces</span>
+fig.update_xaxes(range=[<span class="s">0</span>, <span class="s">30</span>], showgrid=<span class="k">False</span>)                             <span class="c"># = set_xlim</span>
+fig.update_yaxes(tickprefix=<span class="s">"$"</span>, type=<span class="s">"log"</span>)                                <span class="c"># = set_yscale("log")</span>
+fig.update_traces(marker=dict(size=<span class="s">10</span>, opacity=<span class="s">0.7</span>))                         <span class="c"># every trace</span>
+fig.update_traces(line_width=<span class="s">4</span>, selector=dict(name=<span class="s">"Manhattan"</span>))             <span class="c"># one trace</span>
+
+fig.add_hline(y=<span class="s">1000</span>, line_dash=<span class="s">"dot"</span>, annotation_text=<span class="s">"1,000 listings"</span>)      <span class="c"># = axhline</span>
+fig.add_vrect(x0=<span class="s">"2018-11-01"</span>, x1=<span class="s">"2018-12-31"</span>, fillcolor=<span class="s">"red"</span>, opacity=<span class="s">0.15</span>)   <span class="c"># = axvspan</span>
+fig.add_annotation(x=..., y=..., text=<span class="s">"Peak"</span>, showarrow=<span class="k">True</span>)                 <span class="c"># = annotate</span></pre>
+      <div class="cards">
+        <div class="card"><b>Templates</b><span class="en">plotly · plotly_white · plotly_dark · ggplot2 · seaborn · simple_white</span><br>والـ default للكل: <span class="en">pio.templates.default = "simple_white"</span></div>
+        <div class="card"><b>ألوان الفئات</b><span class="en">color_discrete_sequence=px.colors.qualitative.Set2</span>، أو لون محدد لكل قيمة: <span class="en">color_discrete_map={...}</span></div>
+        <div class="card"><b>ألوان الأرقام</b><span class="en">color_continuous_scale="Viridis"</span>، و <span class="en">range_color=[0, 300]</span> عشان تقفل الـ scale</div>
+      </div>
+    </section>
+
+    <section class="sec" id="subplots">
+      <div class="sec-head"><h2><span class="num">5</span>Subplots (زي plt.subplots)</h2></div>
+<pre>fig = make_subplots(rows=<span class="s">2</span>, cols=<span class="s">2</span>, specs=[[{<span class="s">"colspan"</span>: <span class="s">2</span>}, <span class="k">None</span>],    <span class="c"># a panel spanning 2 columns</span>
+                                           [{}, {}]], subplot_titles=(<span class="s">"Wide"</span>, <span class="s">"Left"</span>, <span class="s">"Right"</span>))
+fig.add_trace(go.Scatter(x=wide[<span class="s">"last_review"</span>], y=wide[<span class="s">"Manhattan"</span>]), row=<span class="s">1</span>, col=<span class="s">1</span>)
+fig.add_trace(go.Histogram(x=sample[<span class="s">"price"</span>]), row=<span class="s">2</span>, col=<span class="s">1</span>)
+fig.add_trace(go.Box(y=sample[<span class="s">"price"</span>]), row=<span class="s">2</span>, col=<span class="s">2</span>)</pre>
+      <p>الفرق عن Matplotlib: بتحدد الـ panel لكل trace بـ <span class="en">row=</span> و <span class="en">col=</span>، بدل ما تمسك Axes. و <span class="en">secondary_y=True</span> لمحور y تاني.</p>
+    </section>
+
+    <section class="sec" id="hover">
+      <div class="sec-head"><h2><span class="num">6</span>الـ Hover</h2></div>
+      <p>الـ hover الافتراضي بيكرر x و y، اللي القارئ شايفهم أصلًا. خلّيه يجاوب السؤال <b>اللي بعده</b>: الـ listing دي إيه؟ حط الماوس على النقط:</p>
+      <div class="widget" id="wHover"></div>
+      <p>ولما يبقى فيه كذا خط على نفس الـ x: <span class="en">fig.update_layout(hovermode="x unified")</span> = tooltip واحد للكل.</p>
+    </section>
+
+    <section class="sec" id="controls">
+      <div class="sec-head"><h2><span class="num">7</span>Controls جوه الرسمة</h2></div>
+      <p>الـ controls دي جوه الـ figure نفسها، وشغالة كمان في الـ HTML المحفوظ. للـ widgets اللي بتتحكم في صفحة كاملة، استنى درس Streamlit.</p>
+      <h3 class="sub">Animation</h3>
+      <p>frame لكل سنة من آخر review: كل فقاعة neighbourhood، من الـ listings اللي آخر review ليها في السنة دي. حرّك السنة، وجرّب من غير ما تقفل المحاور:</p>
+      <div class="widget" id="wAnim"></div>
+<pre>px.scatter(yearly, x=<span class="s">"distance"</span>, y=<span class="s">"price"</span>, size=<span class="s">"listings"</span>, color=<span class="s">"borough"</span>, hover_name=<span class="s">"neighbourhood"</span>,
+           animation_frame=<span class="s">"year"</span>, animation_group=<span class="s">"neighbourhood"</span>,
+           log_y=<span class="k">True</span>, range_x=[<span class="s">0</span>, <span class="s">36</span>], range_y=[<span class="s">20</span>, <span class="s">1000</span>])           <span class="c"># ALWAYS fix the ranges</span></pre>
+      <h3 class="sub">Range slider و dropdown</h3>
+<pre>fig.update_xaxes(rangeslider_visible=<span class="k">True</span>, rangeselector=dict(buttons=[
+    dict(count=<span class="s">3</span>, label=<span class="s">"3m"</span>, step=<span class="s">"month"</span>, stepmode=<span class="s">"backward"</span>), dict(step=<span class="s">"all"</span>)]))
+fig.update_layout(updatemenus=[dict(buttons=[
+    dict(label=<span class="s">"Linear"</span>, method=<span class="s">"relayout"</span>, args=[{<span class="s">"yaxis.type"</span>: <span class="s">"linear"</span>}]),
+    dict(label=<span class="s">"Log"</span>, method=<span class="s">"relayout"</span>, args=[{<span class="s">"yaxis.type"</span>: <span class="s">"log"</span>}])])])</pre>
+      <div id="pSlider" class="plot"></div>
+      <p class="muted">عدد الـ listings حسب شهر آخر review ليها، من 2018. اسحب أطراف الـ slider تحت، أو اختار Linear / Log.</p>
+    </section>
+
+    <section class="sec" id="maps">
+      <div class="sec-head"><h2><span class="num">8</span>خرايط، و 3D، و hierarchy، و finance</h2></div>
+      <div class="cards">
+        <div class="card"><b>Choropleth</b>بيلوّن مناطق كاملة برقم. على World Happiness: <span class="en">px.choropleth(happy, locations="country", locationmode="country names", color="score")</span>. للنشر استخدم ISO codes: Kosovo مش في قايمة الأسامي.</div>
+        <div class="card"><b>Tile map</b><span class="en">px.scatter_map(sample, lat=, lon=, color="price", range_color=[0, 300], map_style="carto-positron")</span>: شوارع حقيقية من الإنترنت.</div>
+        <div class="card"><b>3D</b><span class="en">px.scatter_3d</span>، و <span class="en">go.Surface</span> من <span class="en">np.histogram2d</span>: "جبل" الـ listings فوق Manhattan و Brooklyn.</div>
+        <div class="card"><b>Hierarchy</b><span class="en">px.sunburst(tree, path=["borough", "room_type"])</span> و <span class="en">px.treemap</span>: كليك يدخل جوه، وكليك على النص يرجّع.</div>
+        <div class="card"><b>Candlestick</b>4 أرقام لكل فترة: open و close و high و low. <span class="en">resample("MS").ohlc()</span> بيحسبهم.</div>
+      </div>
+      <h3 class="sub">خريطة من غير خريطة، و <span class="en">range_color</span></h3>
+      <p>الـ longitude والـ latitude كـ x و y، واللون السعر. شيل الـ <span class="en">range_color</span> وشوف إيه اللي بيحصل:</p>
+      <div class="widget" id="wMap"></div>
+    </section>
+
+    <section class="sec" id="save">
+      <div class="sec-head"><h2><span class="num">9</span>الحفظ</h2></div>
+      <p><span class="en">fig.write_html()</span> بيحفظ الرسمة كصفحة ويب: اللي يفتحها بياخد الرسمة التفاعلية كاملة في المتصفح، من غير Python.</p>
+<pre>fig.write_html(<span class="s">"output/plot.html"</span>)                              <span class="c"># plotly.js inside: 4.6 MB, works offline</span>
+fig.write_html(<span class="s">"output/plot_cdn.html"</span>, include_plotlyjs=<span class="s">"cdn"</span>)  <span class="c"># plotly.js from the internet: 0.1 MB</span>
+fig.write_image(<span class="s">"plot.png"</span>, scale=<span class="s">3</span>)                            <span class="c"># static: needs kaleido</span></pre>
+      <div class="two">
+        <div class="path"><h4>الـ default (<span class="en">True</span>)</h4><p>plotly.js جوه الملف. كبير، بس بيفتح في أي حتة حتى من غير نت: لابتوب، موبايل، attachment في إيميل.<br><b>لما تبعته لحد.</b></p></div>
+        <div class="path"><h4><span class="en">"cdn"</span></h4><p>الملف فيه الداتا بس وسطر "نزّل plotly.js من النت". صغير، بس من غير نت الصفحة فاضية.<br><b>لما تحطه على موقع.</b></p></div>
+      </div>
+    </section>
+
+    <section class="sec" id="gotchas">
+      <div class="sec-head"><h2><span class="num">10</span>مطبات</h2></div>
+      <div class="two">
+        <div class="path bad"><h4>✗ مفيش global state</h4><p>مفيش <span class="en">plt.gca()</span>: امسك الـ <span class="en">fig</span> دايمًا.</p></div>
+        <div class="path bad"><h4>✗ <span class="en">px.bar</span> مبيجمّعش</h4><p><span class="en">groupby</span> الأول، أو <span class="en">px.histogram</span> بـ <span class="en">histfunc</span>.</p></div>
+        <div class="path bad"><h4>✗ أرقام كـ strings</h4><p>المحور بيبقى categorical. اجبره: <span class="en">update_xaxes(type="category")</span> أو حوّل النوع.</p></div>
+        <div class="path bad"><h4>✗ كل سطر بيسافر مع الرسمة</h4><p>48,000 نقطة بطيئة وتقيلة. جمّع أو خد sample قبل ما ترسم، أو <span class="en">render_mode="webgl"</span> للداتا الكبيرة.</p></div>
+        <div class="path bad"><h4>✗ ترتيب الـ traces</h4><p>هو ترتيب الرسم وترتيب الـ legend.</p></div>
+        <div class="path bad"><h4>✗ الرسمة فاضية في Jupyter؟</h4><p>ظبّط <span class="en">pio.renderers.default</span>: <span class="en">"notebook"</span>، <span class="en">"vscode"</span>، <span class="en">"browser"</span>.</p></div>
+      </div>
+      <div class="callout add"><div class="ttl">➕ النوت بوك على GitHub صور</div>
+        النوت بوك محفوظ بصور ثابتة عشان تبان على GitHub. شغّله عندك عشان الرسومات التفاعلية.</div>
+    </section>
+
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">11</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sheet">
+        <div class="card"><h4>px</h4><span class="en">scatter · line · bar (اجمع الأول) · histogram · box · violin · ecdf · imshow · scatter_matrix · pie</span></div>
+        <div class="card"><h4>go</h4><span class="en">go.Figure() · fig.add_trace(go.Scatter(mode=...)) · go.Bar · fill="tonexty"</span></div>
+        <div class="card"><h4>الشكل</h4><span class="en">update_layout · update_traces(selector=) · update_xaxes/yaxes · template=</span></div>
+        <div class="card"><h4>Hover</h4><span class="en">hover_name= · hover_data={} · labels={} · custom_data + hovertemplate · hovermode="x unified"</span></div>
+        <div class="card"><h4>Controls</h4><span class="en">animation_frame= + range_x/range_y · rangeslider_visible · updatemenus</span></div>
+        <div class="card"><h4>المشاركة</h4><span class="en">write_html("f.html") · include_plotlyjs="cdn" · write_image</span> (kaleido)</div>
+      </div>
+    </section>
+
+<style>
+.plot{width:100%;min-height:340px;margin:1rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.widget .plot{margin:.6rem 0 0;border:0;background:transparent}
+.codeout{direction:ltr;text-align:left;font-family:"JetBrains Mono",monospace;font-size:.82rem;background:var(--board);color:#e6e6e6;border-radius:10px;padding:.6rem .8rem;margin-top:.6rem;overflow-x:auto;white-space:pre}
+.chks{display:flex;flex-wrap:wrap;gap:.4rem 1rem}
+</style>
+<script>
+const A = window.AIRBNB, AL = A.levels, S = A.sample, NS = S.price.length;
+const BORO = ["Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"], ROOMS = ["Entire home", "Private room", "Shared room"];
+const PX = ["#636efa", "#EF553B", "#00cc96", "#ab63fa", "#FFA15A"];   // plotly's default colours
+const median = a => { const s = [...a].sort((x, y) => x - y), m = s.length / 2; return s.length % 2 ? s[Math.floor(m)] : (s[m - 1] + s[m]) / 2; };
+const CFG = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+function theme(extra = {}) {
+  const ink = cssv("--ink"), line = cssv("--line");
+  const ax = o => Object.assign({ gridcolor: line, zerolinecolor: line, linecolor: line, color: ink }, o || {});
+  return Object.assign({}, extra, { paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)", font: { family: "Inter, sans-serif", color: ink, size: 12 },
+    margin: Object.assign({ l: 56, r: 16, t: extra.title ? 48 : 20, b: 70 }, extra.margin || {}), xaxis: ax(extra.xaxis), yaxis: ax(extra.yaxis),
+    legend: Object.assign({ orientation: "h", y: -0.3 }, extra.legend || {}), hoverlabel: { font: { family: "Inter, sans-serif" } } });
+}
+const plots = []; function plot(el, fn) { const draw = () => { const [data, layout] = fn(); Plotly.react(el, data, theme(layout), CFG); }; plots.push(draw); draw(); return draw; }
+
+/* ---------- widget: data + layout, one update at a time ---------- */
+function layoutWidget(root) {
+  const med = AL.borough.map((_, k) => A.median_by_borough[k]);
+  const opt = { title: false, axes: false, prefix: false, sort: false, color: false };
+  const LAB = { title: "title", axes: "axis titles", prefix: "tickprefix=\"$\"", sort: "sort", color: "color=\"borough\"" };
+  root.innerHTML = head("px.bar(x=med.index, y=med.values)", "الرسمة دي dictionary: data + layout. كل checkbox بيضيف سطر للكود.") + `
+    <div class="chks">${Object.keys(opt).map(k => `<label class="chk"><input type="checkbox" data-k="${k}"> <span class="en">${LAB[k]}</span></label>`).join("")}</div>
+    <div class="plot" style="min-height:300px"></div><div class="codeout" data-s="code"></div>`;
+  const el = $(".plot", root);
+  const draw = plot(el, () => {
+    let names = [...AL.borough], vals = [...med];
+    if (opt.sort) { const o = names.map((n, i) => [n, vals[i]]).sort((a, b) => b[1] - a[1]); names = o.map(x => x[0]); vals = o.map(x => x[1]); }
+    const data = opt.color ? names.map((n, i) => ({ type: "bar", x: [n], y: [vals[i]], name: n, marker: { color: PX[i] } }))
+      : [{ type: "bar", x: names, y: vals, marker: { color: PX[0] }, hovertemplate: "x=%{x}<br>y=%{y}<extra></extra>" }];
+    return [data, { height: 300, showlegend: opt.color, title: opt.title ? { text: "Manhattan is the priciest borough", x: 0.02 } : undefined,
+      xaxis: { title: opt.axes ? { text: "Borough" } : undefined }, yaxis: { title: opt.axes ? { text: "Median price per night" } : undefined, tickprefix: opt.prefix ? "$" : "" } }];
+  });
+  function code() {
+    const l = [opt.sort ? "med = med.sort_values(ascending=False)" : null,
+      opt.color ? "fig = px.bar(x=med.index, y=med.values, color=med.index)" : "fig = px.bar(x=med.index, y=med.values)",
+      opt.title ? 'fig.update_layout(title="Manhattan is the priciest borough")' : null,
+      opt.axes ? 'fig.update_layout(xaxis_title="Borough", yaxis_title="Median price per night")   # magic underscore' : null,
+      opt.prefix ? 'fig.update_yaxes(tickprefix="$")' : null, "fig.show()"].filter(Boolean);
+    $("[data-s=code]", root).textContent = l.join("\n");
+  }
+  $$("[data-k]", root).forEach(c => c.onchange = () => { opt[c.dataset.k] = c.checked; draw(); code(); });
+  code();
+}
+
+/* ---------- widget: px.bar does not aggregate ---------- */
+function aggWidget(root) {
+  let mode = "raw";
+  root.innerHTML = head("px.bar على السطور الخام", "عيّنة 2,000 listing. شوف الـ bars لما تدّي px.bar السطور الخام، وبعدين بعد الـ groupby.") + `
+    <div class="optrow"><div class="seg"><button data-m="raw" aria-pressed="true">px.bar(sample, ...)</button><button data-m="agg" aria-pressed="false">groupby().median() الأول</button></div></div>
+    <div class="plot" style="min-height:320px"></div><div class="codeout" data-s="code"></div><div class="status" data-s="msg"></div>`;
+  const el = $(".plot", root);
+  const draw = plot(el, () => {
+    if (mode === "raw") {
+      const data = ROOMS.map((r, k) => { const ix = [...Array(NS).keys()].filter(i => AL.room_type[S.room[i]] === r);
+        return { type: "bar", name: r, x: ix.map(i => AL.borough[S.borough[i]]), y: ix.map(i => S.price[i]), marker: { color: PX[k], line: { width: .3, color: cssv("--surface") } }, hovertemplate: "%{x}<br>one listing: $%{y}<extra></extra>" }; });
+      return [data, { height: 320, barmode: "stack", xaxis: { categoryorder: "array", categoryarray: BORO }, yaxis: { title: { text: "price (summed!)" } } }];
+    }
+    const data = ROOMS.map((r, k) => ({ type: "bar", name: r, x: BORO, marker: { color: PX[k] },
+      y: BORO.map(b => { const v = [...Array(NS).keys()].filter(i => AL.room_type[S.room[i]] === r && AL.borough[S.borough[i]] === b).map(i => S.price[i]); return v.length ? median(v) : null; }),
+      hovertemplate: "%{x}<br>median: $%{y}<extra>" + r + "</extra>" }));
+    return [data, { height: 320, barmode: "group", yaxis: { title: { text: "median price" }, tickprefix: "$" } }];
+  });
+  function msg() {
+    const man = [...Array(NS).keys()].filter(i => AL.borough[S.borough[i]] === "Manhattan").reduce((a, i) => a + S.price[i], 0);
+    $("[data-s=code]", root).textContent = mode === "raw" ? `px.bar(sample, x="borough", y="price", color="room_type")      # one thin segment per listing` :
+      `agg = sample.groupby(["borough", "room_type"], as_index=False)["price"].median()\npx.bar(agg, x="borough", y="price", color="room_type", barmode="group", category_orders=ORDERS)`;
+    $("[data-s=msg]", root).textContent = mode === "raw" ? `Manhattan "سعرها" ${nf(man)} دولار في الليلة؟ ده مجموع أسعار كل الـ listings في العيّنة، مش سعر. حط الماوس على الـ bar: كل حتة listing واحدة.` :
+      "دلوقتي كل bar رقم واحد له معنى: الـ median لكل borough ونوع أوضة.";
+  }
+  segPick(root, "data-m", v => { mode = v; draw(); msg(); }); msg();
+}
+
+/* ---------- live chart: median bars + mean line ---------- */
+function mixChart() {
+  const order = AL.borough.map((b, k) => [b, A.median_by_borough[k], A.mean_by_borough[k]]).sort((a, b) => b[1] - a[1]);
+  plot($("#pMix"), () => [[{ type: "bar", name: "median", x: order.map(o => o[0]), y: order.map(o => o[1]), marker: { color: PX[0] } },
+    { type: "scatter", mode: "lines+markers", name: "mean", x: order.map(o => o[0]), y: order.map(o => o[2]), marker: { color: PX[1] } }],
+    { height: 320, yaxis: { tickprefix: "$" } }]);
+}
+
+/* ---------- widget: hover ---------- */
+function hoverWidget(root) {
+  let mode = "default";
+  const CODE = {
+    default: `px.scatter(sample, x="distance_km", y="price", color="room_type", log_y=True)`,
+    data: `px.scatter(sample, x="distance_km", y="price", color="room_type", log_y=True,\n           hover_name="neighbourhood",                                     # bold title\n           hover_data={"room_type": False, "distance_km": ":.1f", "number_of_reviews": True},\n           labels={"distance_km": "Distance to Times Square (km)", "price": "Price (USD)"})`,
+    template: `fig = px.scatter(sample, x="distance_km", y="price", log_y=True, custom_data=["neighbourhood", "number_of_reviews"])\nfig.update_traces(hovertemplate="%{customdata[0]}<br>$%{y:.0f} a night · %{x:.1f} km"\n                                "<br>%{customdata[1]} reviews<extra></extra>")   # <extra></extra> hides the trace box`,
+  };
+  root.innerHTML = head("حط الماوس على أي listing", "نفس الرسمة بـ 3 hovers. أنهي واحد بيقولك حاجة جديدة؟") + `
+    <div class="optrow"><div class="seg"><button data-m="default" aria-pressed="true">الافتراضي</button><button data-m="data" aria-pressed="false">hover_name + hover_data</button><button data-m="template" aria-pressed="false">hovertemplate</button></div></div>
+    <div class="plot" style="min-height:360px"></div><div class="codeout" data-s="code"></div>`;
+  const el = $(".plot", root);
+  const draw = plot(el, () => {
+    const data = ROOMS.map((r, k) => { const ix = [...Array(NS).keys()].filter(i => AL.room_type[S.room[i]] === r);
+      const tr = { type: "scatter", mode: "markers", name: r, x: ix.map(i => S.distance[i]), y: ix.map(i => S.price[i]), marker: { color: PX[k], size: 6, opacity: .65 } };
+      if (mode === "default") tr.hovertemplate = "room_type=" + r + "<br>distance_km=%{x}<br>price=%{y}<extra></extra>";
+      else { tr.customdata = ix.map(i => [AL.neighbourhood[S.hood[i]], S.reviews[i]]);
+        tr.hovertemplate = mode === "data" ? "<b>%{customdata[0]}</b><br><br>Distance to Times Square (km)=%{x:.1f}<br>Price (USD)=%{y}<br>number_of_reviews=%{customdata[1]}<extra></extra>"
+          : "%{customdata[0]}<br>$%{y:.0f} a night · %{x:.1f} km<br>%{customdata[1]} reviews<extra></extra>"; }
+      return tr; });
+    return [data, { height: 360, yaxis: { type: "log", title: { text: mode === "data" ? "Price (USD)" : "price" } }, xaxis: { title: { text: mode === "data" ? "Distance to Times Square (km)" : "distance_km" } } }];
+  });
+  const code = () => $("[data-s=code]", root).textContent = CODE[mode];
+  segPick(root, "data-m", v => { mode = v; draw(); code(); }); code();
+}
+
+/* ---------- widget: animation, fixed vs free ranges ---------- */
+function animWidget(root) {
+  const Y = A.yearly, years = [...new Set(Y.year)].sort();
+  let yi = 0, fixed = true, timer = null;
+  root.innerHTML = head("الأحياء سنة بسنة", "كل فقاعة neighbourhood: المسافة من Times Square، والـ median للسعر، والحجم = عدد الـ listings.") + `
+    <div class="optrow"><button class="btn primary" data-a="play">▶ play</button>
+      <div class="ctl" style="flex:1;min-width:180px"><label>animation_frame="year" <output data-o="y">${years[0]}</output></label><input type="range" min="0" max="${years.length - 1}" value="0" data-r="y"></div>
+      <label class="chk"><input type="checkbox" checked data-c="fix"> <span class="en">range_x / range_y</span></label></div>
+    <div class="plot" style="min-height:380px"></div><div class="status" data-s="msg"></div>`;
+  const el = $(".plot", root);
+  const draw = plot(el, () => {
+    const yr = years[yi];
+    const data = BORO.map((b, k) => { const ix = Y.year.map((y, i) => i).filter(i => Y.year[i] === yr && AL.borough[Y.borough[i]] === b);
+      return { type: "scatter", mode: "markers", name: b, x: ix.map(i => Y.distance[i]), y: ix.map(i => Y.price[i]), text: ix.map(i => AL.neighbourhood[Y.hood[i]]),
+        customdata: ix.map(i => Y.listings[i]), hovertemplate: "<b>%{text}</b><br>%{x:.1f} km · $%{y}<br>%{customdata} listings<extra></extra>",
+        marker: { color: PX[k], opacity: .7, size: ix.map(i => Y.listings[i]), sizemode: "area", sizeref: 2 * 3000 / 55 ** 2, sizemin: 3, line: { width: .5, color: cssv("--surface") } } }; });
+    return [data, { height: 380, xaxis: Object.assign({ title: { text: "median distance to Times Square (km)" } }, fixed ? { range: [0, 36] } : { autorange: true }),
+      yaxis: Object.assign({ type: "log", title: { text: "median price" } }, fixed ? { range: [Math.log10(20), 3] } : { autorange: true }),
+      annotations: [{ text: String(yr), x: 1, y: 1, xref: "paper", yref: "paper", xanchor: "right", yanchor: "top", showarrow: false, font: { size: 34, color: cssv("--muted") } }] }];
+  });
+  const msg = () => $("[data-s=msg]", root).textContent = fixed ? "المحاور ثابتة: الحركة اللي بتشوفها حقيقية. سنة 2019 فيها أغلب الـ listings، لأن الداتا اتجمعت في يوليو 2019." : "من غير range_x / range_y المحاور بتتغيّر كل frame، والفقاعات بتبان كأنها بتنط وهي مكانها تقريبًا.";
+  const set = i => { yi = i; $("[data-r=y]", root).value = i; $("[data-o=y]", root).textContent = years[i]; draw(); };
+  $("[data-r=y]", root).oninput = e => set(+e.target.value);
+  $("[data-c=fix]", root).onchange = e => { fixed = e.target.checked; draw(); msg(); };
+  $("[data-a=play]", root).onclick = e => { if (timer) { clearInterval(timer); timer = null; e.target.textContent = "▶ play"; return; }
+    e.target.textContent = "⏸ pause"; timer = setInterval(() => { if (yi >= years.length - 1) { clearInterval(timer); timer = null; e.target.textContent = "▶ play"; return; } set(yi + 1); }, 900); if (yi >= years.length - 1) set(0); };
+  msg();
+}
+
+/* ---------- live chart: range slider + dropdown ---------- */
+function sliderChart() {
+  const W = A.wide;
+  plot($("#pSlider"), () => [BORO.map((b, k) => ({ type: "scatter", mode: "lines", name: b, x: W.month, y: W[b], line: { color: PX[k], width: b === "Manhattan" ? 3 : 1.6 } })),
+    { height: 380, hovermode: "x unified", margin: { t: 40 }, xaxis: { rangeslider: { visible: true }, type: "date" }, yaxis: { title: { text: "listings" } },
+      updatemenus: [{ type: "buttons", direction: "right", x: 0, y: 1.14, xanchor: "left", bgcolor: cssv("--surface-2"), font: { color: cssv("--ink") },
+        buttons: [{ label: "Linear", method: "relayout", args: [{ "yaxis.type": "linear" }] }, { label: "Log", method: "relayout", args: [{ "yaxis.type": "log" }] }] }] }]);
+}
+
+/* ---------- widget: a map without a map, range_color ---------- */
+function mapWidget(root) {
+  let capped = true;
+  root.innerHTML = head("x = longitude، y = latitude، اللون = السعر", "كل نقطة listing. قارن اللون بـ range_color ومن غيره.") + `
+    <div class="optrow"><div class="seg"><button data-m="1" aria-pressed="true">range_color=[0, 300]</button><button data-m="0" aria-pressed="false">من غير range_color</button></div></div>
+    <div class="plot" style="min-height:440px"></div><div class="status" data-s="msg"></div>`;
+  const el = $(".plot", root);
+  const draw = plot(el, () => [[{ type: "scatter", mode: "markers", x: S.lon, y: S.lat, customdata: S.price.map((p, i) => [p, AL.neighbourhood[S.hood[i]]]),
+    hovertemplate: "%{customdata[1]}<br>$%{customdata[0]} a night<extra></extra>",
+    marker: { size: 5, color: S.price, colorscale: "Viridis", cmin: 0, cmax: capped ? 300 : Math.max(...S.price), colorbar: { title: { text: "price" }, thickness: 12 } } }],
+    { height: 440, xaxis: { title: { text: "longitude" } }, yaxis: { title: { text: "latitude" }, scaleanchor: "x", scaleratio: 1.32 } }]);
+  const msg = () => $("[data-s=msg]", root).textContent = capped ? "Manhattan بتنوّر أصفر وأخضر، والأطراف بنفسجي: السعر بيقل كل ما تبعد." :
+    `أغلى listing في العيّنة بـ ${nf(Math.max(...S.price))} دولار، فالـ scale بقى من 0 لحد هناك، وكل النقط التانية بقت نفس البنفسجي الغامق.`;
+  segPick(root, "data-m", v => { capped = v === "1"; draw(); msg(); }); msg();
+}
+
+function main() {
+  layoutWidget($("#wLayout")); aggWidget($("#wAgg")); mixChart(); hoverWidget($("#wHover")); animWidget($("#wAnim")); sliderChart(); mapWidget($("#wMap"));
+  onRedraw(() => plots.forEach(f => f()));
+}
+</script>

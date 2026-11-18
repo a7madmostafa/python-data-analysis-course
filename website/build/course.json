@@ -60,6 +60,11 @@
       "title": "Seaborn",
       "title_ar": "Seaborn",
       "notebook": "4-visualization/03_seaborn.ipynb"
+    },
+    "plotly": {
+      "title": "Plotly",
+      "title_ar": "Plotly",
+      "notebook": "4-visualization/04_plotly.ipynb"
     }
   }
 }

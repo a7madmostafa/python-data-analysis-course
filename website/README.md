@@ -95,7 +95,7 @@ a lesson page (article) for each, the rendered notebook, and links. Plan as of 2
   `4-visualization/01_principles.ipynb`, built by `build_viz.py`; all charts static Matplotlib / Seaborn. Not on Kaggle yet
 - ✅ Matplotlib (`02_matplotlib`): page + rendered notebook; the notebook buttons point to GitHub (not on Kaggle)
 - ✅ Seaborn (`03_seaborn`): page + rendered notebook
-- ⬜ Plotly (`04_plotly`): page + rendered notebook (the interactive figures need checking in the rendered HTML)
+- ✅ Plotly (`04_plotly`): page with live Plotly charts (plotly.js 2.35.2 from jsDelivr, data in `assets/data/airbnb.js`) + rendered notebook (its outputs are static PNGs)
 - ⬜ More charts (`05_more_charts`): page + rendered notebook
 - ⬜ Mini EDA on NileCart (`06_mini_eda`): page + rendered notebook
 
