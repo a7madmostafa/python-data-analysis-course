@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seaborn</title>
+<meta name="description" content="درس Seaborn بالعربي: scatterplot و lineplot و countplot و barplot و boxplot و violin و histplot و kdeplot، والـ hue والـ facets والـ heatmap والـ pairplot، وإزاي تقرا الـ box والـ error bar، على داتا NileCart.">
+<meta property="og:title" content="Seaborn · Zero Grad">
+<meta property="og:description" content="الرسومات الإحصائية في سطر واحد، وإزاي تقراها صح، بالعربي وعلى داتا NileCart.">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/seaborn/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/seaborn/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<script src="/assets/js/theme.js"></script>
+<link rel="apple-touch-icon" href="/assets/img/zero-grad-app-icon-512.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<script src="/assets/js/pwa.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ea; --surface:#fffdf8; --surface-2:#efeadf; --ink:#1c1e22; --muted:#5b616b; --line:#ddd6c6;
+  --accent:#101f40; --on-accent:#f5f2ea; --chalk-g:#15803d; --chalk-o:#c2410c; --add:#2563eb; --bad:#dc2626;
+  --c1:#0f766e; --c2:#2563eb; --c3:#b45309; --c4:#9333ea;
+  --board:#232323; --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+    --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+    --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+  --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+  --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--add)}
+html,body{overflow-x:clip}
+@media (max-width:520px){.brand{font-size:.8rem}.seg button{padding:.2rem .55rem;font-size:.8rem}.topbar-in{gap:.4rem}.top-actions{gap:.3rem}.iconbtn{width:30px;height:30px}}
+code,pre{font-family:"JetBrains Mono",monospace}
+.en{direction:ltr;unicode-bidi:isolate}
+code.i{font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .35rem;direction:ltr;unicode-bidi:isolate}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;right:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .1s}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:auto;padding:.55rem 16px;display:flex;gap:.75rem;align-items:center;justify-content:space-between}
+.top-actions{display:flex;gap:.5rem;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.25rem .8rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+
+/* layout */
+.wrap{max-width:1180px;margin:auto;padding:0 16px;display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media (min-width:1100px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:72px;align-self:start;padding-top:2.5rem;font-size:.9rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+  nav.toc a{display:block;padding:.3rem .9rem;color:var(--muted);text-decoration:none;margin-inline-start:-2px;border-inline-start:2px solid transparent;line-height:1.5}
+  nav.toc a.active{color:var(--ink);border-color:var(--accent);font-weight:500}
+}
+main{min-width:0;padding-bottom:6rem}
+
+/* hero */
+.hero{padding:3rem 0 1.5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.hero h1{font-family:"Caveat",cursive;font-size:clamp(3rem,9vw,5.2rem);line-height:1;margin:.5rem 0 .75rem;color:var(--accent);direction:ltr;text-align:right;font-weight:700}
+.lead{font-size:1.15rem;max-width:62ch;margin:0}
+
+/* notebook links */
+.nb-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.nb-btn{display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4rem 1rem;text-decoration:none}
+.nb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.nb-btn:hover{border-color:var(--accent)}
+
+/* sections */
+section.sec{padding-top:2.5rem;scroll-margin-top:64px}
+.sec-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:1.25rem}
+.sec-head h2{margin:0;font-size:1.55rem;line-height:1.35;display:flex;gap:.7rem;align-items:baseline}
+.num{font-family:"Caveat",cursive;color:var(--accent);font-size:2rem;line-height:1}
+h3.sub{font-size:1.15rem;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+.chalk{font-family:"Caveat",cursive;font-size:1.35em;color:var(--accent);direction:ltr;unicode-bidi:isolate;font-weight:700;line-height:1.2}
+.voice{margin:1.25rem 0;padding:.9rem 1.2rem;border-radius:var(--radius);background:var(--board);color:#f2c94c;font-family:"Caveat",cursive;font-size:1.9rem;direction:ltr;text-align:center;line-height:1.3}
+.voice small{display:block;font-family:"Noto Sans Arabic",sans-serif;font-size:.8rem;color:#a1a1a1;direction:rtl;margin-top:.25rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;line-height:1.6}
+.card b{display:block;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr;gap:1rem;margin:1rem 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.path{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem}
+.path h4{margin:0 0 .25rem;font-size:1.05rem}
+.path .sub{color:var(--muted);font-size:.85rem}
+.path.good{border-color:color-mix(in srgb,var(--chalk-g) 55%,var(--line))}
+.path.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.path.good h4{color:var(--chalk-g)}
+.path.bad h4{color:var(--bad)}
+
+/* the "use it when" box every chart gets */
+.when{display:grid;grid-template-columns:1fr;gap:.75rem;margin:1rem 0}
+@media(min-width:760px){.when{grid-template-columns:repeat(3,1fr)}}
+.when .card{border-top:3px solid var(--accent)}
+.when .card:nth-child(2){border-top-color:var(--chalk-g)}
+.when .card:nth-child(3){border-top-color:var(--chalk-o)}
+
+/* callouts */
+.callout{border-radius:var(--radius);padding:.9rem 1.1rem;margin:1.25rem 0;border:1px solid;font-size:.97rem}
+.callout .ttl{font-weight:700;font-size:.85rem;display:flex;gap:.4rem;align-items:center;margin-bottom:.15rem}
+.callout.add{border-color:color-mix(in srgb,var(--add) 45%,transparent);background:color-mix(in srgb,var(--add) 7%,var(--surface))}
+.callout.add .ttl{color:var(--add)}
+.callout.warn{border-color:color-mix(in srgb,var(--chalk-o) 55%,transparent);background:color-mix(in srgb,var(--chalk-o) 8%,var(--surface))}
+.callout.warn .ttl{color:var(--chalk-o)}
+.callout.insight{border-color:color-mix(in srgb,var(--chalk-g) 50%,transparent);background:color-mix(in srgb,var(--chalk-g) 8%,var(--surface))}
+.callout.insight .ttl{color:var(--chalk-g)}
+details.callout summary{cursor:pointer;list-style:none}
+details.callout summary::-webkit-details-marker{display:none}
+details.callout summary .ttl::after{content:"＋";margin-inline-start:auto}
+details.callout[open] summary .ttl::after{content:"－"}
+
+/* tables & code */
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.tbl th,.tbl td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.tbl thead th{background:var(--surface-2);font-size:.85rem}
+.tbl tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+pre{direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;padding:1rem 1.1rem;border-radius:var(--radius);overflow-x:auto;font-size:.85rem;line-height:1.65;margin:1rem 0}
+pre .c{color:#8a8a8a}
+pre .k{color:#f2c94c}
+pre .s{color:#4ade80}
+.codetabs{margin:1rem 0}
+.codetabs .seg{margin-bottom:-.4rem}
+.codetabs pre{margin-top:.6rem}
+.codetabs pre[hidden]{display:none}
+
+/* figures */
+figure.fig{margin:1.25rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.fig-scroll{overflow-x:auto}
+figure.fig svg{width:100%;min-width:520px;height:auto;display:block;direction:ltr}
+figure.fig svg text{font-family:Inter,"Noto Sans Arabic",sans-serif;fill:var(--ink)}
+figure.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+
+/* widgets */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.widget-head{display:flex;gap:.6rem;align-items:center;margin-bottom:.2rem}
+.widget-head .badge{font-size:.72rem;font-weight:700;color:var(--bg);background:var(--chalk-g);border-radius:999px;padding:.1rem .6rem;white-space:nowrap}
+.widget-head h3{margin:0;font-size:1.1rem}
+.widget .hint{color:var(--muted);font-size:.9rem;margin:.1rem 0 .8rem}
+.wgrid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:820px){.wgrid.cols{grid-template-columns:1.6fr 1fr}}
+canvas{width:100%;display:block;border-radius:10px;background:var(--surface-2);touch-action:none}
+.controls{display:grid;gap:.7rem;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;gap:.5rem}
+.ctl label output{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.4rem .85rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk.off{opacity:.45;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem}
+.stat{background:var(--surface-2);border-radius:10px;padding:.45rem .7rem;line-height:1.35}
+.stat span{display:block;font-size:.75rem;color:var(--muted)}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;unicode-bidi:isolate}
+.status{font-size:.9rem;min-height:1.6em;color:var(--muted);white-space:pre-line}
+.keys{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.5rem}
+.keys span{display:inline-flex;gap:.35rem;align-items:center}
+.keys i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+
+/* summary */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem}
+.sheet .card{padding:1rem}
+.sheet .card h4{margin:0 0 .3rem;font-size:.95rem;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding:1.5rem 0;margin-top:3rem}
+.muted{color:var(--muted);font-size:.9em}
+
+/* lesson navigation */
+.crumbs{display:flex;align-items:center;gap:.45rem;font-size:.9rem;white-space:nowrap;min-width:0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{color:var(--line)}
+.crumbs .here{font-weight:700;color:var(--ink)}
+a.iconbtn{display:grid;place-items:center;text-decoration:none;font-size:.95rem}
+.iconbtn.off{opacity:.3;pointer-events:none;display:grid;place-items:center}
+.pager{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;margin-top:3rem}
+.pg{display:flex;flex-direction:column;gap:.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);text-decoration:none;line-height:1.5}
+.pg span{font-size:.82rem;color:var(--muted)}
+.pg b{font-size:1rem;color:var(--accent)}
+a.pg:hover{border-color:var(--accent)}
+.pg.next{text-align:left}
+.pg.all{justify-content:center;text-align:center}
+.pg.off{border-style:dashed;background:transparent}
+.pg.off b{color:var(--muted)}
+@media (max-width:640px){.pager{grid-template-columns:1fr}.pg.next{text-align:right}.pg.all{order:3}}
+@media (max-width:520px){.crumbs .home,.crumbs .home+.sep{display:none}}
+@media (max-width:400px){.crumbs .course+.sep,.crumbs .here{display:none}}
+@media print{.topbar,nav.toc,#progress,.widget{display:none!important}body{background:#fff;color:#000;font-size:12pt}}
+
+.codeout{direction:ltr;text-align:left;font-family:"JetBrains Mono",monospace;font-size:.82rem;background:var(--board);color:#e6e6e6;border-radius:10px;padding:.6rem .8rem;margin-top:.6rem;overflow-x:auto;white-space:pre}
+.heat{display:grid;gap:3px;direction:ltr;font-family:"JetBrains Mono",monospace;font-size:.82rem}
+.heat div{padding:.45rem .3rem;text-align:center;border-radius:6px}
+.heat .h{background:transparent;color:var(--muted);font-family:Inter,sans-serif}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here">Seaborn</span></nav>
+    <div class="top-actions">
+      <a class="iconbtn" href="/courses/da/matplotlib/" aria-label="الدرس اللي فات: Matplotlib" title="الدرس اللي فات: Matplotlib">→</a><span class="iconbtn off" aria-hidden="true">←</span>
+      <button class="iconbtn" id="themeBtn" type="button" data-theme-toggle aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="المحتوى"><ol id="tocList"></ol></nav>
+  <main>
+    <div class="hero">
+      <div class="kicker">Zero Grad · كورس Data Analysis · Visualization</div>
+      <h1>Seaborn</h1>
+      <p class="lead">Seaborn قاعدة فوق Matplotlib. بتدّيها <b>الجدول الخام وأسامي الأعمدة</b>،<br>وهي تعمل الـ grouping، والمتوسط، والألوان، والـ legend.<br>هنرسم جدول NileCart تاني، المرة دي بـ Seaborn، وبعدين نشوف الرسومات الإحصائية دي بتحسب إيه من ورانا، وبتخبّي إيه.</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" href="https://github.com/a7madmostafa/python-data-analysis-course/blob/main/4-visualization/03_seaborn.ipynb" target="_blank" rel="noopener">📓 النوت بوك على GitHub</a><a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a><a class="nb-btn" href="https://www.kaggle.com/datasets/a7madmostafa/nilecart-sales" target="_blank" rel="noopener">🗂️ داتا NileCart على Kaggle</a>
+      </div>
+    </div>
+
+<section class="sec" id="how">
+      <div class="sec-head"><h2><span class="num">1</span>Seaborn بتشتغل إزاي</h2></div>
+      <p>نفس الرسمة بطريقتين: متوسط إيراد السطر لكل فئة.</p>
+      <div class="codetabs">
+        <div class="seg" role="tablist"><button aria-pressed="false" data-lib="mpl">Matplotlib</button><button aria-pressed="true" data-lib="sns">Seaborn</button></div>
+<pre data-lib="mpl" hidden>mean_rev = sales.groupby(<span class="s">"category"</span>)[<span class="s">"revenue"</span>].mean()   <span class="c"># compute first</span>
+fig, ax = plt.subplots()
+ax.bar(mean_rev.index, mean_rev.values)                  <span class="c"># then draw</span></pre>
+<pre data-lib="sns">ax = sns.barplot(data=sales, x=<span class="s">"category"</span>, y=<span class="s">"revenue"</span>, errorbar=<span class="k">None</span>)   <span class="c"># the raw table, no groupby</span>
+ax.set_title(<span class="s">"Mean revenue"</span>)                                                 <span class="c"># it's a Matplotlib Axes</span></pre>
+      </div>
+      <div class="voice">data= · x= · y= · hue=<small>الجدول، وأسامي الأعمدة، وعمود للألوان: ده كل Seaborn تقريبًا</small></div>
+      <h3 class="sub">نوعين من الـ functions</h3>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>النوع</th><th>أمثلة</th><th>بترسم على</th></tr></thead>
+        <tbody>
+          <tr><td><b>axes-level</b></td><td class="en">scatterplot, lineplot, barplot, histplot, boxplot, heatmap</td><td>Axes واحدة (ادّيها بتاعتك بـ <span class="en">ax=</span>) وبترجّعها</td></tr>
+          <tr><td><b>figure-level</b></td><td class="en">relplot, catplot, displot, pairplot</td><td>Figure جديدة فيها panel أو أكتر، وبترجّع <span class="en">FacetGrid</span></td></tr>
+        </tbody>
+      </table></div>
+      <p>عشان الـ axes-level بترجّع Matplotlib Axes، كل اللي في درس Matplotlib لسه شغال عليها:
+        <span class="en">set_title</span>، و <span class="en">annotate</span>، و <span class="en">axhline</span>، و <span class="en">savefig</span>.</p>
+    </section>
+
+    <section class="sec" id="rel">
+      <div class="sec-head"><h2><span class="num">2</span>Relational: scatter و line</h2></div>
+<pre>ax = sns.scatterplot(data=sales, x=<span class="s">"unit_price"</span>, y=<span class="s">"profit"</span>, hue=<span class="s">"category"</span>, alpha=<span class="s">0.6</span>)   <span class="c"># legend for free</span>
+ax.axhline(<span class="s">0</span>, color=<span class="s">"black"</span>, linewidth=<span class="s">1</span>)</pre>
+      <p><span class="en">lineplot</span> فيه حاجة لازم تاخد بالك منها: لو فيه <b>سطور كتير لكل x</b>، بيرسم <b>المتوسط</b>، ومعاه band للـ confidence interval 95%.</p>
+      <div class="two">
+        <div class="path"><h4>المتوسط (<span class="en">lineplot</span> على الجدول الخام)</h4><p>الـ bands بتتداخل تقريبًا في كل حتة: <b>السطر العادي</b> نفس الحجم طول السنة.</p></div>
+        <div class="path"><h4>الإجمالي (اجمع الأول)</h4><p>الـ peak بتاع آخر السنة في <b>الإجمالي</b> جاي من <b>أوردرات أكتر</b>، مش أوردرات أكبر.</p></div>
+      </div>
+<pre>totals = sales.groupby([<span class="s">"year"</span>, <span class="s">"month"</span>], as_index=<span class="k">False</span>)[<span class="s">"revenue"</span>].sum()     <span class="c"># for totals, aggregate first</span>
+g = sns.relplot(data=totals, x=<span class="s">"month"</span>, y=<span class="s">"revenue"</span>, col=<span class="s">"year"</span>, kind=<span class="s">"line"</span>, marker=<span class="s">"o"</span>)  <span class="c"># one panel per year</span>
+g.set_titles(<span class="s">"{col_name}"</span>)</pre>
+    </section>
+
+    <section class="sec" id="cat">
+      <div class="sec-head"><h2><span class="num">3</span>Categorical: count و bar و box و violin</h2></div>
+      <div class="cards">
+        <div class="card"><b class="en">countplot</b>بيعدّ السطور في كل فئة. <span class="en">order=</span> بيرتّب، و <span class="en">hue=</span> بيقسم كل bar بعمود تاني.</div>
+        <div class="card"><b class="en">barplot</b>رقم واحد لكل فئة، <b>المتوسط</b> بالـ default، ومعاه error bar.</div>
+        <div class="card"><b class="en">boxplot / violinplot</b>التوزيع كله لكل مجموعة: 5 أرقام (box) أو الشكل كله (violin).</div>
+      </div>
+      <h3 class="sub">الـ barplot بيحسب إيه؟</h3>
+      <p>"مين بيشتري أكتر في الأوردر؟" الكمية في السطر حسب الـ segment. غيّر الـ <span class="en">estimator</span> والـ <span class="en">errorbar</span>:</p>
+      <div class="widget" id="wBar"></div>
+      <div class="callout insight"><div class="ttl">💡 Corporate بتشتري الضعف</div>
+        حوالي 6 قطع في السطر، قصاد حوالي 3 لـ Consumer و Small Business. الـ confidence intervals مش متداخلة، فالفرق مش صدفة.</div>
+      <p>الـ box والـ violin بيورّوا اللي الـ bar بيخبّيه، الانتشار:</p>
+<pre>sns.boxplot(data=sales, x=<span class="s">"category"</span>, y=<span class="s">"revenue"</span>, order=order, log_scale=<span class="k">True</span>)
+sns.violinplot(data=sales, x=<span class="s">"category"</span>, y=<span class="s">"revenue"</span>, order=order, log_scale=<span class="k">True</span>, inner=<span class="s">"quart"</span>, cut=<span class="s">0</span>)</pre>
+    </section>
+
+    <section class="sec" id="dist">
+      <div class="sec-head"><h2><span class="num">4</span>Distribution: histogram و density</h2></div>
+<pre>gains = sales[sales[<span class="s">"profit"</span>] &gt; <span class="s">0</span>]                          <span class="c"># a log axis needs positive numbers</span>
+sns.histplot(data=gains, x=<span class="s">"profit"</span>, log_scale=<span class="k">True</span>, kde=<span class="k">True</span>)   <span class="c"># log-spaced bins + a smooth curve</span>
+sns.histplot(data=known, x=<span class="s">"revenue"</span>, hue=<span class="s">"segment"</span>, log_scale=<span class="k">True</span>,
+             stat=<span class="s">"density"</span>, common_norm=<span class="k">False</span>)                 <span class="c"># compare SHAPES of different-size groups</span>
+sns.kdeplot(data=known, x=<span class="s">"revenue"</span>, hue=<span class="s">"segment"</span>, log_scale=<span class="k">True</span>, fill=<span class="k">True</span>, common_norm=<span class="k">False</span>)</pre>
+      <p>ربح السطر skewed جامد لليمين: الـ median للسطور الكسبانة 1,638 جنيه، وأعلى سطر 64,000.<br>
+        والـ density: منحنى Corporate على اليمين، يعني السطر النموذجي عندها أغلى (median 5,400، قصاد 3,115 لـ Consumer و 3,425 لـ Small Business).</p>
+      <div class="callout warn"><div class="ttl">⚠️ الـ KDE تقدير متنعّم</div>
+        ممكن يرسم density في حتة مفيهاش داتا خالص. لو شاكك، صدّق الـ histogram.</div>
+    </section>
+
+    <section class="sec" id="hue">
+      <div class="sec-head"><h2><span class="num">5</span>الـ hue، والـ palettes، والـ facets</h2></div>
+      <p>اختار الـ palette على حسب الداتا: <span class="en">"Set2"</span> للفئات، و <span class="en">"viridis"</span> للأرقام المترتّبة، و <span class="en">"RdBu"</span> حوالين نقطة نص.<br>
+        والـ <b>dict palette</b> مفيدة للتركيز: رمادي لكل حاجة ما عدا المجموعة اللي الرسمة عنها.</p>
+<pre>highlight = {<span class="s">"Electronics"</span>: <span class="s">"#D95D4A"</span>, <span class="s">"Furniture"</span>: <span class="s">"lightgrey"</span>, <span class="s">"Accessories"</span>: <span class="s">"lightgrey"</span>, <span class="s">"Stationery"</span>: <span class="s">"lightgrey"</span>}
+sns.barplot(data=sales, x=<span class="s">"segment"</span>, y=<span class="s">"revenue"</span>, hue=<span class="s">"category"</span>, palette=highlight, errorbar=<span class="k">None</span>)</pre>
+      <p>سطر Electronics عند Corporate بيساوي تقريبًا ضعف سطر Consumer.</p>
+      <h3 class="sub">Facets: لما الـ hue يزحم</h3>
+      <p>نفس الرسمة متكررة، panel لكل مجموعة. <span class="en">col=</span> و <span class="en">row=</span> شغالين في <span class="en">relplot</span> و <span class="en">catplot</span> و <span class="en">displot</span>:</p>
+<pre>g = sns.catplot(data=sales, x=<span class="s">"segment"</span>, y=<span class="s">"quantity"</span>, col=<span class="s">"category"</span>, col_wrap=<span class="s">2</span>, kind=<span class="s">"bar"</span>)
+g.set_titles(<span class="s">"{col_name}"</span>)
+g.set_axis_labels(<span class="s">"Segment"</span>, <span class="s">"Mean quantity"</span>)</pre>
+      <p>Corporate بتشتري الضعف في <b>كل</b> فئة، مش في فئة واحدة بس.</p>
+    </section>
+
+    <section class="sec" id="heat">
+      <div class="sec-head"><h2><span class="num">6</span>Heatmap و pair plot</h2></div>
+      <p>الـ heatmap جدول ملوّن: pivot table، أو crosstab، أو correlation matrix، والعين بتلاقي الخانات المتطرفة على طول.<br>
+        <span class="en">annot=True</span> بيكتب الأرقام، و <span class="en">center=0</span> مع <span class="en">cmap</span> diverging بيحط الخسارة والربح على لونين عكس بعض:</p>
+      <div class="widget" id="wHeat"></div>
+<pre>pt = sales.pivot_table(index=<span class="s">"category"</span>, columns=<span class="s">"discount"</span>, values=<span class="s">"profit"</span>, aggfunc=<span class="s">"mean"</span>)
+sns.heatmap(pt, annot=<span class="k">True</span>, fmt=<span class="s">".0f"</span>, cmap=<span class="s">"RdYlGn"</span>, center=<span class="s">0</span>)
+
+corr = sales[[<span class="s">"quantity"</span>, <span class="s">"unit_price"</span>, <span class="s">"discount"</span>, <span class="s">"revenue"</span>, <span class="s">"profit"</span>]].corr()
+mask = np.triu(np.ones_like(corr, dtype=bool))                  <span class="c"># hide the repeated upper triangle</span>
+sns.heatmap(corr, mask=mask, annot=<span class="k">True</span>, fmt=<span class="s">".2f"</span>, cmap=<span class="s">"RdBu"</span>, center=<span class="s">0</span>, vmin=-<span class="s">1</span>, vmax=<span class="s">1</span>)
+
+sns.pairplot(sales[[<span class="s">"unit_price"</span>, <span class="s">"quantity"</span>, <span class="s">"revenue"</span>, <span class="s">"profit"</span>, <span class="s">"category"</span>]], hue=<span class="s">"category"</span>, corner=<span class="k">True</span>)</pre>
+      <p>الإيراد ماشي مع <b>سعر القطعة</b> (r = 0.81) أكتر بكتير من الكمية (0.31). والخصم والربح باينين مرتبطين بشكل ضعيف (−0.22)،
+        والجزء الأخير بيوري ليه الرقم ده مضلّل.<br>
+        الـ <b>pair plot</b> بيعمل scatter لكل <b>اتنين</b> من الأعمدة الرقمية، وتوزيع كل عمود على القطر: أول بصّة على داتا جديدة فيها كام عمود رقمي.</p>
+    </section>
+
+    <section class="sec" id="read">
+      <div class="sec-head"><h2><span class="num">7</span>اقرا الرسومات الإحصائية صح</h2></div>
+      <p>Seaborn بتحسب quartiles ومتوسطات و intervals من ورا الستارة. إنك تقراها صح مهم قد إنك ترسمها.</p>
+      <h3 class="sub">الـ box plot متكوّن من إيه؟</h3>
+      <div class="widget" id="wBox"></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الجزء</th><th>معناه</th></tr></thead>
+        <tbody>
+          <tr><td>الـ box</td><td>النص اللي في النص من السطور، من Q1 لـ Q3 (عرضه هو الـ IQR)</td></tr>
+          <tr><td>الخط اللي جوه</td><td>الـ median</td></tr>
+          <tr><td>الـ whiskers</td><td>أبعد نقط لسه جوه 1.5 × IQR من الـ box</td></tr>
+          <tr><td>النقط</td><td>اللي بعد الـ whiskers: outliers <b>محتملة</b>، تستاهل بصّة، مش أخطاء أوتوماتيك</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout warn"><div class="ttl">⚠️ الـ box بيخبّي الشكل</div>
+        توزيع ليه قمتين بيبان box واحد عادي. لو الشكل مهم، استخدم violin أو histogram.</div>
+      <h3 class="sub">الـ error bar معناه إيه؟</h3>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الـ segment</th><th>mean</th><th>sd</th><th>عدد السطور</th><th>CI 95% (±)</th></tr></thead>
+        <tbody>
+          <tr><td class="en">Consumer</td><td><bdi>2.99</bdi></td><td><bdi>1.44</bdi></td><td><bdi>762</bdi></td><td><bdi>0.10</bdi></td></tr>
+          <tr><td class="en">Corporate</td><td><bdi>5.94</bdi></td><td><bdi>2.53</bdi></td><td><bdi>538</bdi></td><td><bdi>0.21</bdi></td></tr>
+          <tr><td class="en">Small Business</td><td><bdi>3.09</bdi></td><td><bdi>1.48</bdi></td><td><bdi>164</bdi></td><td><bdi>0.23</bdi></td></tr>
+        </tbody>
+      </table></div>
+      <div class="two">
+        <div class="path"><h4>CI 95%</h4><p>بيجاوب: إحنا متأكدين قد إيه من <b>المتوسط</b>؟<br><span class="en">1.96 × sd / √n</span>، فبيصغر مع سطور أكتر.</p></div>
+        <div class="path"><h4>sd</h4><p>بيجاوب: <b>السطور</b> متفرّقة قد إيه؟<br>تقريبًا ثابت مهما زوّدت السطور.</p></div>
+      </div>
+      <p>يعني الـ CI القصير مش معناه إن العملاء شبه بعض: كميات Corporate بتختلف جامد من سطر لسطر، بس مع العدد ده المتوسط معروف بدقة. قول دايمًا الـ error bar ده إيه.</p>
+      <h3 class="sub">Overplotting: نقط بتخبّي نقط</h3>
+      <div class="widget" id="wOver"></div>
+      <h3 class="sub">correlation واحد ممكن يخبّي أثر المجموعات</h3>
+      <div class="widget" id="wCorr"></div>
+      <p>قبل ما تقول "مفيش أثر"، قسّم بالمجموعات بـ <span class="en">hue=</span> أو <span class="en">col=</span>.</p>
+    </section>
+
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">8</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sheet">
+        <div class="card"><h4>Relational</h4><span class="en">scatterplot(hue=, alpha=) · lineplot(hue=, marker=) · relplot(col=)</span></div>
+        <div class="card"><h4>Categorical</h4><span class="en">countplot(order=, hue=) · barplot(estimator=, errorbar=) · boxplot · violinplot</span></div>
+        <div class="card"><h4>Distribution</h4><span class="en">histplot(log_scale=, kde=, stat="density", common_norm=False) · kdeplot</span></div>
+        <div class="card"><h4>جداول وكل الأزواج</h4><span class="en">heatmap(annot=, fmt=, cmap=, center=, mask=) · pairplot(hue=, corner=True)</span></div>
+        <div class="card"><h4>الشكل</h4><span class="en">sns.set_theme(style=, palette=)</span> · dict palette للتركيز</div>
+        <div class="card"><h4>اقراها صح</h4>الـ box بيخبّي الشكل · الـ CI عن المتوسط والـ sd عن السطور · النقط بتخبّي بعض · الـ correlation الكلي بيخبّي المجموعات</div>
+      </div>
+    </section>
+
+    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/matplotlib/"><span>→ الدرس اللي فات</span><b>Matplotlib</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><span class="pg next off"><span>الدرس الجاي ←</span><b>Plotly</b></span></nav>
+
+    <footer>
+      الداتا: NileCart، متجر وهمي في القاهرة، بالجنيه المصري.<br>
+      كل الأرقام في الدرس من نفس الداتا اللي في النوت بوك.
+    </footer>
+  </main>
+</div>
+
+<script src="../assets/data/vizlib.js"></script>
+<script>
+(() => {
+"use strict";
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const nf = v => Math.round(v).toLocaleString("en");
+function head(title, hint, badge = "جرّب بنفسك") { return `<div class="widget-head"><span class="badge">${badge}</span><h3>${title}</h3></div><p class="hint">${hint}</p>`; }
+function setup(cv, h) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 300;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + "px";
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.direction = "ltr";
+  return { ctx, w, h };
+}
+const redrawers = []; const onRedraw = f => redrawers.push(f);
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => redrawers.forEach(f => f()), 120); });
+const PAL = () => [cssv("--c1"), cssv("--c3"), cssv("--bad"), cssv("--c2"), cssv("--c4"), cssv("--muted")];
+function text(ctx, t, x, y, { col = "--muted", font = "11px Inter, sans-serif", align = "left", base = "alphabetic" } = {}) {
+  ctx.fillStyle = col.startsWith("--") ? cssv(col) : col; ctx.font = font; ctx.textAlign = align; ctx.textBaseline = base; ctx.fillText(t, x, y);
+}
+function axes(ctx, x0, y0, x1, y1) { ctx.strokeStyle = cssv("--line"); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke(); }
+function segPick(root, attr, onPick) {
+  $$(`[${attr}]`, root).forEach(b => b.onclick = () => { $$(`[${attr}]`, root).forEach(x => x.setAttribute("aria-pressed", x === b)); onPick(b.getAttribute(attr)); });
+}
+
+
+function chrome() {
+  $$(".codetabs").forEach(box => $$(".seg button", box).forEach(b => b.onclick = () => {
+    $$(".seg button", box).forEach(x => x.setAttribute("aria-pressed", x === b));
+    $$("pre", box).forEach(p => p.hidden = p.dataset.lib !== b.dataset.lib);
+  }));
+  const toc = $("#tocList"), links = {};
+  $$("section.sec").forEach(sec => {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + sec.id; a.textContent = $("h2", sec).textContent.replace(/^\d+/, "").trim();
+    li.appendChild(a); toc.appendChild(li); links[sec.id] = a;
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { Object.values(links).forEach(a => a.classList.remove("active")); links[e.target.id].classList.add("active"); } }), { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  window.addEventListener("scroll", () => { const h = document.documentElement; $("#progress").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; }, { passive: true });
+  new MutationObserver(() => redrawers.forEach(f => f())).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => redrawers.forEach(f => f()));
+}
+
+const V = window.VL, L = V.levels, N = V.revenue.length, ALL = [...Array(N).keys()];
+const SEGS = ["Consumer", "Corporate", "Small Business"], segIx = s => L.segment.indexOf(s);
+const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+const sd = a => { const m = mean(a); return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); };
+const quant = (a, q) => { const s = [...a].sort((x, y) => x - y), p = (s.length - 1) * q, lo = Math.floor(p); return s[lo] + (s[Math.min(lo + 1, s.length - 1)] - s[lo]) * (p - lo); };
+const corr = (a, b) => { const ma = mean(a), mb = mean(b); let n = 0, da = 0, db = 0; a.forEach((x, i) => { n += (x - ma) * (b[i] - mb); da += (x - ma) ** 2; db += (b[i] - mb) ** 2; }); return n / Math.sqrt(da * db); };
+
+/* ---------- widget: what does barplot compute? ---------- */
+function barWidget(root) {
+  let est = "mean", eb = "ci";
+  const groups = SEGS.map(s => ALL.filter(i => V.segment[i] === segIx(s)).map(i => V.quantity[i]));
+  root.innerHTML = head("sns.barplot(x=\"segment\", y=\"quantity\")", "كل bar رقم محسوب من سطور كتير. اختار إزاي يتحسب، وأنهي error bar يترسم.") + `
+    <div class="optrow"><span class="muted">estimator</span><div class="seg"><button data-e="mean" aria-pressed="true">mean</button><button data-e="median" aria-pressed="false">median</button><button data-e="sum" aria-pressed="false">sum</button></div></div>
+    <div class="optrow"><span class="muted">errorbar</span><div class="seg"><button data-b="ci" aria-pressed="true">("ci", 95)</button><button data-b="sd" aria-pressed="false">"sd"</button><button data-b="none" aria-pressed="false">None</button></div></div>
+    <canvas></canvas><div class="codeout" data-s="code"></div><div class="status" data-s="msg"></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const h = 240, { ctx, w } = setup(cv, h), pad = { l: 46, r: 12, t: 14, b: 26 };
+    const val = g => est === "mean" ? mean(g) : est === "median" ? quant(g, .5) : g.reduce((a, b) => a + b, 0);
+    const err = g => est !== "mean" || eb === "none" ? 0 : eb === "sd" ? sd(g) : 1.96 * sd(g) / Math.sqrt(g.length);
+    const vals = groups.map(val), errs = groups.map(err), max = Math.max(...vals.map((v, k) => v + errs[k])) * 1.12;
+    const sy = v => h - pad.b - v / max * (h - pad.t - pad.b), gw = (w - pad.l - pad.r) / 3;
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    text(ctx, nf(max / 1.12), pad.l - 5, sy(max / 1.12) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" });
+    vals.forEach((v, k) => {
+      const x = pad.l + k * gw + gw * .2, bw = gw * .6;
+      ctx.fillStyle = PAL()[k]; ctx.globalAlpha = .85; ctx.fillRect(x, sy(v), bw, sy(0) - sy(v)); ctx.globalAlpha = 1;
+      if (errs[k]) { ctx.strokeStyle = cssv("--ink"); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + bw / 2, sy(v - errs[k])); ctx.lineTo(x + bw / 2, sy(v + errs[k])); ctx.stroke(); }
+      text(ctx, est === "sum" ? nf(v) : v.toFixed(2), x + bw / 2, sy(v + errs[k]) - 6, { col: "--ink", align: "center", font: "bold 11px 'JetBrains Mono', monospace" });
+      text(ctx, SEGS[k], x + bw / 2, h - 8, { col: "--ink", align: "center", font: "11px Inter, sans-serif" });
+    });
+    const ebs = { ci: '("ci", 95)', sd: '"sd"', none: "None" }[eb];
+    $("[data-s=code]", root).textContent = `sns.barplot(data=sales, x="segment", y="quantity", estimator="${est}", errorbar=${est === "mean" ? ebs : "None"})`;
+    $("[data-s=msg]", root).textContent = est === "sum" ? `الإجمالي: Consumer عندها سطور أكتر (${groups[0].length})، فبتكسب في الـ sum رغم إن متوسطها النص. sum ولا mean؟ ده سؤال مختلف.` :
+      est === "median" ? "الـ median: 3 و 6 و 3. نفس الحكاية، ومن غير ما قيمة كبيرة تشد الرقم." :
+      eb === "sd" ? "الـ sd طويل: السطور نفسها متفرّقة جامد. بس ده مش معناه إننا مش متأكدين من المتوسط." :
+      eb === "ci" ? "الـ CI قصير: مع مئات السطور، المتوسط معروف بدقة، ومفيش تداخل بين Corporate والباقيين." : "من غير error bar: مش باين إذا كان الفرق ده ثابت ولا صدفة.";
+  }
+  segPick(root, "data-e", v => { est = v; draw(); }); segPick(root, "data-b", v => { eb = v; draw(); });
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: heatmap with or without center=0 ---------- */
+function heatWidget(root) {
+  const D = [0, 5, 10, 20], cats = L.category, pv = cats.map((_, c) => D.map(d => mean(ALL.filter(i => V.category[i] === c && V.discount[i] === d).map(i => V.profit[i]))));
+  let centered = true;
+  root.innerHTML = head("متوسط الربح للسطر: الفئة × الخصم", "نفس الجدول بالألوان. شيل الـ center=0 وشوف الخسارة لسه باينة ولا لأ.") + `
+    <div class="optrow"><div class="seg"><button data-c="1" aria-pressed="true">cmap="RdYlGn", center=0</button><button data-c="0" aria-pressed="false">cmap="Greens"</button></div></div>
+    <div class="heat" data-s="heat"></div><div class="status" data-s="msg" style="margin-top:.6rem"></div>`;
+  const lerp = (a, b, t) => a.map((x, k) => Math.round(x + (b[k] - x) * t));
+  const RED = [215, 48, 39], YEL = [255, 255, 191], GRN = [26, 152, 80], WHITE = [247, 252, 245], G2 = [0, 109, 44];
+  function draw() {
+    const flat = pv.flat(), lo = Math.min(...flat), hi = Math.max(...flat), m = Math.max(Math.abs(lo), hi);
+    const color = v => centered ? (v < 0 ? lerp(YEL, RED, -v / m) : lerp(YEL, GRN, v / m)) : lerp(WHITE, G2, (v - lo) / (hi - lo));
+    let o = `<div class="h"></div>` + D.map(d => `<div class="h">${d}%</div>`).join("");
+    cats.forEach((c, i) => { o += `<div class="h" style="text-align:right">${c}</div>` + pv[i].map(v => { const rgb = color(v), dark = rgb[0] * .3 + rgb[1] * .59 + rgb[2] * .11 < 140; return `<div style="background:rgb(${rgb});color:${dark ? "#fff" : "#1c1e22"}">${nf(v)}</div>`; }).join(""); });
+    const g = $("[data-s=heat]", root); g.innerHTML = o; g.style.gridTemplateColumns = "110px repeat(4, 1fr)";
+    $("[data-s=msg]", root).textContent = centered ? "الخانة الوحيدة اللي خسارة (Electronics عند 20%) حمرا لوحدها: العين بتروحلها على طول." : "من غير center: الخسارة بقت مجرد أفتح خانة، شبه Stationery اللي ربحها صغير بس موجب.";
+  }
+  segPick(root, "data-c", v => { centered = v === "1"; draw(); });
+  draw();
+}
+
+/* ---------- widget: anatomy of a box plot ---------- */
+function boxWidget(root) {
+  let cat = "Electronics";
+  root.innerHTML = head("الـ box متكوّن من إيه؟", "اختار فئة، والـ box بيتحسب من إيراد سطورها: Q1 والـ median و Q3، والـ whiskers عند 1.5 × IQR.") + `
+    <div class="optrow"><div class="seg">${["Stationery", "Accessories", "Furniture", "Electronics"].map(c => `<button data-k="${c}" aria-pressed="${c === cat}">${c}</button>`).join("")}</div></div>
+    <canvas></canvas><div class="stats" data-s="st" style="margin-top:.6rem"></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const e = ALL.filter(i => V.category[i] === L.category.indexOf(cat)).map(i => V.revenue[i]);
+    const q1 = quant(e, .25), md = quant(e, .5), q3 = quant(e, .75), iqr = q3 - q1;
+    const uw = Math.max(...e.filter(v => v <= q3 + 1.5 * iqr)), lw = Math.min(...e.filter(v => v >= q1 - 1.5 * iqr)), out = e.filter(v => v > q3 + 1.5 * iqr || v < q1 - 1.5 * iqr);
+    const h = 190, { ctx, w } = setup(cv, h), pad = { l: 16, r: 16 }, max = Math.max(...e) * 1.03, sx = v => pad.l + v / max * (w - pad.l - pad.r), cy = 90;
+    ctx.strokeStyle = cssv("--ink"); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(sx(lw), cy); ctx.lineTo(sx(q1), cy); ctx.moveTo(sx(q3), cy); ctx.lineTo(sx(uw), cy);
+    ctx.moveTo(sx(lw), cy - 12); ctx.lineTo(sx(lw), cy + 12); ctx.moveTo(sx(uw), cy - 12); ctx.lineTo(sx(uw), cy + 12); ctx.stroke();
+    ctx.fillStyle = cssv("--c1"); ctx.globalAlpha = .3; ctx.fillRect(sx(q1), cy - 26, sx(q3) - sx(q1), 52); ctx.globalAlpha = 1; ctx.strokeRect(sx(q1), cy - 26, sx(q3) - sx(q1), 52);
+    ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(sx(md), cy - 26); ctx.lineTo(sx(md), cy + 26); ctx.stroke();
+    ctx.fillStyle = cssv("--bad"); out.forEach(v => { ctx.globalAlpha = .6; ctx.beginPath(); ctx.arc(sx(v), cy, 3.5, 0, 7); ctx.fill(); }); ctx.globalAlpha = 1;
+    const lab = (v, t, y, base) => text(ctx, t, sx(v), y, { col: "--chalk-o", align: "center", base, font: "11px 'JetBrains Mono', monospace" });
+    lab(q1, "Q1", cy - 34, "bottom"); lab(q3, "Q3", cy - 34, "bottom"); lab(md, "median", cy + 34, "top"); lab(uw, "whisker", cy + 34, "top");
+    [0, .25, .5, .75, 1].forEach(t => text(ctx, nf(max / 1.03 * t), sx(max / 1.03 * t), h - 6, { align: t === 0 ? "left" : t === 1 ? "right" : "center", font: "10px 'JetBrains Mono', monospace" }));
+    $("[data-s=st]", root).innerHTML = [["Q1", q1], ["median", md], ["Q3", q3], ["IQR", iqr], ["whiskers", `${nf(lw)} – ${nf(uw)}`], ["outliers", out.length]].map(([k, v]) => `<div class="stat"><span>${k}</span><b>${typeof v === "number" ? nf(v) : v}</b></div>`).join("");
+  }
+  segPick(root, "data-k", v => { cat = v; draw(); });
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: overplotting ---------- */
+function overWidget(root) {
+  let mode = "plain";
+  const keys = new Map(); ALL.forEach(i => { const k = V.unit_price[i] + "|" + V.quantity[i]; keys.set(k, (keys.get(k) || 0) + 1); });
+  root.innerHTML = head("سعر القطعة × الكمية", `${nf(N)} سطر، بس ${keys.size} نقطة مختلفة بس: الكمية رقم صحيح والأسعار بتتكرر. جرّب طرق الحل.`) + `
+    <div class="optrow"><div class="seg"><button data-m="plain" aria-pressed="true">scatterplot</button><button data-m="alpha" aria-pressed="false">alpha=0.05</button><button data-m="hist" aria-pressed="false">histplot(x=, y=)</button></div></div>
+    <canvas></canvas><div class="status" data-s="msg"></div>`;
+  const cv = $("canvas", root), lx = [Math.log10(30), Math.log10(40000)];
+  function draw() {
+    const h = 240, { ctx, w } = setup(cv, h), pad = { l: 34, r: 12, t: 10, b: 26 };
+    const sx = v => pad.l + (Math.log10(v) - lx[0]) / (lx[1] - lx[0]) * (w - pad.l - pad.r), sy = q => h - pad.b - (q - .5) / 10 * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    [1, 5, 10].forEach(q => text(ctx, q, pad.l - 5, sy(q) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" }));
+    [100, 1000, 10000].forEach(v => text(ctx, v >= 1000 ? v / 1000 + "k" : v, sx(v), h - 8, { align: "center", font: "10px 'JetBrains Mono', monospace" }));
+    text(ctx, "unit price (log) →", w - pad.r, h - 8, { align: "right", font: "10px Inter, sans-serif" });
+    if (mode === "hist") {
+      const max = Math.max(...keys.values());
+      keys.forEach((n, k) => { const [p, q] = k.split("|").map(Number), t = Math.log(n + 1) / Math.log(max + 1); ctx.fillStyle = cssv("--c1"); ctx.globalAlpha = .12 + t * .88; ctx.fillRect(sx(p) - 5, sy(q) - 6, 10, 12); });
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.fillStyle = cssv("--c1"); ctx.globalAlpha = mode === "alpha" ? .05 : 1;
+      ALL.forEach(i => { ctx.beginPath(); ctx.arc(sx(V.unit_price[i]), sy(V.quantity[i]), 3.5, 0, 7); ctx.fill(); }); ctx.globalAlpha = 1;
+    }
+    const top = [...keys.entries()].sort((a, b) => b[1] - a[1])[0];
+    $("[data-s=msg]", root).textContent = mode === "plain" ? "كل مكان بيترسم مرة واحدة، سواء فيه سطر واحد ولا مية. الرسمة دي بتكدب عن الكثافة." :
+      mode === "alpha" ? "الشفافية: الأماكن المزدحمة بقت أغمق." : `كل خانة لونها = عدد السطور فيها. أزحم خانة: سعر ${nf(+top[0].split("|")[0])} وكمية ${top[0].split("|")[1]}، فيها ${top[1]} سطر.`;
+  }
+  segPick(root, "data-m", v => { mode = v; draw(); });
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: one correlation hides a group effect ---------- */
+function corrWidget(root) {
+  const rAll = corr(V.discount, V.profit);
+  const rs = L.category.map((c, k) => { const ix = ALL.filter(i => V.category[i] === k); return [c, corr(ix.map(i => V.discount[i]), ix.map(i => V.profit[i]))]; }).sort((a, b) => a[1] - b[1]);
+  root.innerHTML = head("الـ correlation بين الخصم والربح", "على كل السطور، وجوه كل فئة لوحدها.", "النتيجة") + `<canvas></canvas><div class="status" data-s="msg"></div>`;
+  const cv = $("canvas", root), rows = [["All rows", rAll], ...rs];
+  function draw() {
+    const h = 220, { ctx, w } = setup(cv, h), pad = { l: 16, r: 16, t: 26, b: 28 }, bw = (w - pad.l - pad.r) / rows.length, sy = r => pad.t + (-r) / .5 * (h - pad.t - pad.b);
+    ctx.strokeStyle = cssv("--ink"); ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(w - pad.r, pad.t); ctx.stroke();
+    rows.forEach(([c, r], k) => { const x = pad.l + k * bw + bw * .2; ctx.fillStyle = k === 0 ? cssv("--muted") : c === "Electronics" ? cssv("--bad") : cssv("--c1"); ctx.globalAlpha = .85; ctx.fillRect(x, pad.t, bw * .6, sy(r) - pad.t); ctx.globalAlpha = 1;
+      text(ctx, r.toFixed(2), x + bw * .3, sy(r) + 14, { col: "--ink", align: "center", font: "bold 11px 'JetBrains Mono', monospace" });
+      text(ctx, c, x + bw * .3, pad.t - 8, { col: "--ink", align: "center", font: "11px Inter, sans-serif" }); });
+    text(ctx, "r = 0", w - pad.r, pad.t - 8, { align: "right", font: "10px 'JetBrains Mono', monospace" });
+    const e = rs.find(r => r[0] === "Electronics")[1];
+    $("[data-s=msg]", root).textContent = `على كل السطور r = ${rAll.toFixed(2)}: ضعيف. بس جوه Electronics الرابط الضعف (${e.toFixed(2)}): الخصم بياكل هامشها الرفيع. الفئات التانية، بروابط أضعف، بتخفّفه لما نخلط كله.`;
+  }
+  draw(); onRedraw(draw);
+}
+
+function main() { barWidget($("#wBar")); heatWidget($("#wHeat")); boxWidget($("#wBox")); overWidget($("#wOver")); corrWidget($("#wCorr")); }
+
+window.addEventListener("DOMContentLoaded", () => { chrome(); main(); });
+})();
+</script>
+</body>
+</html>

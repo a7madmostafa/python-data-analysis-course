@@ -55,6 +55,11 @@
       "title": "Matplotlib",
       "title_ar": "Matplotlib",
       "notebook": "4-visualization/02_matplotlib.ipynb"
+    },
+    "seaborn": {
+      "title": "Seaborn",
+      "title_ar": "Seaborn",
+      "notebook": "4-visualization/03_seaborn.ipynb"
     }
   }
 }
