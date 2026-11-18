@@ -1,0 +1,15 @@
+{
+  "id": "a7madmostafa/zero-grad-da-seaborn",
+  "title": "Zero Grad DA: Seaborn",
+  "code_file": "03_seaborn.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "a7madmostafa/nilecart-sales"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

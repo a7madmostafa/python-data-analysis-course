@@ -1,0 +1,17 @@
+{
+  "id": "a7madmostafa/zero-grad-da-plotly",
+  "title": "Zero Grad DA: Plotly",
+  "code_file": "04_plotly.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "ajaypalsinghlo/world-happiness-report-2021"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "a7madmostafa/zero-grad-da-airbnb-nyc-project"
+  ]
+}

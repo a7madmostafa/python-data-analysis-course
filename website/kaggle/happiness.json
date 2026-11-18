@@ -1,0 +1,16 @@
+{
+  "id": "a7madmostafa/zero-grad-da-world-happiness-project",
+  "title": "Zero Grad DA: World Happiness Project",
+  "code_file": "analysis.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "ajaypalsinghlo/world-happiness-report-2021",
+    "a7madmostafa/zero-grad-da-project-code"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

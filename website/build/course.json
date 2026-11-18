@@ -54,27 +54,63 @@
     "matplotlib": {
       "title": "Matplotlib",
       "title_ar": "Matplotlib",
-      "notebook": "4-visualization/02_matplotlib.ipynb"
+      "notebook": "4-visualization/02_matplotlib.ipynb",
+      "kaggle_slug": "zero-grad-da-matplotlib",
+      "kaggle_setup": {
+        "folder": "4-visualization",
+        "files": {
+          "sales.csv": "nilecart/sales.csv"
+        }
+      }
     },
     "seaborn": {
       "title": "Seaborn",
       "title_ar": "Seaborn",
-      "notebook": "4-visualization/03_seaborn.ipynb"
+      "notebook": "4-visualization/03_seaborn.ipynb",
+      "kaggle_slug": "zero-grad-da-seaborn",
+      "kaggle_setup": {
+        "folder": "4-visualization",
+        "files": {
+          "sales.csv": "nilecart/sales.csv"
+        }
+      }
     },
     "plotly": {
       "title": "Plotly",
       "title_ar": "Plotly",
-      "notebook": "4-visualization/04_plotly.ipynb"
+      "notebook": "4-visualization/04_plotly.ipynb",
+      "kaggle_slug": "zero-grad-da-plotly",
+      "kaggle_setup": {
+        "folder": "4-visualization",
+        "files": {
+          "airbnb_cleaned.csv": "airbnb/airbnb_cleaned.csv",
+          "world-happiness-report-2021.csv": "world_happiness_2021.csv"
+        }
+      }
     },
     "more-charts": {
       "title": "More Charts",
       "title_ar": "رسومات تانية",
-      "notebook": "4-visualization/05_more_charts.ipynb"
+      "notebook": "4-visualization/05_more_charts.ipynb",
+      "kaggle_slug": "zero-grad-da-more-charts",
+      "kaggle_setup": {
+        "folder": "4-visualization",
+        "files": {
+          "sales.csv": "nilecart/sales.csv"
+        }
+      }
     },
     "mini-eda": {
       "title": "Mini EDA",
       "title_ar": "Mini EDA",
-      "notebook": "4-visualization/06_mini_eda.ipynb"
+      "notebook": "4-visualization/06_mini_eda.ipynb",
+      "kaggle_slug": "zero-grad-da-mini-eda",
+      "kaggle_setup": {
+        "folder": "4-visualization",
+        "files": {
+          "sales.csv": "nilecart/sales.csv"
+        }
+      }
     },
     "streamlit": {
       "title": "Streamlit",
@@ -84,17 +120,41 @@
     "titanic": {
       "title": "Titanic",
       "title_ar": "مشروع Titanic",
-      "notebook": "6-projects/01-titanic/analysis.ipynb"
+      "notebook": "6-projects/01-titanic/analysis.ipynb",
+      "kaggle_slug": "zero-grad-da-titanic-project",
+      "kaggle_setup": {
+        "folder": "6-projects/01-titanic",
+        "files": {
+          "train.csv": "titanic.csv"
+        },
+        "code": "charts_titanic.py"
+      }
     },
     "happiness": {
       "title": "World Happiness",
       "title_ar": "مشروع World Happiness",
-      "notebook": "6-projects/02-world-happiness/analysis.ipynb"
+      "notebook": "6-projects/02-world-happiness/analysis.ipynb",
+      "kaggle_slug": "zero-grad-da-world-happiness-project",
+      "kaggle_setup": {
+        "folder": "6-projects/02-world-happiness",
+        "files": {
+          "world-happiness-report-2021.csv": "world_happiness_2021.csv"
+        },
+        "code": "charts_happiness.py"
+      }
     },
     "airbnb": {
       "title": "Airbnb NYC",
       "title_ar": "مشروع Airbnb NYC",
-      "notebook": "6-projects/03-airbnb-nyc/analysis.ipynb"
+      "notebook": "6-projects/03-airbnb-nyc/analysis.ipynb",
+      "kaggle_slug": "zero-grad-da-airbnb-nyc-project",
+      "kaggle_setup": {
+        "folder": "6-projects/03-airbnb-nyc",
+        "files": {
+          "AB_NYC_2019.csv": "airbnb/AB_NYC_2019.csv"
+        },
+        "code": "charts_airbnb.py"
+      }
     }
   }
 }

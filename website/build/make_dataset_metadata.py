@@ -64,11 +64,23 @@ Orders from unknown customers keep `Unknown` in the customer columns.
 ## The course
 
 This dataset is used by the **Zero Grad Data Analysis course** (in Arabic): [zero-grad.com/courses/da](https://zero-grad.com/courses/da/).
-Every lesson is a page with diagrams and interactive charts, plus a solved notebook that runs on this dataset:
+Every lesson is a page with diagrams and interactive charts, plus a solved notebook. These notebooks run on this dataset:
 
-- [Introduction to Data Analysis](https://www.kaggle.com/code/a7madmostafa/zero-grad-da-introduction-to-data-analysis)
-- [Light Linear Algebra](https://www.kaggle.com/code/a7madmostafa/zero-grad-da-light-linear-algebra)
 """
+
+
+def nilecart_notebooks():
+    """The lessons whose Kaggle notebook attaches this dataset, in course order."""
+    rows = []
+    for slug, lesson in COURSE["lessons"].items():
+        meta = ROOT / "website" / "kaggle" / f"{slug}.json"
+        dataset = f"{COURSE['kaggle_user']}/{COURSE['kaggle_dataset']}"
+        if lesson.get("kaggle_slug") and meta.exists() and dataset in json.loads(meta.read_text(encoding="utf-8"))["dataset_sources"]:
+            rows.append(f"- [{lesson['title']}](https://www.kaggle.com/code/{COURSE['kaggle_user']}/{lesson['kaggle_slug']})")
+    return "\n".join(rows) + "\n"
+
+
+DESCRIPTION += nilecart_notebooks()
 
 ORDER_FIELDS = [
     ("order_id", "integer", "Order line id (10001 and up)."),

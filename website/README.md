@@ -63,10 +63,15 @@ The Kaggle account is `a7madmostafa` (set in `website/build/course.json`, the me
 
 ```bash
 kaggle datasets create -p data/nilecart        # first time; later: kaggle datasets version -p data/nilecart -m "update"
-python website/build/kaggle_push.py stats      # one lesson; --all for every lesson (drafts only by name)
+python website/build/kaggle_push.py --code     # the project-code dataset (the three charts.py files)
+python website/build/kaggle_push.py stats      # one lesson; --all for every lesson with a kaggle_slug
 ```
 
-Notebooks are pushed as private first (`is_private: true`) and made public once reviewed. Introduction and Light linear algebra are public. (Distribution was public too; the lesson was removed on 2026-11-18, its Kaggle notebook still has to be deleted on Kaggle.)
+Every notebook of the course is public on Kaggle (2026-11-18), 16 in all; the old Distribution notebook was deleted.
+The notebooks from `02_matplotlib` on and the projects get a setup cell at push time (`kaggle_setup` in `course.json`):
+they attach the original public sources (the Titanic competition, the World Happiness and Airbnb datasets, NileCart)
+instead of re-uploading that data, plus `a7madmostafa/zero-grad-da-project-code` for `charts.py`. The Plotly notebook
+reads `airbnb_cleaned.csv` from the Airbnb project notebook's output, so push the Airbnb project first.
 
 ## Roadmap
 
@@ -91,8 +96,8 @@ a lesson page (article) for each, the rendered notebook, and links. Plan as of 2
 
 ### 4. Visualization (`4-visualization/`)
 - ✅ Principles ("Why visualize, and which chart", page `site/viz/`): our draft and the earlier `01_principles` merged into
-  `4-visualization/01_principles.ipynb`, built by `build_viz.py`; all charts static Matplotlib / Seaborn. Not on Kaggle yet
-- ✅ Matplotlib (`02_matplotlib`): page + rendered notebook; the notebook buttons point to GitHub (not on Kaggle)
+  `4-visualization/01_principles.ipynb`, built by `build_viz.py`; all charts static Matplotlib / Seaborn
+- ✅ Matplotlib (`02_matplotlib`): page + rendered notebook
 - ✅ Seaborn (`03_seaborn`): page + rendered notebook
 - ✅ Plotly (`04_plotly`): page with live Plotly charts (plotly.js 2.35.2 from jsDelivr, data in `assets/data/airbnb.js`) + rendered notebook (its outputs are static PNGs)
 - ✅ More charts (`05_more_charts`): page + rendered notebook
@@ -117,16 +122,11 @@ a lesson page (article) for each, the rendered notebook, and links. Plan as of 2
 
 ### Site-wide
 - ✅ Lesson pages for parts 4–6: `course.json` entries, rendered notebooks, pager links, course-page items linked
-- ⬜ Notebooks from `4-visualization/` on read data with `../data/...`; to put them on Kaggle they need the
-  `/kaggle/input` fallback our notebooks have, plus Kaggle datasets for Titanic, World Happiness, Airbnb (decide:
-  Kaggle for these too, or only the rendered notebook on the site)
+- ✅ Every notebook on Kaggle, the lesson pages' buttons point there
 - ⬜ Optional: window functions and `merge_asof` (in the older pandas notebook under `_reference/`) are
   not in our Grouping lesson; add them there or in the time-series part
 
 ### Housekeeping
-- ⬜ Kaggle: delete the old Distribution notebook; push the rebuilt Linear algebra, Statistics, NumPy and Pandas
-  notebooks (their "next lesson" text changed); `make_dataset_metadata.py --push` (the lesson list changed)
-- ⬜ Export to zero-grad and deploy (the final-project links in the READMEs work only after that)
 - ⬜ Rename the local folder to `Python Data Analysis Course` (from outside a session working in it)
 
 ## Sources

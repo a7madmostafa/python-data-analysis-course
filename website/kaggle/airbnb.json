@@ -1,0 +1,16 @@
+{
+  "id": "a7madmostafa/zero-grad-da-airbnb-nyc-project",
+  "title": "Zero Grad DA: Airbnb NYC Project",
+  "code_file": "analysis.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "dgomonov/new-york-city-airbnb-open-data",
+    "a7madmostafa/zero-grad-da-project-code"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}
