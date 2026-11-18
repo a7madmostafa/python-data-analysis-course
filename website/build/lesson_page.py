@@ -5,7 +5,8 @@ notebook buttons, table of contents, pager, shared widget helpers) is the same o
 pages/_shell.css, the same look as the hand-written pages of lessons 1-8.
 
 A fragment starts with a JSON meta block, then the <section class="sec"> blocks, then optionally one <style> and
-one <script>. The script runs inside the page's IIFE, after the helpers ($, $$, cssv, head, setup, text, axes,
+one <script>. "primary": [label, url] replaces the notebook button (for a lesson without a notebook), and
+"no_rendered_notebook": true drops the "show the notebook here" button. The script runs inside the page's IIFE, after the helpers ($, $$, cssv, head, setup, text, axes,
 onRedraw, PAL, nf) and must define `function main() {...}`, called once the page has loaded.
 
     <!--meta {"title": "Matplotlib", "h1": "Matplotlib", "title_ar": "Matplotlib", "lead": "...",
@@ -102,7 +103,10 @@ def build(slug):
     prev = order[i - 1] if i > 0 else None
     nxt = order[i + 1] if i + 1 < len(order) else None
     t_ar = lambda s: COURSE["lessons"][s]["title_ar"]
-    nb_url, nb_label = notebook_url(lesson)
+    if meta.get("primary"):          # a lesson without a notebook (Streamlit, the projects) names its own main link
+        nb_label, nb_url = meta["primary"]
+    else:
+        nb_url, nb_label = notebook_url(lesson)
     title_ar = html.escape(lesson["title_ar"])
 
     top_prev = (f'<a class="iconbtn" href="{lesson_link(prev)}" aria-label="الدرس اللي فات: {html.escape(t_ar(prev))}" title="الدرس اللي فات: {html.escape(t_ar(prev))}">→</a>'

@@ -75,6 +75,11 @@
       "title": "Mini EDA",
       "title_ar": "Mini EDA",
       "notebook": "4-visualization/06_mini_eda.ipynb"
+    },
+    "streamlit": {
+      "title": "Streamlit",
+      "title_ar": "Streamlit",
+      "notebook": null
     }
   }
 }

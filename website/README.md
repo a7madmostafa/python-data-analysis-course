@@ -100,8 +100,9 @@ a lesson page (article) for each, the rendered notebook, and links. Plan as of 2
 - ✅ Mini EDA on NileCart (`06_mini_eda`): page + rendered notebook
 
 ### 5. Streamlit (`5-streamlit/`)
-- ⬜ Page(s) from the guide (`5-streamlit/README.md`): the rerun model, widgets, layout, cache, state, pages, deploy;
-  screenshots of the 12 small apps instead of a rendered notebook
+- ✅ Page from the guide (`5-streamlit/README.md`): the rerun model, the dashboard pattern, cache, state, forms, pages, uv,
+  deploy; instead of screenshots, an in-page simulation of `06_filters.py` (Titanic, `assets/data/titanic.js`) that
+  shows the script rerunning, plus the cache and session-state demos
 - ⬜ Deploy the multipage Titanic app on Community Cloud and link it
 
 ### 6. Projects (`6-projects/`)

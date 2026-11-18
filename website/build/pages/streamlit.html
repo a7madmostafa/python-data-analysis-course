@@ -1,0 +1,298 @@
+<!--meta
+{"title": "Streamlit",
+ "h1": "Streamlit",
+ "kicker": "Streamlit",
+ "lead": "النوت بوك مكان كويس تحلل فيه، ومكان وحش تشارك منه: أغلب اللي محتاجين الإجابة عمرهم ما هيفتحوا Jupyter.<br><b>Streamlit</b> بيحوّل Python script لصفحة ويب فيها فلاتر وجداول ورسومات،<br>من غير HTML ولا JavaScript: ملف <span class=\"en\">.py</span> واحد، وأمر واحد.",
+ "description": "درس Streamlit بالعربي: فكرة الـ rerun، والـ widgets، ونمط الـ dashboard، والـ layout، والـ cache، والـ session state، والـ forms، والصفحات المتعددة، و uv، والنشر ببلاش على Community Cloud.",
+ "og_description": "التحليل يبقى app: فلاتر و cache و state وصفحات، والنشر ببلاش.",
+ "next_soon": "مشروع Titanic",
+ "primary": ["📂 الـ 12 app على GitHub", "https://github.com/a7madmostafa/python-data-analysis-course/tree/main/5-streamlit"],
+ "no_rendered_notebook": true,
+ "data_url": "https://www.kaggle.com/competitions/titanic/data",
+ "data_label": "🗂️ داتا Titanic على Kaggle",
+ "footer": "الداتا: قايمة ركاب Titanic (ملف الـ training من Kaggle)، 891 راكب.<br>\n      الـ app اللي في الصفحة محاكاة في المتصفح لنفس الـ script: الأرقام هي نفس اللي هيطلعها Streamlit.",
+ "scripts": ["../assets/data/titanic.js"]}
+-->
+    <section class="sec" id="why">
+      <div class="sec-head"><h2><span class="num">1</span>ليه Streamlit؟</h2></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>طريقة مشاركة التحليل</th><th>كويسة لـ</th><th>حدودها</th></tr></thead>
+        <tbody>
+          <tr><td>Notebook</td><td>المحلل نفسه</td><td>محتاج Python و Jupyter عشان تتقري</td></tr>
+          <tr><td>تقرير ثابت (PDF، سلايدز)</td><td>إجابة ثابتة</td><td>مفيش فلاتر، ولا أسئلة بعدها</td></tr>
+          <tr><td>BI tool (Power BI، Tableau)</td><td>dashboards الشركات</td><td>أداة تانية، ومهارات تانية، ولايسنسات</td></tr>
+          <tr><td><b>Streamlit app</b></td><td>صفحة تفاعلية من كود pandas و Plotly بتاعك</td><td>صفحة لكل script، مش موقع كامل</td></tr>
+        </tbody>
+      </table></div>
+      <p>فولدر <span class="en">5-streamlit/apps/</span> فيه 12 app صغيرين، <b>فكرة جديدة في كل واحد</b>، على قايمة ركاب Titanic. والـ dashboards الكاملة في المشاريع.</p>
+<pre>uv run streamlit run 5-streamlit/apps/01_hello.py      <span class="c"># opens http://localhost:8501</span></pre>
+      <p>عدّل الملف واحفظه: الصفحة بتعرض <b>Rerun</b> (أو اختار <b>Always rerun</b>). وقفّل الـ app بـ <span class="en">Ctrl + C</span> في الـ terminal.</p>
+      <div class="callout warn"><div class="ttl">⚠️ مش <span class="en">python app.py</span></div>
+        الـ app مبيشتغلش بـ <span class="en">python</span>، ومبيشتغلش جوه خلية نوت بوك. دايمًا <span class="en">streamlit run</span>.</div>
+    </section>
+
+    <section class="sec" id="rerun">
+      <div class="sec-head"><h2><span class="num">2</span>الفكرة كلها: الـ script بيعيد من الأول</h2></div>
+      <p>Streamlit بيشغّل الـ script بتاعك <b>من فوق لتحت</b>، وبيشغّله <b>تاني من فوق</b> كل مرة حد يلمس widget.
+        كل widget ببساطة بيرجّع قيمته الحالية:</p>
+<pre>age = st.slider(<span class="s">"Age"</span>, <span class="s">0</span>, <span class="s">80</span>, <span class="s">30</span>)        <span class="c"># an int, like input(), but in a browser</span>
+st.write(<span class="s">"Passengers older than"</span>, age, <span class="s">":"</span>, (df[<span class="s">"Age"</span>] &gt; age).sum())</pre>
+      <div class="voice">touch a widget → the whole script runs again<small>مفيش callbacks تربطها: حرّك الـ slider، الـ script يعيد بالـ age الجديد، والصفحة تتحدّث</small></div>
+      <p>تقريبًا كل اللي جاي طالع من القاعدة دي. ده <span class="en">06_filters.py</span> شغال: غيّر أي حاجة في الـ app، وبص على عدّاد الـ reruns والكود اللي جنبه:</p>
+      <div class="widget" id="wApp"></div>
+    </section>
+
+    <section class="sec" id="pattern">
+      <div class="sec-head"><h2><span class="num">3</span>نمط الـ dashboard</h2></div>
+      <p>تقريبًا كل dashboard ليه نفس الـ 3 خطوات:</p>
+      <div class="cards">
+        <div class="card"><b>1. widgets</b>في الـ sidebar، بترجّع اختيارات المستخدم.</div>
+        <div class="card"><b>2. mask لكل widget</b>boolean، تتجمع بـ <span class="en">&amp;</span>، فيطلع DataFrame متفلتر.</div>
+        <div class="card"><b>3. أرقام ورسومات</b>بتتحسب من الـ DataFrame المتفلتر <b>بس</b>، عمرها ما تلمس <span class="en">df</span>.</div>
+      </div>
+<pre>classes = st.sidebar.multiselect(<span class="s">"Class"</span>, [<span class="s">1</span>, <span class="s">2</span>, <span class="s">3</span>], default=[<span class="s">1</span>, <span class="s">2</span>, <span class="s">3</span>])
+ages = st.sidebar.slider(<span class="s">"Age"</span>, <span class="s">0</span>, <span class="s">80</span>, (<span class="s">0</span>, <span class="s">80</span>))                   <span class="c"># a tuple -> a range slider</span>
+view = df[df[<span class="s">"Pclass"</span>].isin(classes) &amp; df[<span class="s">"Age"</span>].between(*ages)]
+
+<span class="k">if</span> view.empty:
+    st.warning(<span class="s">"No passenger matches these filters."</span>)
+    st.stop()                                                        <span class="c"># nothing after this line runs</span>
+st.metric(<span class="s">"Passengers"</span>, len(view))
+st.plotly_chart(px.histogram(view, x=<span class="s">"Age"</span>))</pre>
+      <div class="callout warn"><div class="ttl">⚠️ 177 راكب من غير سن</div>
+        <span class="en">between</span> بيرمي الـ NaN من غير ما يقولك. عشان كده الـ app فيه checkbox "Keep passengers with unknown age": جرّبه فوق.</div>
+      <h3 class="sub">الـ apps الـ 12</h3>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الـ App</th><th>الفكرة</th></tr></thead>
+        <tbody>
+          <tr><td class="en">01_hello.py</td><td>الـ script بيعيد من الأول مع كل كليك</td></tr>
+          <tr><td class="en">02_text.py</td><td><span class="en">title</span>، و <span class="en">header</span>، و markdown، و code، و LaTeX، و <span class="en">st.write</span></td></tr>
+          <tr><td class="en">03_data.py</td><td><span class="en">st.dataframe</span>، و <span class="en">column_config</span>، و <span class="en">st.table</span>، و <span class="en">st.metric</span></td></tr>
+          <tr><td class="en">04_charts.py</td><td>charts سريعة، و <span class="en">st.map</span>، و <span class="en">st.plotly_chart</span>، و <span class="en">st.pyplot</span></td></tr>
+          <tr><td class="en">05_widgets.py</td><td>كل widget للإدخال والقيمة اللي بيرجّعها</td></tr>
+          <tr><td class="en">06_filters.py</td><td>widgets ← DataFrame متفلتر ← أرقام ورسومات</td></tr>
+          <tr><td class="en">07_layout.py</td><td>sidebar، و columns، و tabs، و expander، و container</td></tr>
+          <tr><td class="en">08_status_media.py</td><td>رسايل، و spinner، و progress، و status، وصور</td></tr>
+          <tr><td class="en">09_cache.py</td><td class="en">@st.cache_data</td></tr>
+          <tr><td class="en">10_state.py</td><td><span class="en">st.session_state</span>، والـ keys بتاعة الـ widgets</td></tr>
+          <tr><td class="en">11_form.py</td><td><span class="en">st.form</span>: widgets كتير، rerun واحد</td></tr>
+          <tr><td class="en">12_download.py</td><td class="en">st.download_button</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>الرسومات</b>: 3 عائلات. charts Streamlit السريعة (<span class="en">st.bar_chart</span>، و <span class="en">st.line_chart</span>، و <span class="en">st.map</span>) بتاخد جدول وترسم في سطر،
+        و <span class="en">st.plotly_chart(fig)</span> لأي Plotly figure، و <span class="en">st.pyplot(fig)</span> لـ Matplotlib أو Seaborn. في الـ apps، فضّل <b>Plotly</b>: الـ hover والـ zoom ببلاش.</p>
+    </section>
+
+    <section class="sec" id="cache">
+      <div class="sec-head"><h2><span class="num">4</span>الـ Cache: متعملش الشغل البطيء كل مرة</h2></div>
+      <p>عشان كل كليك بيعيد الـ script كله، <span class="en">pd.read_csv</span> بيشتغل مع كل كليك برضه. مع ملف كبير أو database أو API، ده بطيء.
+        <span class="en">@st.cache_data</span> بيفتكر الـ function رجّعت إيه لنفس الـ arguments. <span class="en">09_cache.py</span> بيخلّي الـ loader ينام ثانيتين عشان تحس بالفرق:</p>
+      <div class="widget" id="wCache"></div>
+<pre><span class="k">@st.cache_data</span>               <span class="c"># the only change: one line above the function</span>
+<span class="k">def</span> load_data(path):
+    <span class="k">return</span> pd.read_csv(path)
+
+st.cache_data.clear()        <span class="c"># e.g. after the file changed on disk</span></pre>
+    </section>
+
+    <section class="sec" id="state">
+      <div class="sec-head"><h2><span class="num">5</span>الـ Session state: ذاكرة الـ app</h2></div>
+      <p>المتغير العادي بيتصفّر مع كل rerun. العدّاد اللي مكتوب <span class="en">count = 0; if st.button(...): count += 1</span> عمره ما هيعدّي 1.<br>
+        <span class="en">st.session_state</span> dictionary بيعيش بعد الـ reruns (واحد لكل tab في المتصفح). دوس على الزرارين:</p>
+      <div class="widget" id="wState"></div>
+      <p>والـ widget اللي ليه <span class="en">key="name"</span> بيخزّن قيمته في <span class="en">st.session_state["name"]</span> كمان.</p>
+      <h3 class="sub">الـ Forms: widgets كتير، rerun واحد</h3>
+      <p>جوه <span class="en">with st.form("name"):</span> مفيش حاجة بتعيد لحد ما زرار الـ submit يتداس.
+        استخدمها لما المستخدم بيملا كذا خانة، والمهم التركيبة النهائية بس.</p>
+<pre><span class="k">with</span> st.form(<span class="s">"filters"</span>):
+    classes = st.multiselect(<span class="s">"Class"</span>, [<span class="s">1</span>, <span class="s">2</span>, <span class="s">3</span>], default=[<span class="s">1</span>, <span class="s">2</span>, <span class="s">3</span>])
+    ages = st.slider(<span class="s">"Age"</span>, <span class="s">0</span>, <span class="s">80</span>, (<span class="s">0</span>, <span class="s">80</span>))
+    submitted = st.form_submit_button(<span class="s">"Apply"</span>)     <span class="c"># the only rerun</span></pre>
+    </section>
+
+    <section class="sec" id="layout">
+      <div class="sec-head"><h2><span class="num">6</span>الـ Layout، والصفحات، والـ theme</h2></div>
+<pre>st.set_page_config(page_title=<span class="s">"Titanic survival"</span>, page_icon=<span class="s">"🚢"</span>, layout=<span class="s">"wide"</span>)   <span class="c"># first Streamlit call</span>
+<span class="k">with</span> st.sidebar: ...                                   <span class="c"># or st.sidebar.slider(...)</span>
+col1, col2 = st.columns(<span class="s">2</span>); col1.metric(...)            <span class="c"># side by side</span>
+tab1, tab2 = st.tabs([<span class="s">"Overview"</span>, <span class="s">"Details"</span>])
+<span class="k">with</span> st.expander(<span class="s">"How was this computed?"</span>): ...</pre>
+      <p>app صفحة واحدة بـ tabs كفاية لأغلب المشاريع (زي Titanic). dashboard الـ Airbnb بيكبر لكذا صفحة:</p>
+<pre>03-airbnb-nyc/
+├── streamlit_app.py        <span class="c"># the entrypoint: data, shared sidebar filters, st.navigation</span>
+├── views/                  <span class="c"># one file per page (overview, prices, map, listings)</span>
+├── charts.py               <span class="c"># one function per chart, shared with the notebook</span>
+└── .streamlit/config.toml  <span class="c"># the theme</span></pre>
+      <div class="cards">
+        <div class="card"><b>كذا صفحة</b>الـ entrypoint هو البرواز والصفحات هي الصور: اللي <span class="en">streamlit_app.py</span> بيرسمه (فلاتر الـ sidebar) بيظهر في كل صفحة، و <span class="en">st.navigation([...]).run()</span> بيشغّل ملف الصفحة اللي اتداس عليها. الداتا المتفلترة بتتشارك بـ <span class="en">st.session_state</span>.</div>
+        <div class="card"><b>Theme</b><span class="en">.streamlit/config.toml</span> بيحدد ألوان كل الـ widgets: <span class="en">primaryColor</span>، و <span class="en">backgroundColor</span>، و <span class="en">secondaryBackgroundColor</span>، و <span class="en">textColor</span>، و <span class="en">font</span>.</div>
+        <div class="card"><b><span class="en">charts.py</span></b>function لكل رسمة، بيستخدمها النوت بوك والـ app الاتنين: الرسمة تتعدّل في حتة واحدة.</div>
+      </div>
+    </section>
+
+    <section class="sec" id="deploy">
+      <div class="sec-head"><h2><span class="num">7</span>uv، والنشر ببلاش</h2></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الخطوة</th><th>الأمر</th></tr></thead>
+        <tbody>
+          <tr><td>تبدأ مشروع</td><td class="en">uv init my-app &amp;&amp; cd my-app</td></tr>
+          <tr><td>تضيف packages</td><td><span class="en">uv add streamlit pandas plotly</span> (بيكتب <span class="en">pyproject.toml</span> و <span class="en">uv.lock</span>)</td></tr>
+          <tr><td>تجهّز مشروع موجود</td><td class="en">uv sync</td></tr>
+          <tr><td>تشغّل أي حاجة فيه</td><td class="en">uv run streamlit run streamlit_app.py</td></tr>
+        </tbody>
+      </table></div>
+      <p><span class="en">uv.lock</span> بيسجّل النسخة بالظبط لكل package. اعمله commit مع الكود، وكل جهاز (لابتوب زميلك، سيرفر النشر) يبني نفس البيئة.
+        من غيره، <span class="en">pip install pandas</span> هيجيب نسخة تانية السنة الجاية، والـ app ممكن يبوظ.</p>
+      <h3 class="sub">Streamlit Community Cloud</h3>
+      <div class="cards">
+        <div class="card"><b>1. GitHub</b>ارفع فولدر الـ app، ومعاه <span class="en">pyproject.toml</span> و <span class="en">uv.lock</span> والداتا.</div>
+        <div class="card"><b>2. Sign in</b>على <span class="en">share.streamlit.io</span> بحساب GitHub.</div>
+        <div class="card"><b>3. Create app</b>اختار الـ repo، والـ branch، ومسار <span class="en">streamlit_app.py</span>، و Python 3.13 من <i>Advanced settings</i>.</div>
+        <div class="card"><b>4. Deploy</b>بعد دقيقة الـ app شغال على <span class="en">https://&lt;name&gt;.streamlit.app</span>.</div>
+      </div>
+      <p>بعد كده كل <span class="en">git push</span> بيحدّث الـ app لوحده. الأخطاء والـ <span class="en">print()</span> في <b>Manage app → logs</b>.
+        الـ apps المجانية بتنام بعد كام يوم هادي، وأول زائر بيصحّيها.</p>
+    </section>
+
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">8</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sheet">
+        <div class="card"><h4>القاعدة</h4>أي لمسة لـ widget = الـ script كله يعيد من فوق</div>
+        <div class="card"><h4>الـ Dashboard</h4>widgets ← mask لكل واحد ← <span class="en">view</span> ← أرقام ورسومات من <span class="en">view</span> بس · <span class="en">st.stop()</span> لو فاضي</div>
+        <div class="card"><h4>الأداء</h4><span class="en">@st.cache_data</span> على أي حاجة بطيئة</div>
+        <div class="card"><h4>الذاكرة</h4><span class="en">st.session_state</span> · <span class="en">key=</span> · <span class="en">st.form</span> لـ rerun واحد</div>
+        <div class="card"><h4>الشكل</h4><span class="en">set_page_config · sidebar · columns · tabs · expander · st.navigation</span></div>
+        <div class="card"><h4>النشر</h4><span class="en">uv.lock</span> + GitHub + <span class="en">share.streamlit.io</span></div>
+      </div>
+    </section>
+
+<style>
+.st-app{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;direction:ltr;text-align:left;font-family:"Source Sans Pro",Inter,sans-serif;background:#fff;color:#31333f}
+@media(min-width:820px){.st-app{grid-template-columns:210px 1fr}}
+.st-side{background:#f0f2f6;padding:1rem;display:grid;gap:.9rem;align-content:start}
+.st-main{padding:1rem 1.2rem;min-width:0}
+.st-main h3{margin:0 0 .6rem;font-size:1.35rem;color:#31333f}
+.st-lbl{font-size:.82rem;margin-bottom:.25rem}
+.st-pills{display:flex;gap:.3rem;flex-wrap:wrap}
+.st-pills button{font:inherit;font-size:.82rem;border:1px solid #d0d3da;background:#fff;color:#31333f;border-radius:6px;padding:.15rem .6rem;cursor:pointer}
+.st-pills button[aria-pressed="true"]{background:#ff4b4b;border-color:#ff4b4b;color:#fff}
+.st-side input[type=range]{accent-color:#ff4b4b;width:100%}
+.st-side .chk{font-size:.82rem;color:#31333f}
+.st-side .chk input{accent-color:#ff4b4b}
+.st-metrics{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.8rem}
+.st-metric{border:1px solid #e6e8ee;border-radius:8px;padding:.5rem .8rem}
+.st-metric span{display:block;font-size:.8rem;color:#6b6f7b}
+.st-metric b{font-size:1.6rem;font-weight:600}
+.st-warn{background:#fffce7;border:1px solid #f5e9a9;color:#926c05;border-radius:8px;padding:.6rem .8rem;font-size:.9rem}
+.st-app canvas{background:#fff}
+.rerun{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;margin:.7rem 0 .4rem;font-size:.9rem}
+.rerun b{font-family:"JetBrains Mono",monospace;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+.trace{direction:ltr;text-align:left;font-family:"JetBrains Mono",monospace;font-size:.78rem;background:var(--board);color:#9a9a9a;border-radius:10px;padding:.6rem 0;overflow-x:auto;line-height:1.6}
+.trace div{padding:0 .8rem;white-space:pre;transition:background .15s,color .15s}
+.trace div.on{background:rgba(242,201,76,.16);color:#f2c94c}
+.trace div.skip{color:#555}
+.mini{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:760px){.mini{grid-template-columns:1fr 1fr}}
+.mini .box{border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;background:var(--surface-2)}
+.mini .box h4{margin:0 0 .4rem;font-size:.95rem}
+.mini .val{font-family:"JetBrains Mono",monospace;font-size:1.6rem;font-weight:700;direction:ltr;unicode-bidi:isolate}
+</style>
+<script>
+const T = window.TITANIC, NT = T.pclass.length;
+const SCRIPT = [
+  "classes = st.multiselect(\"Class\", [1, 2, 3], default=[1, 2, 3])",
+  "sex = st.radio(\"Sex\", [\"All\", \"male\", \"female\"], horizontal=True)",
+  "ages = st.slider(\"Age\", 0, 80, (0, 80))",
+  "keep_unknown = st.checkbox(\"Keep passengers with unknown age\", value=True)",
+  "mask = df[\"Pclass\"].isin(classes)",
+  "if sex != \"All\": mask &= df[\"Sex\"] == sex",
+  "age_ok = df[\"Age\"].between(*ages)",
+  "if keep_unknown: age_ok |= df[\"Age\"].isna()",
+  "data = df[mask & age_ok]",
+  "if data.empty: st.warning(...); st.stop()",
+  "col1.metric(\"Passengers\", len(data))",
+  "col2.metric(\"Survival rate\", f\"{data['Survived'].mean():.0%}\")",
+  "st.plotly_chart(px.bar(rates, x=\"Pclass\", y=\"Survived\"))",
+];
+
+/* ---------- widget: the 06_filters app, rerunning ---------- */
+function appWidget(root) {
+  const st = { classes: [1, 2, 3], sex: "All", lo: 0, hi: 80, keep: true };
+  let runs = 1, anim = null;
+  root.innerHTML = head("06_filters.py: Who survived the Titanic?", "app حقيقي مصغّر على الـ 891 راكب. كل لمسة = rerun كامل من أول سطر.", "Streamlit") + `
+    <div class="st-app">
+      <div class="st-side">
+        <div><div class="st-lbl">Class</div><div class="st-pills">${[1, 2, 3].map(c => `<button data-c="${c}" aria-pressed="true">${c}</button>`).join("")}</div></div>
+        <div><div class="st-lbl">Sex</div><div class="st-pills">${["All", "male", "female"].map(s => `<button data-x="${s}" aria-pressed="${s === "All"}">${s}</button>`).join("")}</div></div>
+        <div><div class="st-lbl">Age: <span data-o="age">0 – 80</span></div><input type="range" min="0" max="80" value="0" data-r="lo"><input type="range" min="0" max="80" value="80" data-r="hi"></div>
+        <label class="chk"><input type="checkbox" checked data-k="keep"> Keep passengers with unknown age</label>
+      </div>
+      <div class="st-main"><h3>Who survived the Titanic?</h3><div data-s="out"></div></div>
+    </div>
+    <div class="rerun"><span>reruns: <b data-s="runs">1</b></span><span class="muted">كل كليك بيشغّل الـ 13 سطر دول من الأول:</span></div>
+    <div class="trace">${SCRIPT.map((l, i) => `<div data-l="${i}">${String(i + 1).padStart(2)}  ${l.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</div>`).join("")}</div>`;
+  const out = $("[data-s=out]", root);
+  function compute() {
+    const ix = [...Array(NT).keys()].filter(i => st.classes.includes(T.pclass[i]) && (st.sex === "All" || (st.sex === "female") === !!T.female[i]) &&
+      ((T.age[i] !== null && T.age[i] >= st.lo && T.age[i] <= st.hi) || (st.keep && T.age[i] === null)));
+    if (!ix.length) { out.innerHTML = `<div class="st-warn">No passenger matches these filters. Pick at least one class.</div>`; return 9; }
+    const rate = ix.reduce((a, i) => a + T.survived[i], 0) / ix.length;
+    out.innerHTML = `<div class="st-metrics"><div class="st-metric"><span>Passengers</span><b>${ix.length}</b></div><div class="st-metric"><span>Survival rate</span><b>${Math.round(rate * 100)}%</b></div></div><canvas></canvas>`;
+    const cv = $("canvas", out), { ctx, w, h } = setup(cv, 200), pad = { l: 40, r: 10, t: 14, b: 28 }, cls = [1, 2, 3].filter(c => st.classes.includes(c)), bw = (w - pad.l - pad.r) / cls.length;
+    ctx.strokeStyle = "#e6e8ee"; [0, .5, 1].forEach(p => { const y = h - pad.b - p * (h - pad.t - pad.b); ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke(); text(ctx, p * 100 + "%", pad.l - 5, y + 3, { col: "#6b6f7b", align: "right" }); });
+    cls.forEach((c, k) => { const g = ix.filter(i => T.pclass[i] === c), r = g.length ? g.reduce((a, i) => a + T.survived[i], 0) / g.length : 0, bh = r * (h - pad.t - pad.b), x = pad.l + k * bw + bw * .2;
+      ctx.fillStyle = "#636efa"; ctx.fillRect(x, h - pad.b - bh, bw * .6, bh); text(ctx, Math.round(r * 100) + "%", x + bw * .3, h - pad.b - bh - 5, { col: "#31333f", align: "center", font: "bold 11px Inter, sans-serif" });
+      text(ctx, "Class " + c, x + bw * .3, h - 9, { col: "#31333f", align: "center" }); });
+    return SCRIPT.length - 1;
+  }
+  function rerun(first) {
+    const last = compute(); if (!first) runs++; $("[data-s=runs]", root).textContent = runs;
+    const lines = $$("[data-l]", root); clearInterval(anim); lines.forEach(d => d.className = ""); let k = 0;
+    anim = setInterval(() => { lines.forEach(d => d.classList.remove("on")); if (k > last) { clearInterval(anim); return; }
+      const skip = (k === 5 && st.sex === "All") || (k === 7 && !st.keep); lines[k].className = skip ? "skip" : "on"; k++; }, first ? 0 : 55);
+    if (first) { clearInterval(anim); }
+  }
+  $$("[data-c]", root).forEach(b => b.onclick = () => { const c = +b.dataset.c; st.classes = st.classes.includes(c) ? st.classes.filter(x => x !== c) : [...st.classes, c].sort(); b.setAttribute("aria-pressed", st.classes.includes(c)); rerun(); });
+  $$("[data-x]", root).forEach(b => b.onclick = () => { st.sex = b.dataset.x; $$("[data-x]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); rerun(); });
+  $$("[data-r]", root).forEach(r => r.onchange = r.oninput = e => { let lo = +$("[data-r=lo]", root).value, hi = +$("[data-r=hi]", root).value; if (lo > hi) [lo, hi] = [hi, lo]; st.lo = lo; st.hi = hi; $("[data-o=age]", root).textContent = `${lo} – ${hi}`; if (e.type === "change") rerun(); else compute(); });
+  $("[data-k=keep]", root).onchange = e => { st.keep = e.target.checked; rerun(); };
+  rerun(true); onRedraw(compute);
+}
+
+/* ---------- widget: cache ---------- */
+function cacheWidget(root) {
+  let cached = false, warm = false, busy = false, runs = 0;
+  root.innerHTML = head("09_cache.py", "الـ loader بينام ثانيتين. شغّل الـ cache، وحرّك الـ slider كذا مرة.", "Streamlit") + `
+    <div class="optrow"><label class="chk"><input type="checkbox" data-k="c"> <span class="en">Use @st.cache_data</span></label><button class="btn" data-a="clear">st.cache_data.clear()</button></div>
+    <div class="ctl"><label>Move me to rerun the script <output data-o="v">5</output></label><input type="range" min="0" max="10" value="5" data-r="v"></div>
+    <div class="stats" style="margin-top:.7rem"><div class="stat"><span>This rerun took</span><b data-s="t">–</b></div><div class="stat"><span>reruns</span><b data-s="n">0</b></div></div>
+    <div class="status" data-s="msg"></div>`;
+  function run() {
+    if (busy) return; busy = true; runs++; $("[data-s=n]", root).textContent = runs;
+    const slow = !cached || !warm, t = slow ? 2.0 + Math.random() * .05 : .001 + Math.random() * .003;
+    $("[data-s=t]", root).textContent = "…"; $("[data-s=msg]", root).textContent = slow ? "⏳ pd.read_csv بيشتغل (ثانيتين)…" : "";
+    setTimeout(() => { $("[data-s=t]", root).textContent = t.toFixed(2) + " s"; if (cached) warm = true; busy = false;
+      $("[data-s=msg]", root).textContent = !cached ? "من غير cache: كل حركة بتستنى ثانيتين." : slow ? "أول run بالـ cache بيستنى، وبيحفظ النتيجة." : "من الـ cache: نفس الـ arguments، فالـ function مش اشتغلت أصلًا."; }, slow ? 2000 : 120);
+  }
+  $("[data-k=c]", root).onchange = e => { cached = e.target.checked; run(); };
+  $("[data-a=clear]", root).onclick = () => { warm = false; $("[data-s=msg]", root).textContent = "الـ cache اتمسح: أول run جاي هيستنى تاني."; };
+  $("[data-r=v]", root).onchange = e => { $("[data-o=v]", root).textContent = e.target.value; run(); };
+  run();
+}
+
+/* ---------- widget: session state counter ---------- */
+function stateWidget(root) {
+  let ss = 0, runs = 0;
+  root.innerHTML = head("10_state.py: عدّاد", "الزرارين بيزوّدوا واحد. الفرق إن الأول متغير عادي، والتاني في st.session_state.", "Streamlit") + `
+    <div class="mini">
+      <div class="box"><h4 class="en">count = 0 (normal variable)</h4><div class="val" data-s="a">0</div><button class="btn" data-a="a" style="margin-top:.5rem">Add one</button>
+        <div class="codeout" style="direction:ltr;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.78rem;margin-top:.5rem;white-space:pre">count = 0               # runs again on every click\nif st.button("Add one"):\n    count += 1</div></div>
+      <div class="box"><h4 class="en">st.session_state.count</h4><div class="val" data-s="b">0</div><button class="btn primary" data-a="b" style="margin-top:.5rem">Add one</button>
+        <div class="codeout" style="direction:ltr;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.78rem;margin-top:.5rem;white-space:pre">if "count" not in st.session_state:\n    st.session_state.count = 0      # first run only\nif st.button("Add one"):\n    st.session_state.count += 1</div></div>
+    </div><div class="status" data-s="msg" style="margin-top:.6rem"></div>`;
+  $("[data-a=a]", root).onclick = () => { runs++; $("[data-s=a]", root).textContent = 1; $("[data-s=msg]", root).textContent = `rerun ${runs}: "count = 0" اشتغل تاني، وبعدين +1. هيفضل 1 مهما دوست.`; setTimeout(() => {}, 0); };
+  $("[data-a=b]", root).onclick = () => { runs++; ss++; $("[data-s=b]", root).textContent = ss; $("[data-s=a]", root).textContent = 0; $("[data-s=msg]", root).textContent = `rerun ${runs}: الـ session_state عاش بعد الـ rerun، فبقى ${ss}. والمتغير العادي رجع 0 لأن زراره مش اتداس في الـ rerun ده.`; };
+}
+
+function main() { appWidget($("#wApp")); cacheWidget($("#wCache")); stateWidget($("#wState")); }
+</script>
