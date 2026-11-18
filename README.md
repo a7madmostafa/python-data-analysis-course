@@ -1,101 +1,82 @@
-# Data Analysis Course (working title)
+# Python Data Analysis Course
 
-A self-paced Data Analysis course for the **ZeroGrad** website, built alongside a live course
-"Data Preparation, Exploration & Visualization".
-Sister repo of `ML Course`; every ZeroGrad course is its own repo next to the others in `D:\Ahmad\00\`.
+From NumPy to interactive dashboards: solved notebooks, four complete projects, and a final project to
+build on your own. Everything runs on real data and every notebook is saved with its outputs, so you can
+read it on GitHub before running anything.
 
-Every lesson has two parts:
+Each lesson also has a page (in Arabic) with the explanation, diagrams and interactive charts:
+[zero-grad.com/courses/da](https://zero-grad.com/courses/da/).
 
-1. **The lesson page** (`site/<lesson>/index.html`): the explanation, figures, diagrams and interactive widgets, in Arabic, same look as the ML course.
-2. **The solved notebook** (`notebooks/<lesson>/<lesson>.ipynb`): all the code with outputs, published on Kaggle and rendered to `site/<lesson>/notebook/index.html`.
+## Study map
 
-No quizzes, no labs, no unsolved exercises.
+Work through the folders in order. Each notebook ends with a pointer to the next one.
 
-## What is in here
+| Part | Notebooks | What you learn |
+|---|---|---|
+| **[1. Foundations](1-foundations/)** | [1. introduction](1-foundations/01_intro.ipynb) · [2. linear algebra](1-foundations/02_linear_algebra.ipynb) · [3. statistics](1-foundations/03_statistics.ipynb) | what data analysis is and its workflow, data types; vectors, matrices and a table as a matrix; centre, spread, outliers, skew |
+| **[2. NumPy](2-numpy/)** | [NumPy](2-numpy/numpy.ipynb) | arrays vs lists, dtype and NaN, reshape, indexing and views, boolean masks, aggregation and axis, broadcasting, sorting |
+| **[3. pandas](3-pandas/)** | [1. basics](3-pandas/01_pandas_basics.ipynb) · [2. grouping and joining](3-pandas/02_grouping_joining.ipynb) · [3. cleaning](3-pandas/03_cleaning.ipynb) | Series and DataFrames, loading, inspecting, selecting, filtering, sorting; groupby, pivot tables, concat and merge; missing values, duplicates, types, text keys, impossible values |
+| **[4. Visualization](4-visualization/)** | [1. principles](4-visualization/01_principles.ipynb) · [2. Matplotlib](4-visualization/02_matplotlib.ipynb) · [3. Seaborn](4-visualization/03_seaborn.ipynb) · [4. Plotly](4-visualization/04_plotly.ipynb) · [5. more charts](4-visualization/05_more_charts.ipynb) · [6. mini EDA](4-visualization/06_mini_eda.ipynb) | which chart answers which question; static, statistical and interactive charts; reading statistical charts; one question answered end to end |
+| **[5. Streamlit](5-streamlit/)** | [guide](5-streamlit/README.md) · 12 small apps · a multipage app | turning an analysis into a web app with filters, caching, state, pages, and free deployment |
+| **[6. Projects](6-projects/)** | [Titanic](6-projects/01-titanic/) · [World Happiness](6-projects/02-world-happiness/) · [Airbnb NYC](6-projects/03-airbnb-nyc/) · Bike Sharing (coming) | complete analyses, each with a notebook and a dashboard that share one `charts.py` |
+| **[7. Final project](7-final-project/)** | [the brief](7-final-project/README.md) · [the datasets](https://zero-grad.com/courses/da/final-project/) | your own analysis and app, on one of six real datasets |
 
-| Path | What it is |
-|---|---|
-| `site/` | Laid out exactly as served at zero-grad.com/courses/da/ |
-| `site/index.html` | The course page (`/courses/da/`) |
-| `site/intro/` | Lesson: Introduction (what data analysis is, the workflow, data types, the NileCart tables), and `notebook/` |
-| `site/linalg/` | Lesson: Light linear algebra (scalar/vector/matrix, element-wise, dot product, a table as a matrix, transpose, matrix product), and `notebook/` |
-| `site/numpy/` | Lesson: NumPy (arrays vs lists, dtype and NaN, reshape, indexing and views, boolean masks, aggregation and axis, broadcasting, sort/argsort), and `notebook/` |
-| `site/stats/` | Lesson: Descriptive statistics (mean/median/mode, trimmed mean, std and ddof, percentiles and IQR, CV, describe(), outlier rules, skewness, group statistics), and `notebook/` |
-| `site/pandas/` | Lesson: Pandas basics (Series and DataFrame, read_csv/to_csv, first look, columns, loc/iloc, filtering, sorting), and `notebook/` |
-| `site/grouping/` | Lesson: Grouping & joining (groupby, agg, transform, pivot_table/crosstab, concat, merge and join types, unmatched and repeated keys, validate=), and `notebook/` |
-| `site/cleaning/` | Lesson: Light cleaning (missing values, duplicates, types, text keys, impossible values, a logged pipeline that rebuilds sales.csv from orders.csv), and `notebook/` |
-| `site/distribution/` | Lesson: Distribution charts (histogram, bins, log scale, KDE, box, violin/strip, ECDF), and `notebook/` with the notebook rendered to HTML |
-| `site/assets/data/` | NileCart data the lesson widgets read (`sales.js` for Distribution, `nilecart.js` for the Introduction, `linalg.js` for Linear algebra, `numpy.js` for NumPy, `stats.js` for Descriptive statistics, `pandas.js` for Pandas basics, `grouping.js` for Grouping & joining, `cleaning.js` for Light cleaning) |
-| `notebooks/<lesson>/` | Solved notebook + `kernel-metadata.json` for Kaggle |
-| `data/` | NileCart tables (`sales.csv` + raw tables) + `dataset-metadata.json` for Kaggle |
-| `build/` | Scripts that make everything above (see below) |
+## The stages of an analysis
 
-## Build
+Every project here follows the same path. It is a loop, not a line: exploring often reveals new quality
+problems, so you go back and clean again.
 
-```bash
-python build/make_orders_data.py data         # NileCart tables (seed 42)
-python build/export_site_data.py              # site/assets/data/*.js
-python build/build_intro.py                   # write + execute a lesson's notebook
-python build/build_linalg.py
-python build/build_numpy.py
-python build/build_stats.py
-python build/build_pandas.py
-python build/build_grouping.py
-python build/build_cleaning.py
-python build/build_distribution.py
-python build/render_notebook.py --all         # site/<lesson>/notebook/index.html
-python build/make_dataset_metadata.py --push  # Kaggle dataset About, column notes, cover
-python build/export_to_site.py                # copy site/ to ../zero-grad/site/courses/da
-```
+| # | Stage | Where it is practised |
+|---|---|---|
+| 1 | Collect and load | pandas basics; every project |
+| 2 | Inspect quality | pandas basics; the first look of every project |
+| 3 | Clean and transform | pandas cleaning; the cleaning sections of the projects |
+| 4 | Join and reshape | pandas grouping and joining |
+| 5 | Explore (EDA) | statistics; mini EDA; the projects |
+| 6 | Visualize | the visualization part |
+| 7 | Communicate | Streamlit; the dashboards and READMEs of the projects |
 
-Pages use site-absolute links (`/courses/da/...`), so preview them inside the zero-grad site: export, then serve `../zero-grad/site` and open `/courses/da/`.
-Deploy from the zero-grad repo (see its README). The courses page, home page and sitemap there link to the course.
+## Data
 
-Notebooks are generated by `build/build_<lesson>.py`: edit the script, not the `.ipynb`.
-Numbers in the lesson text are hard-coded, so after a rebuild check them against the notebook outputs.
+All datasets are in [`data/`](data/):
 
-## Kaggle
+| File | Used in | Source |
+|---|---|---|
+| `nilecart/` | foundations, pandas, visualization | NileCart, a made-up online shop in Cairo (prices in EGP), generated with planted errors for the cleaning lesson. Also on Kaggle: [nilecart-sales](https://www.kaggle.com/datasets/a7madmostafa/nilecart-sales) |
+| `titanic.csv` | Streamlit, Titanic project | [Kaggle: Titanic](https://www.kaggle.com/competitions/titanic/data) (training file) |
+| `world_happiness_2021.csv` | Plotly, World Happiness project | [World Happiness Report 2021](https://www.kaggle.com/datasets/ajaypalsinghlo/world-happiness-report-2021) |
+| `airbnb/` | Plotly, Airbnb project | [New York City Airbnb Open Data 2019](https://www.kaggle.com/datasets/dgomonov/new-york-city-airbnb-open-data), from Inside Airbnb |
 
-The Kaggle account is `a7madmostafa` (set in `build/course.json`, the two `*-metadata.json` files and the lesson page). The CLI needs your API token in the environment (`KAGGLE_API_TOKEN`) or in `~/.kaggle/`. Then:
+The cleaned files (`*_clean.csv`, `airbnb/airbnb_cleaned.csv`) are written by the project notebooks and read by their dashboards.
 
-```bash
-kaggle datasets create -p data                 # first time; later: kaggle datasets version -p data -m "update"
-kaggle kernels push -p notebooks/distribution
-```
+## Setup
 
-Notebooks are pushed as private first (`is_private: true`) and made public once reviewed. Introduction, Light linear algebra and Distribution are public.
+The project uses [uv](https://docs.astral.sh/uv/) and Python 3.13; `uv.lock` pins every package version.
 
-## Roadmap
+1. Install uv once: macOS / Linux `curl -LsSf https://astral.sh/uv/install.sh | sh`, Windows (PowerShell)
+   `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`, or `pip install uv`.
+2. In this folder, create the environment (uv downloads Python 3.13 if needed):
 
-Status: ✅ done · 🟡 in progress · ⬜ planned
+   ```bash
+   uv sync
+   ```
 
-### 1. Foundations
-- ✅ Introduction: what is data analysis, the workflow, data types
-- ✅ Light linear algebra: vectors, matrices, a table as a matrix
-- ✅ NumPy: arrays, dtype, masks, axis, broadcasting
-- ✅ Descriptive statistics: center, spread, describe(), outliers, skew, groups
+3. Open the notebooks:
 
-### 2. Pandas
-- ✅ Pandas basics: reading, inspection, selection, filtering
-- ✅ Grouping and joining: groupby, pivot, merge
-- ✅ Light cleaning: missing values, duplicates, types, simple outliers (full preprocessing is its own course)
+   ```bash
+   uv run jupyter lab
+   ```
 
-### 3. Visualization (by chart type, not by library)
-- ⬜ Why visualize, choosing a chart, the three libraries in brief
-- ✅ Distribution: histogram, bins, log scale, KDE, box, violin/strip, ECDF
-- ⬜ Comparison & ranking
-- ⬜ Relationship & correlation
-- ⬜ Composition (part of a whole)
-- ⬜ Change over time
-- ⬜ Multivariate & maps
+4. Run any app, for example:
 
-### 4. EDA and apps
-- ⬜ The EDA workflow on NileCart
-- ⬜ Projects: World Happiness, Airbnb NYC, Titanic, Telco Churn, and more from the ML Bootcamp
-- ⬜ A Streamlit dashboard
+   ```bash
+   uv run streamlit run 6-projects/01-titanic/streamlit_app.py
+   ```
 
-## Sources
+Prefer pip? `pip install numpy pandas matplotlib seaborn plotly streamlit statsmodels missingno jupyterlab`
+works too, without the pinned versions.
 
-- Earlier course material (the NileCart generator copied into `build/`)
-- ML Bootcamp module 06: `D:\Ahmad\ML Bootcamp\ML_Bootcamp`
-- McKinney, *Python for Data Analysis* 3e, as a coverage reference only (the text may not be copied; the code is MIT)
+## The website
+
+[`website/`](website/) holds what builds the lesson pages on zero-grad.com and the Kaggle copies of the
+notebooks. You don't need it to study; see [website/README.md](website/README.md).

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Final Project · Suggested Datasets</title>
+<meta name="description" content="Six datasets for the final project, with download links and suggested questions.">
+<link rel="stylesheet" href="style.css">
+<script>
+try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<header class="site-head"><div class="wrap">
+  <a class="brand" href="index.html">Final Project · <span>Suggested Datasets</span></a>
+  <nav><a href="index.html#datasets">All datasets</a></nav>
+</div></header>
+<main class="wrap">
+
+<section class="hero">
+  <p class="eyebrow">Final project</p>
+  <h1>Pick a dataset. Ask good questions. Tell the story.</h1>
+  <p class="lead">Six real, recent datasets for your final project: a full analysis in a notebook, then a Streamlit app that tells what you found. Each page explains the data, where to download it, what to watch out for, and questions to get you started.</p>
+</section>
+
+<section id="datasets">
+  <div class="grid">
+    <a class="card" href="datasets/nyc-crashes.html">
+  <span class="emoji" aria-hidden="true">🚦</span>
+  <h2>NYC Motor Vehicle Crashes</h2>
+  <p>Every crash the police reported in New York in 2024: time, place, causes, vehicles and the people injured or killed.</p>
+  <ul class="tags"><li>~91k rows</li><li>Time</li><li>Map</li><li>Safety</li></ul>
+  <span class="more">Details, download and ideas →</span>
+</a><a class="card" href="datasets/egypt-used-cars.html">
+  <span class="emoji" aria-hidden="true">🚗</span>
+  <h2>Used Car Prices in Egypt</h2>
+  <p>Two snapshots of Hatla2ee, Egypt's biggest used-car marketplace: August 2025 and August 2026.</p>
+  <ul class="tags"><li>~49k rows</li><li>Two files</li><li>Egypt</li><li>Prices</li></ul>
+  <span class="more">Details, download and ideas →</span>
+</a><a class="card" href="datasets/heart-health.html">
+  <span class="emoji" aria-hidden="true">❤️</span>
+  <h2>Heart Disease Indicators (CDC 2022)</h2>
+  <p>A US health survey of 445,000 adults: habits, body measures, other conditions, and whether they ever had a heart attack.</p>
+  <ul class="tags"><li>~445k rows</li><li>Health</li><li>Map (states)</li><li>Survey</li></ul>
+  <span class="more">Details, download and ideas →</span>
+</a><a class="card" href="datasets/developer-survey.html">
+  <span class="emoji" aria-hidden="true">💻</span>
+  <h2>Stack Overflow Developer Survey</h2>
+  <p>Every year since 2011, tens of thousands of developers answer about languages, tools, salary, remote work and AI. Take one year, or compare several.</p>
+  <ul class="tags"><li>~65k rows a year</li><li>Survey</li><li>One or more years</li><li>Egypt inside</li></ul>
+  <span class="more">Details, download and ideas →</span>
+</a><a class="card" href="datasets/olympic-medals.html">
+  <span class="emoji" aria-hidden="true">🏅</span>
+  <h2>120 Years of Olympic History</h2>
+  <p>Every Olympic athlete from Athens 1896 to Rio 2016: age, height, weight, country, sport, event and medal.</p>
+  <ul class="tags"><li>~271k rows</li><li>Sport</li><li>Time</li><li>Egypt inside</li></ul>
+  <span class="more">Details, download and ideas →</span>
+</a><a class="card" href="datasets/linkedin-jobs.html">
+  <span class="emoji" aria-hidden="true">💼</span>
+  <h2>LinkedIn Job Postings (US, 2024)</h2>
+  <p>124,000 job postings from LinkedIn in the United States, March–April 2024, in several linked tables.</p>
+  <ul class="tags"><li>~124k rows</li><li>Several tables</li><li>Salaries</li><li>Map (states)</li></ul>
+  <span class="more">Details, download and ideas →</span>
+</a>
+  </div>
+</section>
+
+<section>
+  <h2 class="section">How to use these pages</h2>
+  <div class="panel">
+    <ul class="clean">
+      <li><strong>The questions are a starting point, not a checklist.</strong> Answer some of them, drop others, and add your own. The best projects find a question nobody wrote down.</li>
+      <li><strong>Look before you clean.</strong> The "watch out" lists point at problems in the data, but they don't give the answer: deciding what to do is your job, and explaining why is part of the analysis.</li>
+      <li><strong>Follow the workflow:</strong> first look → questions → cleaning → analysis → conclusions → app.</li>
+      <li><strong>Keep your files small.</strong> Push the cleaned data your app needs, not the raw download. GitHub refuses files over 100 MB.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2 class="section">Reading compressed and multi-file downloads</h2>
+  <div class="panel">
+    <p>Many downloads are zips. pandas can read a <code>.zip</code> or <code>.gz</code> that holds <strong>one</strong> CSV directly. For a zip with several files, open the one you need:</p>
+<pre><code>import pandas as pd
+import zipfile
+
+df = pd.read_csv("data.csv.gz")               # one compressed CSV: read it directly
+
+z = zipfile.ZipFile("download.zip")           # several files in one zip
+print(z.namelist())
+df = pd.read_csv(z.open("the_file_you_need.csv"))</code></pre>
+  </div>
+</section>
+
+</main>
+<footer class="site-foot"><div class="wrap">Python Data Analysis · Final project. The data belongs to its publishers. Check each source's terms before you reuse it.</div></footer>
+</body>
+</html>

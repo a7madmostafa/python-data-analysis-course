@@ -7,3 +7,14 @@ kaggle.json
 # personal Claude Code settings, and wrangler cache when deploying from here
 .claude/settings.local.json
 .wrangler/
+
+# Earlier material kept for reference only (not used in the course): stays local, never pushed
+_reference/
+
+# from the earlier repo
+.venv/
+**/output/
+
+# Bike Sharing: hidden for now, back later
+6-projects/04-bike-sharing/
+data/bike_sharing/

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Used Car Prices in Egypt · Final Project · Suggested Datasets</title>
+<meta name="description" content="What sets the price of a used car in Egypt, and how much did prices move in one year?">
+<link rel="stylesheet" href="../style.css">
+<script>
+try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<header class="site-head"><div class="wrap">
+  <a class="brand" href="../index.html">Final Project · <span>Suggested Datasets</span></a>
+  <nav><a href="../index.html#datasets">All datasets</a></nav>
+</div></header>
+<main class="wrap">
+
+<a class="back" href="../index.html">← All datasets</a>
+<section class="page-head">
+  <span class="emoji" aria-hidden="true">🚗</span>
+  <h1>Used Car Prices in Egypt</h1>
+  <p class="lead">What sets the price of a used car in Egypt, and how much did prices move in one year?</p>
+</section>
+
+<section><dl class="facts"><div><dt>Rows</dt><dd>24,688 + 24,857</dd></div><div><dt>Columns</dt><dd>12 + 21</dd></div><div><dt>Period</dt><dd>Aug 2025 · Aug 2026</dd></div><div><dt>Format</dt><dd>2 CSV files</dd></div></dl></section>
+
+<section>
+  <h2 class="section">The data</h2>
+  <div class="panel"><p>Two people scraped the same website, <strong>Hatla2ee</strong>, a year apart: once in August 2025 and once in August 2026. Each row is one car for sale: brand, model, model year, mileage, gearbox, asking price in EGP and location.</p><p>Putting the two files together lets you ask a question no single file can answer: <strong>did used car prices in Egypt go up or down in a year?</strong></p><p>Most of the work is making the two files speak the same language. They have different columns, units and spellings.</p></div>
+</section>
+
+<section>
+  <h2 class="section">Download</h2>
+  <div class="panel">
+    <p><a class="btn" href="https://www.kaggle.com/datasets/mohamedsewid/used-cars-in-egypt-2025" target="_blank" rel="noopener">August 2025 (Kaggle) ↗</a><a class="btn" href="https://www.kaggle.com/datasets/horiaradwan/egypt-used-cars-until-aug-2026" target="_blank" rel="noopener">August 2026 (Kaggle) ↗</a></p>
+    <h3>About the format</h3>
+    <ul class="clean"><li>Two Kaggle datasets, one CSV each: <code>hatla2ee_cars_august_2025.csv</code> and <code>egypt_used_cars.csv</code>. You need a (free) Kaggle account to download.</li><li>In the <strong>2025</strong> file, <code>price</code> and <code>mileage</code> are text: <em>"1,640,000 EGP"</em>, <em>"58,000 Km"</em>. In the <strong>2026</strong> file they are already numbers.</li><li>Before you put the two files in one table, add a column that says which snapshot each row comes from.</li></ul>
+<pre><code>old = pd.read_csv(&quot;hatla2ee_cars_august_2025.csv&quot;)
+new = pd.read_csv(&quot;egypt_used_cars.csv&quot;)
+old[&quot;scrape&quot;], new[&quot;scrape&quot;] = &quot;Aug 2025&quot;, &quot;Aug 2026&quot;</code></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section">Main columns</h2>
+  <div class="panel table-wrap"><table><thead><tr><th>Column</th><th>What it holds</th></tr></thead><tbody><tr><td><code>company / brand</code></td><td>Car brand (different column name in each file)</td></tr><tr><td><code>model, year</code></td><td>Model and model year</td></tr><tr><td><code>price / price_egp</code></td><td>Asking price (text in 2025, number in 2026)</td></tr><tr><td><code>mileage / mileage_km</code></td><td>Kilometres driven (text in 2025)</td></tr><tr><td><code>transmission</code></td><td>Automatic / manual (almost empty in 2025, see <code>features</code>)</td></tr><tr><td><code>fuel, body_shape, engine, color</code></td><td>2026 only, and often empty</td></tr><tr><td><code>location</code></td><td>District, or district + governorate</td></tr><tr><td><code>date_posted / scraped_at</code></td><td>When the listing was posted or collected</td></tr></tbody></table></div>
+</section>
+
+<section>
+  <h2 class="section">Watch out for</h2>
+  <div class="note"><strong>These are hints, not instructions.</strong> Check each one in the data, decide what to do, and explain your choice in the notebook.</div>
+  <div class="panel"><ul class="clean"><li><strong>Brand names differ</strong> between the files: <em>Mercedes</em> vs <em>Mercedes-Benz</em>, <em>Byd</em> vs <em>BYD</em>, <em>Land</em> vs <em>Land Rover</em>.</li><li>Some <strong>2025 model years are not years</strong> (1100, 3008, 5008…). Look at the title of those rows.</li><li>In 2025 the gearbox is hidden inside the <code>features</code> text.</li><li><strong>Locations</strong> are written in many forms: <em>"Nasr city"</em>, <em>"Nasr City, Cairo"</em>, <em>"Cairo, Nasr City"</em>. How would you get the governorate?</li><li>Very low prices (a few thousand EGP) may be a down payment or an instalment, not the price of the car.</li><li>0 km on a 15-year-old car? A million km?</li><li>The two people may have scraped differently. Compare <strong>the same model and year</strong> across the two files, not just the averages.</li></ul></div>
+</section>
+
+<section>
+  <h2 class="section">Questions to explore</h2>
+  <div class="panel"><h3>The market</h3><ol class="qs"><li>Which brands and model years are for sale? Are Chinese brands growing?</li><li>How common are automatic cars?</li></ol><h3>What sets the price?</h3><ol class="qs"><li>How fast does a car lose value with age? With mileage?</li><li>How much more does an automatic cost than a manual of the same age?</li><li>Which brands keep their value best?</li></ol><h3>One year apart</h3><ol class="qs"><li>Did the same car (brand + model + year) get cheaper or more expensive from 2025 to 2026?</li><li>Which brands moved the most?</li></ol><h3>Where</h3><ol class="qs"><li>Are cars dearer in Cairo than in other governorates? Why?</li></ol></div>
+</section>
+
+<section>
+  <h2 class="section">Ideas for the app</h2>
+  <div class="panel"><ul class="clean"><li>A <strong>price checker</strong>: pick brand, model and year, see the asking prices in both years.</li><li>A <strong>depreciation curve</strong> by brand.</li><li>A <strong>2025 vs 2026</strong> page with the matched comparison.</li></ul></div>
+</section>
+
+<a class="back" href="../index.html">← All datasets</a>
+
+</main>
+<footer class="site-foot"><div class="wrap">Python Data Analysis · Final project. The data belongs to its publishers. Check each source's terms before you reuse it.</div></footer>
+</body>
+</html>

@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Visualize</title>
+<meta name="description" content="ليه نرسم الداتا، وإزاي السؤال بيختار الـ chart، وقواعد الـ chart الواضح، والمكتبات التلاتة Matplotlib و Seaborn و Plotly في سطور، على داتا NileCart.">
+<meta property="og:title" content="ليه نرسم؟ وإزاي نختار الـ chart · Zero Grad">
+<meta property="og:description" content="السؤال بيختار الـ chart، وقواعد الـ chart الواضح، بالعربي وعلى داتا NileCart.">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/viz/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/viz/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<script src="/assets/js/theme.js"></script>
+<link rel="apple-touch-icon" href="/assets/img/zero-grad-app-icon-512.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<script src="/assets/js/pwa.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ea; --surface:#fffdf8; --surface-2:#efeadf; --ink:#1c1e22; --muted:#5b616b; --line:#ddd6c6;
+  --accent:#101f40; --on-accent:#f5f2ea; --chalk-g:#15803d; --chalk-o:#c2410c; --add:#2563eb; --bad:#dc2626;
+  --c1:#0f766e; --c2:#2563eb; --c3:#b45309; --c4:#9333ea;
+  --board:#232323; --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+    --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+    --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+  --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+  --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--add)}
+html,body{overflow-x:clip}
+@media (max-width:520px){.brand{font-size:.8rem}.seg button{padding:.2rem .55rem;font-size:.8rem}.topbar-in{gap:.4rem}.top-actions{gap:.3rem}.iconbtn{width:30px;height:30px}}
+code,pre{font-family:"JetBrains Mono",monospace}
+.en{direction:ltr;unicode-bidi:isolate}
+code.i{font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .35rem;direction:ltr;unicode-bidi:isolate}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;right:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .1s}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:auto;padding:.55rem 16px;display:flex;gap:.75rem;align-items:center;justify-content:space-between}
+.top-actions{display:flex;gap:.5rem;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.25rem .8rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+
+/* layout */
+.wrap{max-width:1180px;margin:auto;padding:0 16px;display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media (min-width:1100px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:72px;align-self:start;padding-top:2.5rem;font-size:.9rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+  nav.toc a{display:block;padding:.3rem .9rem;color:var(--muted);text-decoration:none;margin-inline-start:-2px;border-inline-start:2px solid transparent;line-height:1.5}
+  nav.toc a.active{color:var(--ink);border-color:var(--accent);font-weight:500}
+}
+main{min-width:0;padding-bottom:6rem}
+
+/* hero */
+.hero{padding:3rem 0 1.5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.hero h1{font-family:"Caveat",cursive;font-size:clamp(3rem,9vw,5.2rem);line-height:1;margin:.5rem 0 .75rem;color:var(--accent);direction:ltr;text-align:right;font-weight:700}
+.lead{font-size:1.15rem;max-width:62ch;margin:0}
+
+/* notebook links */
+.nb-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.nb-btn{display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4rem 1rem;text-decoration:none}
+.nb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.nb-btn:hover{border-color:var(--accent)}
+
+/* sections */
+section.sec{padding-top:2.5rem;scroll-margin-top:64px}
+.sec-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:1.25rem}
+.sec-head h2{margin:0;font-size:1.55rem;line-height:1.35;display:flex;gap:.7rem;align-items:baseline}
+.num{font-family:"Caveat",cursive;color:var(--accent);font-size:2rem;line-height:1}
+h3.sub{font-size:1.15rem;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+.chalk{font-family:"Caveat",cursive;font-size:1.35em;color:var(--accent);direction:ltr;unicode-bidi:isolate;font-weight:700;line-height:1.2}
+.voice{margin:1.25rem 0;padding:.9rem 1.2rem;border-radius:var(--radius);background:var(--board);color:#f2c94c;font-family:"Caveat",cursive;font-size:1.9rem;direction:ltr;text-align:center;line-height:1.3}
+.voice small{display:block;font-family:"Noto Sans Arabic",sans-serif;font-size:.8rem;color:#a1a1a1;direction:rtl;margin-top:.25rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;line-height:1.6}
+.card b{display:block;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr;gap:1rem;margin:1rem 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.path{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem}
+.path h4{margin:0 0 .25rem;font-size:1.05rem}
+.path .sub{color:var(--muted);font-size:.85rem}
+.path.good{border-color:color-mix(in srgb,var(--chalk-g) 55%,var(--line))}
+.path.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.path.good h4{color:var(--chalk-g)}
+.path.bad h4{color:var(--bad)}
+
+/* the "use it when" box every chart gets */
+.when{display:grid;grid-template-columns:1fr;gap:.75rem;margin:1rem 0}
+@media(min-width:760px){.when{grid-template-columns:repeat(3,1fr)}}
+.when .card{border-top:3px solid var(--accent)}
+.when .card:nth-child(2){border-top-color:var(--chalk-g)}
+.when .card:nth-child(3){border-top-color:var(--chalk-o)}
+
+/* callouts */
+.callout{border-radius:var(--radius);padding:.9rem 1.1rem;margin:1.25rem 0;border:1px solid;font-size:.97rem}
+.callout .ttl{font-weight:700;font-size:.85rem;display:flex;gap:.4rem;align-items:center;margin-bottom:.15rem}
+.callout.add{border-color:color-mix(in srgb,var(--add) 45%,transparent);background:color-mix(in srgb,var(--add) 7%,var(--surface))}
+.callout.add .ttl{color:var(--add)}
+.callout.warn{border-color:color-mix(in srgb,var(--chalk-o) 55%,transparent);background:color-mix(in srgb,var(--chalk-o) 8%,var(--surface))}
+.callout.warn .ttl{color:var(--chalk-o)}
+.callout.insight{border-color:color-mix(in srgb,var(--chalk-g) 50%,transparent);background:color-mix(in srgb,var(--chalk-g) 8%,var(--surface))}
+.callout.insight .ttl{color:var(--chalk-g)}
+details.callout summary{cursor:pointer;list-style:none}
+details.callout summary::-webkit-details-marker{display:none}
+details.callout summary .ttl::after{content:"＋";margin-inline-start:auto}
+details.callout[open] summary .ttl::after{content:"－"}
+
+/* tables & code */
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.tbl th,.tbl td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.tbl thead th{background:var(--surface-2);font-size:.85rem}
+.tbl tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+pre{direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;padding:1rem 1.1rem;border-radius:var(--radius);overflow-x:auto;font-size:.85rem;line-height:1.65;margin:1rem 0}
+pre .c{color:#8a8a8a}
+pre .k{color:#f2c94c}
+pre .s{color:#4ade80}
+.codetabs{margin:1rem 0}
+.codetabs .seg{margin-bottom:-.4rem}
+.codetabs pre{margin-top:.6rem}
+.codetabs pre[hidden]{display:none}
+
+/* figures */
+figure.fig{margin:1.25rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.fig-scroll{overflow-x:auto}
+figure.fig svg{width:100%;min-width:520px;height:auto;display:block;direction:ltr}
+figure.fig svg text{font-family:Inter,"Noto Sans Arabic",sans-serif;fill:var(--ink)}
+figure.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+
+/* widgets */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.widget-head{display:flex;gap:.6rem;align-items:center;margin-bottom:.2rem}
+.widget-head .badge{font-size:.72rem;font-weight:700;color:var(--bg);background:var(--chalk-g);border-radius:999px;padding:.1rem .6rem;white-space:nowrap}
+.widget-head h3{margin:0;font-size:1.1rem}
+.widget .hint{color:var(--muted);font-size:.9rem;margin:.1rem 0 .8rem}
+.wgrid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:820px){.wgrid.cols{grid-template-columns:1.6fr 1fr}}
+canvas{width:100%;display:block;border-radius:10px;background:var(--surface-2);touch-action:none}
+.controls{display:grid;gap:.7rem;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;gap:.5rem}
+.ctl label output{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.4rem .85rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk.off{opacity:.45;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem}
+.stat{background:var(--surface-2);border-radius:10px;padding:.45rem .7rem;line-height:1.35}
+.stat span{display:block;font-size:.75rem;color:var(--muted)}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;unicode-bidi:isolate}
+.status{font-size:.9rem;min-height:1.6em;color:var(--muted);white-space:pre-line}
+.keys{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.5rem}
+.keys span{display:inline-flex;gap:.35rem;align-items:center}
+.keys i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+
+/* summary */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem}
+.sheet .card{padding:1rem}
+.sheet .card h4{margin:0 0 .3rem;font-size:.95rem;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding:1.5rem 0;margin-top:3rem}
+.muted{color:var(--muted);font-size:.9em}
+
+/* lesson navigation */
+.crumbs{display:flex;align-items:center;gap:.45rem;font-size:.9rem;white-space:nowrap;min-width:0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{color:var(--line)}
+.crumbs .here{font-weight:700;color:var(--ink)}
+a.iconbtn{display:grid;place-items:center;text-decoration:none;font-size:.95rem}
+.iconbtn.off{opacity:.3;pointer-events:none;display:grid;place-items:center}
+.pager{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;margin-top:3rem}
+.pg{display:flex;flex-direction:column;gap:.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);text-decoration:none;line-height:1.5}
+.pg span{font-size:.82rem;color:var(--muted)}
+.pg b{font-size:1rem;color:var(--accent)}
+a.pg:hover{border-color:var(--accent)}
+.pg.next{text-align:left}
+.pg.all{justify-content:center;text-align:center}
+.pg.off{border-style:dashed;background:transparent}
+.pg.off b{color:var(--muted)}
+@media (max-width:640px){.pager{grid-template-columns:1fr}.pg.next{text-align:right}.pg.all{order:3}}
+@media (max-width:520px){.crumbs .home,.crumbs .home+.sep{display:none}}
+@media (max-width:400px){.crumbs .course+.sep,.crumbs .here{display:none}}
+@media print{.topbar,nav.toc,#progress,.widget{display:none!important}body{background:#fff;color:#000;font-size:12pt}}
+
+/* why visualize lesson */
+.optrow{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;margin:.3rem 0 .7rem}
+.optrow .seg{flex-wrap:wrap;max-width:100%;border-radius:16px}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem;margin:.2rem 0 .9rem}
+.qgrid button{font:inherit;font-size:.9rem;text-align:right;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:12px;padding:.55rem .75rem;cursor:pointer;line-height:1.45}
+.qgrid button small{display:block;color:var(--muted);font-size:.75rem}
+.qgrid button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));box-shadow:inset 0 0 0 1px var(--accent)}
+.answer{display:grid;gap:.3rem;font-size:.92rem}
+.answer b{color:var(--accent)}
+.rules{display:grid;gap:.45rem}
+.score{font-family:"JetBrains Mono",monospace;font-size:1.1rem;font-weight:700;direction:ltr;unicode-bidi:isolate}
+.libs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;margin:1rem 0}
+.libs .card{border-top:3px solid var(--c)}
+.libs .card code{font-size:.8rem}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here">ليه نرسم؟</span></nav>
+    <div class="top-actions">
+      <a class="iconbtn" href="/courses/da/cleaning/" aria-label="الدرس اللي فات: تنضيف الداتا" title="الدرس اللي فات: تنضيف الداتا">→</a><a class="iconbtn" href="/courses/da/distribution/" aria-label="الدرس الجاي: Distribution" title="الدرس الجاي: Distribution">←</a>
+      <button class="iconbtn" id="themeBtn" type="button" data-theme-toggle aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="المحتوى"><ol id="tocList"></ol></nav>
+  <main>
+    <div class="hero">
+      <div class="kicker">Zero Grad · كورس Data Analysis · Visualization</div>
+      <h1>Why Visualize?</h1>
+      <p class="lead">باقي قسم الـ Visualization ماشي <b>بنوع الـ chart</b>، مش بالمكتبة:<br>
+        Distribution، و Comparison، و Relationship، و Composition، و Change over time، و Multivariate.<br>
+        الدرس ده بيجهّز الطريق: ليه نرسم أصلًا، وإزاي السؤال هو اللي بيختار الـ chart،<br>
+        وإيه اللي بيخلّي الـ chart واضح، والمكتبات التلاتة اللي هنستخدمها، في سطور.</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" id="kaggleLink" href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
+        <a class="nb-btn" href="https://www.kaggle.com/datasets/a7madmostafa/nilecart-sales" target="_blank" rel="noopener">🗂️ داتا NileCart على Kaggle</a>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <section class="sec" id="why">
+      <div class="sec-head"><h2><span class="num">1</span>ليه نرسم؟</h2></div>
+      <h3 class="sub">نفس الأرقام، وداتا مختلفة</h3>
+      <p>4 داتاسيتس صغيرين، نشرهم الإحصائي Francis Anscombe سنة 1973 عشان يثبت النقطة دي بالظبط.<br>
+        كل واحد فيهم 11 نقطة، وليهم <b>نفس</b> المتوسط، ونفس الـ std، ونفس الـ correlation (لحد رقمين بعد العلامة):</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>set</th><th>mean x</th><th>mean y</th><th>std y</th><th>corr</th></tr></thead>
+        <tbody>
+          <tr><td>I</td><td><bdi>9.00</bdi></td><td><bdi>7.50</bdi></td><td><bdi>2.03</bdi></td><td><bdi>0.82</bdi></td></tr>
+          <tr><td>II</td><td><bdi>9.00</bdi></td><td><bdi>7.50</bdi></td><td><bdi>2.03</bdi></td><td><bdi>0.82</bdi></td></tr>
+          <tr><td>III</td><td><bdi>9.00</bdi></td><td><bdi>7.50</bdi></td><td><bdi>2.03</bdi></td><td><bdi>0.82</bdi></td></tr>
+          <tr><td>IV</td><td><bdi>9.00</bdi></td><td><bdi>7.50</bdi></td><td><bdi>2.03</bdi></td><td><bdi>0.82</bdi></td></tr>
+        </tbody>
+      </table></div>
+      <p>بالأرقام، دول 4 نسخ من نفس الداتا. ارسمهم:</p>
+      <figure class="fig"><div class="fig-scroll" id="anscFig"></div>
+        <figcaption>خط مستقيم، ومنحنى، وخط فيه نقطة واحدة بعيدة، وعمود نقط ومعاه نقطة واحدة بعيدة. 4 حكايات، وجدول ملخّص واحد.</figcaption></figure>
+      <div class="voice">draw before you summarise<small>ارسم قبل ما تلخّص: نفس الأرقام الملخّصة ممكن تيجي من داتا مختلفة خالص</small></div>
+      <h3 class="sub">الجدول بيخبّي اللي الـ chart بيوريه</h3>
+      <p>إيراد NileCart في كل شهر كجدول فيه 24 رقم: كل الأرقام موجودة، بس محتاج تقراهم واحد واحد عشان تلاقي الحكاية.<br>
+        نفس الأرقام كخط: الـ peak بتاع نوفمبر وديسمبر بيبان في ثانية، peak لكل سنة.</p>
+      <div class="two">
+        <div class="path"><h4>الجدول</h4><p>عشان <b>تدوّر على قيمة</b>: إيراد سبتمبر 2025 كام بالظبط؟</p></div>
+        <div class="path"><h4>الـ Chart</h4><p>عشان <b>تشوف نمط</b>: إمتى الإيراد بيعلى؟ وفيه تكرار؟</p></div>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="sec" id="choose">
+      <div class="sec-head"><h2><span class="num">2</span>السؤال هو اللي بيختار الـ chart</h2></div>
+      <p>ابدأ من السؤال، مش من نوع الـ chart.<br>
+        تقريبًا أي سؤال عن جدول بيقع في واحدة من 6 عائلات، ولكل عيلة رسماتها، ودرسها في الكورس ده:</p>
+      <div class="widget" id="wChoose"></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>السؤال</th><th>العيلة</th><th>رسمات</th></tr></thead>
+        <tbody>
+          <tr><td>الأرقام شكلها إيه؟</td><td><a href="/courses/da/distribution/">Distribution</a></td><td>histogram، box، violin، ECDF</td></tr>
+          <tr><td>مين أكبر؟ مين الأول؟</td><td>Comparison &amp; Ranking</td><td>bar مترتّب، dot plot</td></tr>
+          <tr><td>رقمين بيتحركوا مع بعض؟</td><td>Relationship</td><td>scatter، heatmap للـ correlation</td></tr>
+          <tr><td>الكل متكوّن من إيه؟</td><td>Composition</td><td>stacked bar، treemap (والـ pie لـ 2 أو 3 أجزاء بس)</td></tr>
+          <tr><td>بيتغيّر إزاي مع الوقت؟</td><td>Change over time</td><td>line، area</td></tr>
+          <tr><td>أكتر من متغير مرة واحدة؟</td><td>Multivariate &amp; Maps</td><td>heatmap، small multiples، خرايط</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout warn"><div class="ttl">⚠️ سؤال واحد، chart واحد</div>
+        الـ chart اللي بيحاول يجاوب 3 أسئلة مبيجاوبش ولا واحد.<br>
+        لو عندك 3 أسئلة، اعمل 3 charts.</div>
+    </section>
+
+    <!-- 3 -->
+    <section class="sec" id="clear">
+      <div class="sec-head"><h2><span class="num">3</span>الـ chart الواضح</h2></div>
+      <p>نفس الداتا، إيراد كل منطقة، مرسومة غلط، وبعدين بنصلّحها قاعدة قاعدة:</p>
+      <div class="widget" id="wFix"></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>القاعدة</th><th>ليه</th></tr></thead>
+        <tbody>
+          <tr><td>الـ bars تبدأ من <b>صفر</b></td><td>طول الـ bar <b>هو</b> قيمته. لو قصّيت المحور بتكدب في النسبة: القاهرة الكبرى بتبان 75 ضعف القناة بدل 6.</td></tr>
+          <tr><td><b>رتّب</b> بالقيمة</td><td>الترتيب بيبان من غير ما تقرا.</td></tr>
+          <tr><td>لون <b>واحد</b> للفكرة، والباقي رمادي</td><td>اللون معناه حاجة، فاستخدمه مرة واحدة، للنقطة اللي عايز تقولها.</td></tr>
+          <tr><td><b>عنوان بيقول اللي لقيته</b></td><td>"القاهرة الكبرى بتجيب نص الإيراد" أحسن من "الإيراد حسب المنطقة".</td></tr>
+          <tr><td><b>وحدات</b> وأرقام مقروءة</td><td><span class="en">9.9M</span>، مش <span class="en">9912413.2</span> ولا <span class="en">1e7</span>.</td></tr>
+          <tr><td>اكتب الرقم على الـ bar، وشيل الزيادة</td><td>الـ grid والـ legend والإطارات حبر مبيقولش حاجة.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout add"><div class="ttl">➕ الـ line chart حالة تانية</div>
+        الـ line بيوري <b>التغيّر</b>، مش الحجم، فالمحور بتاعه مش لازم يبدأ من صفر.<br>
+        الصفر شرط للـ bar والـ area، اللي فيهم الطول أو المساحة هي القيمة.</div>
+    </section>
+
+    <!-- 4 -->
+    <section class="sec" id="libs">
+      <div class="sec-head"><h2><span class="num">4</span>المكتبات التلاتة</h2></div>
+      <div class="libs">
+        <div class="card" style="--c:var(--c2)"><b>Matplotlib</b>الأساس: كل مكتبات الرسم في Python مبنية عليه أو بتقلّده.<br>كل تفصيلة بإيدك.<br><code class="i">fig, ax = plt.subplots()</code></div>
+        <div class="card" style="--c:var(--c1)"><b>Seaborn</b>بياخد جدول وأسماء أعمدة، وبيجمّع ويحسب لوحده.<br>الأسرع في الاستكشاف.<br><code class="i">sns.barplot(data=, x=, y=, hue=)</code></div>
+        <div class="card" style="--c:var(--c4)"><b>Plotly</b>نفس فكرة Seaborn، بس الـ chart صفحة ويب: hover و zoom وتخبّي series.<br><code class="i">px.line(df, x=, y=, color=)</code></div>
+      </div>
+      <p>نفس الـ chart، إيراد كل شهر لكل فئة، في التلاتة:</p>
+      <div class="codetabs">
+        <div class="seg" role="tablist"><button aria-pressed="true" data-lib="mpl">Matplotlib</button><button aria-pressed="false" data-lib="sns">Seaborn</button><button aria-pressed="false" data-lib="px">Plotly</button></div>
+<pre data-lib="mpl">m = done.groupby([<span class="s">"month"</span>, <span class="s">"category"</span>])[<span class="s">"revenue"</span>].sum().unstack()   <span class="c"># you shape the data</span>
+fig, ax = plt.subplots(figsize=(<span class="s">9</span>, <span class="s">4</span>))                                   <span class="c"># a Figure, one Axes</span>
+<span class="k">for</span> cat <span class="k">in</span> m.columns:
+    ax.plot(m.index, m[cat], marker=<span class="s">"o"</span>, label=cat)                     <span class="c"># one line per category</span>
+ax.set(title=<span class="s">"Revenue per month"</span>, ylabel=<span class="s">"EGP"</span>)
+ax.legend()
+plt.show()</pre>
+<pre data-lib="sns" hidden>m = done.groupby([<span class="s">"month"</span>, <span class="s">"category"</span>], as_index=<span class="k">False</span>)[<span class="s">"revenue"</span>].sum()
+ax = sns.lineplot(data=m, x=<span class="s">"month"</span>, y=<span class="s">"revenue"</span>, hue=<span class="s">"category"</span>, marker=<span class="s">"o"</span>)   <span class="c"># hue = one line per value</span>
+ax.set(title=<span class="s">"Revenue per month"</span>, ylabel=<span class="s">"EGP"</span>)                         <span class="c"># it's a Matplotlib Axes</span>
+plt.show()</pre>
+<pre data-lib="px" hidden>m = done.groupby([<span class="s">"month"</span>, <span class="s">"category"</span>], as_index=<span class="k">False</span>)[<span class="s">"revenue"</span>].sum()
+fig = px.line(m, x=<span class="s">"month"</span>, y=<span class="s">"revenue"</span>, color=<span class="s">"category"</span>, markers=<span class="k">True</span>,
+              title=<span class="s">"Revenue per month"</span>)                                  <span class="c"># hover, zoom, click the legend</span>
+fig.show()</pre>
+      </div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th></th><th>Matplotlib</th><th>Seaborn</th><th>Plotly</th></tr></thead>
+        <tbody>
+          <tr><td>الأسلوب</td><td>كل تفصيلة بإيدك</td><td>charts إحصائية من جدول</td><td>charts تفاعلية من جدول</td></tr>
+          <tr><td>بيجمّع لوحده؟</td><td>لأ</td><td>آه (<span class="en">estimator=</span>)</td><td>الـ histogram والـ box آه، الـ bar لأ</td></tr>
+          <tr><td>الناتج</td><td>صورة</td><td>صورة (بيرسم بـ Matplotlib)</td><td>صفحة ويب</td></tr>
+          <tr><td>أحسن في</td><td>chart نهائي لتقرير، تحكّم كامل</td><td>الاستكشاف السريع، والإحصاء، والـ small multiples</td><td>الـ dashboards، والمشاركة على الويب</td></tr>
+        </tbody>
+      </table></div>
+      <h3 class="sub">فخّين</h3>
+      <div class="two">
+        <div class="path bad"><h4>✗ <span class="en">sns.barplot</span> بيحسب الـ mean</h4><p>الـ default هو المتوسط، ومعاه error bar (confidence interval).<br>اعرف الـ bar ده رقم إيه: <span class="en">estimator="sum"</span> أو <span class="en">"median"</span>، و <span class="en">errorbar=None</span>.</p></div>
+        <div class="path bad"><h4>✗ <span class="en">px.bar</span> مبيجمّعش</h4><p>بيرسم حتة bar لكل سطر.<br>اعمل <span class="en">groupby</span> الأول، وبعدين ارسم.</p></div>
+      </div>
+      <h3 class="sub">الحفظ</h3>
+<pre>fig.savefig(<span class="s">"revenue.png"</span>, dpi=<span class="s">150</span>, bbox_inches=<span class="s">"tight"</span>)       <span class="c"># Matplotlib / Seaborn: an image for slides</span>
+fig.write_html(<span class="s">"revenue.html"</span>, include_plotlyjs=<span class="s">"cdn"</span>)          <span class="c"># Plotly: a page anyone can open</span></pre>
+      <p><span class="en">bbox_inches="tight"</span> عشان العناوين والـ labels متتقصّش من الصورة.</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="sec" id="mistakes">
+      <div class="sec-head"><h2><span class="num">5</span>أخطاء شائعة</h2></div>
+      <div class="two">
+        <div class="path bad"><h4>✗ تختار الـ chart الأول</h4><p>"عايز أعمل pie" قبل ما تعرف السؤال.</p></div>
+        <div class="path good"><h4>✓ السؤال الأول</h4><p>وبعدين العيلة، وبعدين الـ chart.</p></div>
+        <div class="path bad"><h4>✗ bar محوره مقصوص</h4><p>بيكبّر الفرق أضعاف.</p></div>
+        <div class="path good"><h4>✓ الـ bars من صفر</h4><p>والـ line براحتك.</p></div>
+        <div class="path bad"><h4>✗ قوس قزح</h4><p>لون مختلف لكل bar من غير معنى.</p></div>
+        <div class="path good"><h4>✓ لون واحد للنقطة</h4><p>والباقي رمادي.</p></div>
+        <div class="path bad"><h4>✗ عنوان "Chart 1"</h4><p>القارئ لازم يخمّن إنت عايز تقول إيه.</p></div>
+        <div class="path good"><h4>✓ العنوان هو الخلاصة</h4><p>جملة فيها اللي لقيته.</p></div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">6</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sheet">
+        <div class="card"><h4>ارسم الأول</h4>نفس الملخّص ممكن ييجي من داتا مختلفة<br>الجدول للبحث، والـ chart للنمط</div>
+        <div class="card"><h4>السؤال بيختار</h4>Distribution · Comparison · Relationship<br>Composition · Time · Multivariate</div>
+        <div class="card"><h4>الـ chart الواضح</h4>صفر للـ bars · رتّب · لون واحد<br>عنوان بالخلاصة · وحدات · من غير زيادة</div>
+        <div class="card"><h4>المكتبات</h4><span class="en">plt.subplots()</span> · <span class="en">sns.*(data=, x=, y=, hue=)</span> · <span class="en">px.*</span></div>
+        <div class="card"><h4>الحفظ</h4><span class="en">savefig(..., dpi=150, bbox_inches="tight")</span><br><span class="en">write_html(...)</span></div>
+      </div>
+      <div class="nb-links">
+        <a class="nb-btn primary" data-kaggle href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
+      </div>
+    </section>
+
+    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/cleaning/"><span>→ الدرس اللي فات</span><b>تنضيف الداتا</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><a class="pg next" href="/courses/da/distribution/"><span>الدرس الجاي ←</span><b>شكل الأرقام: <span class="en">Distribution</span></b></a></nav>
+
+    <footer>
+      الداتا: NileCart، متجر وهمي في القاهرة، بالجنيه المصري.<br>
+      كل الأرقام في الدرس محسوبة من نفس الداتا اللي في النوت بوك.
+    </footer>
+  </main>
+</div>
+
+<script src="../assets/data/viz.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const KAGGLE = "https://www.kaggle.com/code/a7madmostafa/zero-grad-da-why-visualize";
+const V = window.VIZ;
+const nf = v => Math.round(v).toLocaleString("en");
+const M = v => (v / 1e6).toFixed(1) + "M";
+function head(title, hint, badge = "جرّب بنفسك") { return `<div class="widget-head"><span class="badge">${badge}</span><h3>${title}</h3></div><p class="hint">${hint}</p>`; }
+function setup(cv, h) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 300;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + "px";
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.direction = "ltr";
+  return { ctx, w, h };
+}
+const redrawers = []; const onRedraw = f => redrawers.push(f);
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => redrawers.forEach(f => f()), 120); });
+const PAL = () => [cssv("--c2"), cssv("--c3"), cssv("--c1"), cssv("--c4"), cssv("--chalk-o"), cssv("--bad")];
+function text(ctx, t, x, y, { col = "--muted", font = "11px Inter, sans-serif", align = "left", base = "alphabetic" } = {}) {
+  ctx.fillStyle = col.startsWith("--") ? cssv(col) : col; ctx.font = font; ctx.textAlign = align; ctx.textBaseline = base; ctx.fillText(t, x, y);
+}
+function axes(ctx, x0, y0, x1, y1) { ctx.strokeStyle = cssv("--line"); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke(); }
+
+/* ---------- figure: Anscombe ---------- */
+function anscFig() {
+  const X = [10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5];
+  const D = { I: [X, [8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68]], II: [X, [9.14, 8.14, 8.74, 8.77, 9.26, 8.10, 6.13, 3.10, 9.13, 7.26, 4.74]],
+    III: [X, [7.46, 6.77, 12.74, 7.11, 7.81, 8.84, 6.08, 5.39, 8.15, 6.42, 5.73]], IV: [[8, 8, 8, 8, 8, 8, 8, 19, 8, 8, 8], [6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.50, 5.56, 7.91, 6.89]] };
+  const pw = 160, ph = 130, gap = 16; let o = "";
+  Object.entries(D).forEach(([k, [xs, ys]], i) => {
+    const ox = 10 + i * (pw + gap), oy = 26, sx = x => ox + 14 + (x - 3) / 17 * (pw - 22), sy = y => oy + ph - 10 - (y - 2) / 12 * (ph - 20);
+    o += `<rect x="${ox}" y="${oy}" width="${pw}" height="${ph}" rx="8" style="fill:var(--surface-2)"/>`;
+    o += `<text x="${ox + pw / 2}" y="16" text-anchor="middle" font-size="13" font-weight="700" style="fill:var(--ink)">set ${k}</text>`;
+    o += `<line x1="${sx(3)}" y1="${sy(3 + 0.5 * 3)}" x2="${sx(20)}" y2="${sy(3 + 0.5 * 20)}" style="stroke:var(--chalk-o);stroke-width:1.6;stroke-dasharray:5 4"/>`;
+    xs.forEach((x, j) => o += `<circle cx="${sx(x)}" cy="${sy(ys[j])}" r="4" style="fill:var(--add);opacity:.85"/>`);
+  });
+  o += `<text x="${10 + 2 * (pw + gap) - gap / 2}" y="${26 + ph + 22}" text-anchor="middle" font-size="11.5" style="fill:var(--chalk-o)">the dashed line is the same fit in all four: y = 3 + 0.5x</text>`;
+  $("#anscFig").innerHTML = `<svg viewBox="0 0 ${10 + 4 * (pw + gap)} ${26 + ph + 34}" role="img" aria-label="Anscombe's quartet" xmlns="http://www.w3.org/2000/svg">${o}</svg>`;
+}
+
+/* ---------- small chart painters ---------- */
+const P = {
+  hist(ctx, w, h) {
+    const c = V.hist.counts, e = V.hist.edges, pad = { l: 40, r: 10, t: 14, b: 28 }, max = Math.max(...c);
+    const sx = v => pad.l + (v - e[0]) / (e[e.length - 1] - e[0]) * (w - pad.l - pad.r), sy = v => h - pad.b - v / max * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    c.forEach((v, i) => { ctx.fillStyle = cssv("--add"); ctx.globalAlpha = .8; ctx.fillRect(sx(e[i]) + 1, sy(v), sx(e[i + 1]) - sx(e[i]) - 2, h - pad.b - sy(v)); });
+    ctx.globalAlpha = 1;
+    [2, 3, 4, 5].forEach(p => text(ctx, ["100", "1k", "10k", "100k"][p - 2], sx(p), h - 10, { align: "center" }));
+    text(ctx, "revenue per line (log scale)", (pad.l + w) / 2, h - 0, { align: "center", font: "10px Inter, sans-serif" });
+  },
+  rowline(ctx, w, h) {
+    const d = V.first, pad = { l: 40, r: 10, t: 14, b: 22 }, max = Math.max(...d);
+    const sx = i => pad.l + i / (d.length - 1) * (w - pad.l - pad.r), sy = v => h - pad.b - v / max * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); ctx.strokeStyle = cssv("--bad"); ctx.lineWidth = 1.5; ctx.beginPath();
+    d.forEach((v, i) => i ? ctx.lineTo(sx(i), sy(v)) : ctx.moveTo(sx(i), sy(v))); ctx.stroke();
+    text(ctx, "row 0 … row 59 (file order)", (pad.l + w) / 2, h - 6, { align: "center", font: "10px Inter, sans-serif" });
+  },
+  hbar(ctx, w, h) {
+    const rows = V.regions.map((r, i) => [r, V.region_rev[i]]).sort((a, b) => b[1] - a[1]), pad = { l: 118, r: 50, t: 10, b: 10 }, bh = (h - pad.t - pad.b) / rows.length, max = rows[0][1];
+    rows.forEach(([r, v], i) => { const y = pad.t + i * bh, L = v / max * (w - pad.l - pad.r); ctx.fillStyle = cssv("--add"); ctx.fillRect(pad.l, y + bh * .18, L, bh * .64);
+      text(ctx, r, pad.l - 6, y + bh / 2, { col: "--ink", align: "right", base: "middle" }); text(ctx, M(v), pad.l + L + 5, y + bh / 2, { base: "middle", font: "10.5px 'JetBrains Mono', monospace" }); });
+  },
+  pie(ctx, w, h, labels, vals) {
+    const cx = w / 2, cy = h / 2, r = Math.min(w, h) / 2 - 18, tot = vals.reduce((a, b) => a + b, 0), pal = PAL(); let a0 = -Math.PI / 2;
+    vals.forEach((v, i) => { const a1 = a0 + v / tot * Math.PI * 2; ctx.fillStyle = pal[i % pal.length]; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, a0, a1); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = cssv("--surface"); ctx.lineWidth = 1; ctx.stroke(); if (labels && v / tot > .06) { const am = (a0 + a1) / 2; text(ctx, labels[i], cx + Math.cos(am) * (r * .62), cy + Math.sin(am) * (r * .62), { col: "#fff", align: "center", base: "middle", font: "bold 10px Inter, sans-serif" }); } a0 = a1; });
+  },
+  scatter(ctx, w, h) {
+    const pad = { l: 40, r: 10, t: 10, b: 26 }, lx = [1.5, 4.6], ly = [1.5, 5.6];
+    const sx = v => pad.l + (Math.log10(v) - lx[0]) / (lx[1] - lx[0]) * (w - pad.l - pad.r), sy = v => h - pad.b - (Math.log10(v) - ly[0]) / (ly[1] - ly[0]) * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); ctx.fillStyle = cssv("--add"); ctx.globalAlpha = .45;
+    V.scatter.forEach(([p, r]) => { ctx.beginPath(); ctx.arc(sx(p), sy(r), 2.4, 0, 7); ctx.fill(); }); ctx.globalAlpha = 1;
+    text(ctx, "unit price (log) →", w - pad.r, h - 8, { align: "right", font: "10px Inter, sans-serif" }); text(ctx, "revenue (log)", pad.l + 4, pad.t + 10, { font: "10px Inter, sans-serif" });
+  },
+  scatterline(ctx, w, h) {
+    const pad = { l: 40, r: 10, t: 10, b: 26 }, pts = V.scatter.slice(0, 80), lx = [1.5, 4.6], ly = [1.5, 5.6];
+    const sx = v => pad.l + (Math.log10(v) - lx[0]) / (lx[1] - lx[0]) * (w - pad.l - pad.r), sy = v => h - pad.b - (Math.log10(v) - ly[0]) / (ly[1] - ly[0]) * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); ctx.strokeStyle = cssv("--bad"); ctx.lineWidth = 1; ctx.beginPath();
+    pts.forEach(([p, r], i) => i ? ctx.lineTo(sx(p), sy(r)) : ctx.moveTo(sx(p), sy(r))); ctx.stroke();
+    text(ctx, "unit price (log) →", w - pad.r, h - 8, { align: "right", font: "10px Inter, sans-serif" });
+  },
+  stack(ctx, w, h) {
+    const rows = V.cats.map((c, i) => [c, V.cat_rev[i]]).sort((a, b) => b[1] - a[1]), tot = rows.reduce((a, r) => a + r[1], 0), pal = PAL(), x0 = 20, x1 = w - 20, y = h / 2 - 22;
+    let x = x0; rows.forEach(([c, v], i) => { const L = v / tot * (x1 - x0); ctx.fillStyle = pal[i]; ctx.fillRect(x, y, L, 44);
+      if (v / tot > .1) text(ctx, `${c} ${Math.round(v / tot * 100)}%`, x + L / 2, y + 22, { col: "#fff", align: "center", base: "middle", font: "bold 11px Inter, sans-serif" }); x += L; });
+    text(ctx, rows.filter(([, v]) => v / tot <= .1).map(([c, v]) => `${c} ${(v / tot * 100).toFixed(v / tot < .01 ? 1 : 0)}%`).join(" · "), x1, y + 64, { align: "right" });
+  },
+  catline(ctx, w, h) {
+    const rows = V.cats.map((c, i) => [c, V.cat_rev[i]]), pad = { l: 40, r: 20, t: 14, b: 24 }, max = Math.max(...rows.map(r => r[1]));
+    const sx = i => pad.l + i / (rows.length - 1) * (w - pad.l - pad.r), sy = v => h - pad.b - v / max * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); ctx.strokeStyle = cssv("--bad"); ctx.lineWidth = 2; ctx.beginPath();
+    rows.forEach(([, v], i) => i ? ctx.lineTo(sx(i), sy(v)) : ctx.moveTo(sx(i), sy(v))); ctx.stroke();
+    rows.forEach(([c], i) => text(ctx, c, sx(i), h - 8, { align: "center", font: "10px Inter, sans-serif" }));
+  },
+  line(ctx, w, h) {
+    const d = V.monthly, pad = { l: 40, r: 10, t: 14, b: 24 }, max = Math.max(...d) * 1.05;
+    const sx = i => pad.l + i / (d.length - 1) * (w - pad.l - pad.r), sy = v => h - pad.b - v / max * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b); ctx.strokeStyle = cssv("--add"); ctx.lineWidth = 2; ctx.beginPath();
+    d.forEach((v, i) => i ? ctx.lineTo(sx(i), sy(v)) : ctx.moveTo(sx(i), sy(v))); ctx.stroke();
+    ctx.fillStyle = cssv("--add"); d.forEach((v, i) => { ctx.beginPath(); ctx.arc(sx(i), sy(v), 2.5, 0, 7); ctx.fill(); });
+    [0, 12, 23].forEach(i => text(ctx, V.months[i], sx(i), h - 8, { align: "center", font: "10px 'JetBrains Mono', monospace" }));
+    [1, 2].forEach(v => { text(ctx, v + "M", pad.l - 5, sy(v * 1e6) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" }); });
+  },
+  heat(ctx, w, h) {
+    const p = V.pivot, pad = { l: 118, r: 10, t: 22, b: 6 }, cw = (w - pad.l - pad.r) / p.cols.length, rh = (h - pad.t - pad.b) / p.rows.length, max = Math.max(...p.values.flat());
+    p.cols.forEach((c, j) => text(ctx, c, pad.l + j * cw + cw / 2, 14, { align: "center", font: "10px Inter, sans-serif" }));
+    p.rows.forEach((r, i) => { text(ctx, r, pad.l - 6, pad.t + i * rh + rh / 2, { col: "--ink", align: "right", base: "middle" });
+      p.values[i].forEach((v, j) => { const a = Math.sqrt(v / max); ctx.fillStyle = cssv("--add"); ctx.globalAlpha = .08 + a * .85; ctx.fillRect(pad.l + j * cw + 1, pad.t + i * rh + 1, cw - 2, rh - 2); ctx.globalAlpha = 1;
+        text(ctx, (v / 1e6).toFixed(1), pad.l + j * cw + cw / 2, pad.t + i * rh + rh / 2, { col: a > .55 ? "#fff" : "--ink", align: "center", base: "middle", font: "10.5px 'JetBrains Mono', monospace" }); }); });
+  },
+  groupbars(ctx, w, h) {
+    const p = V.pivot, pad = { l: 34, r: 6, t: 10, b: 30 }, pal = PAL(), max = Math.max(...p.values.flat()), gw = (w - pad.l - pad.r) / p.rows.length, bw = gw * .8 / p.cols.length;
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    p.rows.forEach((r, i) => { p.values[i].forEach((v, j) => { const bh = v / max * (h - pad.t - pad.b); ctx.fillStyle = pal[j]; ctx.fillRect(pad.l + i * gw + gw * .1 + j * bw, h - pad.b - bh, bw - 1, bh); });
+      text(ctx, r.split(" ")[0], pad.l + i * gw + gw / 2, h - 16, { align: "center", font: "10px Inter, sans-serif" }); });
+    text(ctx, "4 colours × 5 regions = 20 bars to compare", (pad.l + w) / 2, h - 3, { align: "center", font: "10px Inter, sans-serif" });
+  },
+};
+
+/* ---------- widget: the question picks the chart ---------- */
+function chooseWidget(root) {
+  const Q = [
+    { k: "dist", q: "الأرقام شكلها إيه؟", s: "إيراد السطر الواحد", fam: "Distribution", good: "histogram (log scale)", draw: "hist", bad: "line بترتيب الملف", badDraw: "rowline",
+      why: "الـ histogram بيوري فين القيم متجمّعة وقد إيه متفرّقة: أغلب السطور بين 1,000 و 10,000 جنيه، وذيل لحد 300,000.", badWhy: "الـ line بيوصّل سطر بسطر بترتيب الملف، والترتيب ده ملوش معنى: خطوط طالعة نازلة مبتقولش حاجة.", link: "/courses/da/distribution/" },
+    { k: "cmp", q: "مين أكبر؟", s: "الإيراد حسب المنطقة", fam: "Comparison & Ranking", good: "bar أفقي مترتّب", draw: "hbar", bad: "pie", badDraw: "pieReg",
+      why: "الأطوال بتتقارن بالعين بسهولة، والترتيب بيقول مين الأول من غير ما تقرا.", badWhy: "العين ضعيفة في مقارنة الزوايا: الدلتا وصعيد مصر والقناة شبه بعض، ومش واضح مين أكبر." },
+    { k: "rel", q: "رقمين بيتحركوا مع بعض؟", s: "سعر القطعة والإيراد", fam: "Relationship", good: "scatter", draw: "scatter", bad: "line بين النقط", badDraw: "scatterline",
+      why: "كل نقطة سطر. كل ما السعر يعلى، الإيراد بيعلى، وكل منتج عامل عمود لوحده.", badWhy: "الخط بيوصّل النقط بترتيب السطور، فبيخترع مسار مش موجود. الـ scatter مفيهوش خطوط." },
+    { k: "comp", q: "الكل متكوّن من إيه؟", s: "الإيراد حسب الفئة", fam: "Composition", good: "stacked bar لـ 100%", draw: "stack", bad: "line بين الفئات", badDraw: "catline",
+      why: "شريط واحد = الإيراد كله. Electronics لوحدها 81%، و Stationery مش باينة تقريبًا.", badWhy: "الخط معناه إن فيه ترتيب أو وقت بين النقط. الفئات مالهاش ترتيب: الطلعة والنزلة دي ملهاش معنى." },
+    { k: "time", q: "بيتغيّر إزاي مع الوقت؟", s: "الإيراد كل شهر", fam: "Change over time", good: "line", draw: "line", bad: "pie لـ 24 شهر", badDraw: "pieTime",
+      why: "الوقت على المحور الأفقي، والخط بيوري الطلعة: peak في آخر كل سنة.", badWhy: "24 شريحة، والترتيب الزمني ضاع في الدايرة. مستحيل تشوف إن ديسمبر بيعلى كل سنة." },
+    { k: "multi", q: "أكتر من متغير مرة واحدة؟", s: "المنطقة × الفئة", fam: "Multivariate", good: "heatmap", draw: "heat", bad: "20 bar مجمّعين", badDraw: "groupbars",
+      why: "جدول بالألوان: كل خانة رقم، واللون بيوري الكبير بسرعة. القاهرة الكبرى × Electronics هي الأغمق.", badWhy: "مش غلط، بس 20 bar بأربع ألوان: لازم تروح وتيجي على الـ legend عشان تقرا خانة واحدة." },
+  ];
+  let qi = 0, wrong = false;
+  root.innerHTML = head("السؤال بيختار الـ chart", "اختار سؤال، وشوف الـ chart المناسب على داتا NileCart. وبعدين جرّب الـ chart الغلط لنفس السؤال.") + `
+    <div class="qgrid">${Q.map((q, i) => `<button data-q="${i}" aria-pressed="${i === qi}">${q.q}<small>${q.s}</small></button>`).join("")}</div>
+    <div class="optrow"><div class="seg"><button data-w="0" aria-pressed="true">الـ chart الصح</button><button data-w="1" aria-pressed="false">الـ chart الغلط</button></div></div>
+    <canvas></canvas>
+    <div class="answer" data-s="ans" style="margin-top:.7rem"></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const q = Q[qi], h = cv.clientWidth < 460 ? 220 : 250, { ctx, w } = setup(cv, h);
+    const key = wrong ? q.badDraw : q.draw;
+    if (key === "pieReg") P.pie(ctx, w, h, V.regions.map(r => r.split(" ")[0]), V.region_rev);
+    else if (key === "pieTime") P.pie(ctx, w, h, null, V.monthly);
+    else P[key](ctx, w, h);
+    $("[data-s=ans]", root).innerHTML = wrong ? `<div><b style="color:var(--bad)">✗ ${q.bad}</b></div><div>${q.badWhy}</div>` :
+      `<div><b>${q.fam}</b> · ${q.good}</div><div>${q.why}</div>${q.link ? `<div><a href="${q.link}">الدرس ←</a></div>` : ""}`;
+  }
+  $$("[data-q]", root).forEach(b => b.onclick = () => { qi = +b.dataset.q; $$("[data-q]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  $$("[data-w]", root).forEach(b => b.onclick = () => { wrong = b.dataset.w === "1"; $$("[data-w]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: fix the chart ---------- */
+function fixWidget(root) {
+  const R = [["zero", "المحور يبدأ من صفر"], ["sort", "رتّب بالقيمة"], ["color", "لون واحد للنقطة، والباقي رمادي"], ["title", "عنوان بيقول اللي لقيته"], ["units", "وحدات وأرقام مقروءة"], ["clean", "اكتب الرقم على الـ bar، وشيل الـ grid"]];
+  const on = Object.fromEntries(R.map(([k]) => [k, false]));
+  root.innerHTML = head("صلّح الـ chart", "الـ chart ده فيه كل الغلطات. شغّل القواعد واحدة واحدة، وشوف الحكاية بتبان إزاي.") + `
+    <div class="wgrid cols"><div><canvas></canvas></div>
+      <div class="controls"><div class="rules">${R.map(([k, t]) => `<label class="chk"><input type="checkbox" data-r="${k}"> ${t}</label>`).join("")}</div>
+        <div><span class="score" data-s="score"></span></div>
+        <div class="btns"><button class="btn" data-a="all">صلّح كله</button><button class="btn" data-a="none">رجّعه وحش</button></div>
+        <div class="status" data-s="msg"></div></div></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    let rows = V.regions.map((r, i) => [r, V.region_rev[i]]);
+    if (on.sort) rows.sort((a, b) => b[1] - a[1]); else rows.sort((a, b) => a[0].localeCompare(b[0]));
+    const h = cv.clientWidth < 460 ? 260 : 300, { ctx, w } = setup(cv, h), pad = { l: on.units ? 46 : 52, r: 14, t: 40, b: 46 };
+    const lo = on.zero ? 0 : 1.5e6, max = Math.max(...rows.map(r => r[1])) * 1.08, top = rows.reduce((a, b) => b[1] > a[1] ? b : a)[0];
+    const sy = v => h - pad.b - (Math.max(v, lo) - lo) / (max - lo) * (h - pad.t - pad.b), bw = (w - pad.l - pad.r) / rows.length, pal = PAL();
+    // grid + y ticks
+    const ticks = [0, 2e6, 4e6, 6e6, 8e6, 10e6].filter(t => t >= lo);
+    if (!on.clean) ticks.forEach(t => { ctx.strokeStyle = cssv("--line"); ctx.beginPath(); ctx.moveTo(pad.l, sy(t)); ctx.lineTo(w - pad.r, sy(t)); ctx.stroke();
+      text(ctx, on.units ? (t / 1e6) + "M" : String(t), pad.l - 5, sy(t) + 3, { align: "right", font: "9.5px 'JetBrains Mono', monospace" }); });
+    if (!on.units && !on.clean) text(ctx, "1e7", pad.l, pad.t - 6, { font: "9.5px 'JetBrains Mono', monospace" });
+    rows.forEach(([r, v], i) => {
+      const x = pad.l + i * bw + bw * .15, y = sy(v);
+      ctx.fillStyle = on.color ? (r === top ? cssv("--add") : cssv("--muted")) : pal[i]; ctx.globalAlpha = on.color && r !== top ? .45 : .9;
+      ctx.fillRect(x, y, bw * .7, h - pad.b - y); ctx.globalAlpha = 1;
+      const lab = on.units ? r.replace(" & Coast", "").replace("Greater ", "Gr. ") : r.split(" ")[0].slice(0, 6);
+      text(ctx, lab, x + bw * .35, h - pad.b + 14, { col: "--ink", align: "center", font: "10.5px Inter, sans-serif" });
+      if (on.clean) text(ctx, on.units ? M(v) : String(Math.round(v)), x + bw * .35, y - 5, { col: "--ink", align: "center", font: "bold 10.5px 'JetBrains Mono', monospace" });
+    });
+    ctx.strokeStyle = cssv("--line"); ctx.beginPath(); ctx.moveTo(pad.l, h - pad.b); ctx.lineTo(w - pad.r, h - pad.b); ctx.stroke();
+    text(ctx, on.title ? "Greater Cairo brings half of the revenue" : "Chart 1", pad.l, 20, { col: "--ink", font: "bold 13px Inter, sans-serif" });
+    if (on.units) text(ctx, "revenue, million EGP · completed orders 2024–2025", pad.l, 34, { font: "10.5px Inter, sans-serif" });
+    const n = Object.values(on).filter(Boolean).length;
+    $("[data-s=score]", root).textContent = `${n} / ${R.length}`;
+    const gc = V.region_rev[V.regions.indexOf("Greater Cairo")], ca = V.region_rev[V.regions.indexOf("Canal")];
+    $("[data-s=msg]", root).textContent = !on.zero ? `المحور بيبدأ من 1.5 مليون: القاهرة الكبرى بتبان ${Math.round((gc - lo) / (ca - lo))} ضعف القناة، والحقيقة ${(gc / ca).toFixed(1)} بس.` :
+      n === R.length ? "دلوقتي الـ chart بيقول حاجة واحدة، وبيقولها في ثانية: القاهرة الكبرى نص الإيراد." : "كمّل: كل قاعدة بتشيل حاجة بتشتّت العين.";
+  }
+  $$("[data-r]", root).forEach(c => c.onchange = () => { on[c.dataset.r] = c.checked; draw(); });
+  $$("[data-a]", root).forEach(b => b.onclick = () => { const v = b.dataset.a === "all"; $$("[data-r]", root).forEach(c => { c.checked = v; on[c.dataset.r] = v; }); draw(); });
+  draw(); onRedraw(draw);
+}
+
+/* ---------- page chrome ---------- */
+function chrome() {
+  $$("#kaggleLink, [data-kaggle]").forEach(a => a.href = KAGGLE);
+  $$(".codetabs").forEach(box => $$(".seg button", box).forEach(b => b.onclick = () => {
+    $$(".seg button", box).forEach(x => x.setAttribute("aria-pressed", x === b));
+    $$("pre", box).forEach(p => p.hidden = p.dataset.lib !== b.dataset.lib);
+  }));
+  const toc = $("#tocList"), links = {};
+  $$("section.sec").forEach(sec => {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + sec.id; a.textContent = $("h2", sec).textContent.replace(/^\d+/, "").trim();
+    li.appendChild(a); toc.appendChild(li); links[sec.id] = a;
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { Object.values(links).forEach(a => a.classList.remove("active")); links[e.target.id].classList.add("active"); } }), { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  window.addEventListener("scroll", () => { const h = document.documentElement; $("#progress").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; }, { passive: true });
+  new MutationObserver(() => redrawers.forEach(f => f())).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => redrawers.forEach(f => f()));
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  chrome();
+  anscFig();
+  chooseWidget($("#wChoose")); fixWidget($("#wFix"));
+});
+})();
+</script>
+</body>
+</html>

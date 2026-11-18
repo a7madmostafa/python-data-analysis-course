@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NYC Motor Vehicle Crashes · Final Project · Suggested Datasets</title>
+<meta name="description" content="When and where do crashes happen in New York City, why, and who gets hurt?">
+<link rel="stylesheet" href="../style.css">
+<script>
+try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<header class="site-head"><div class="wrap">
+  <a class="brand" href="../index.html">Final Project · <span>Suggested Datasets</span></a>
+  <nav><a href="../index.html#datasets">All datasets</a></nav>
+</div></header>
+<main class="wrap">
+
+<a class="back" href="../index.html">← All datasets</a>
+<section class="page-head">
+  <span class="emoji" aria-hidden="true">🚦</span>
+  <h1>NYC Motor Vehicle Crashes</h1>
+  <p class="lead">When and where do crashes happen in New York City, why, and who gets hurt?</p>
+</section>
+
+<section><dl class="facts"><div><dt>Rows</dt><dd>91,317 (2024)</dd></div><div><dt>Columns</dt><dd>29</dd></div><div><dt>Period</dt><dd>2012 → today</dd></div><div><dt>Format</dt><dd>CSV from an API</dd></div></dl></section>
+
+<section>
+  <h2 class="section">The data</h2>
+  <div class="panel"><p>New York City publishes <strong>every motor-vehicle crash</strong> reported by the NYPD, and updates it every day. A crash is in the table when someone was hurt or killed, or when the damage is above $1,000.</p><p>Each row is one crash: date and time, borough, street, coordinates, up to five vehicles with their type and the reason the police gave for the crash, and how many pedestrians, cyclists and motorists were injured or killed.</p><p>The full table goes back to 2012 and has more than 2 million rows, which is too big. Take <strong>one year</strong> (2024 has ~91,000 crashes).</p></div>
+</section>
+
+<section>
+  <h2 class="section">Download</h2>
+  <div class="panel">
+    <p><a class="btn ghost" href="https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95" target="_blank" rel="noopener">Dataset page (NYC Open Data) ↗</a><a class="btn" href="https://data.cityofnewyork.us/resource/h9gi-nx95.csv?$where=crash_date%20between%20&#x27;2024-01-01T00:00:00&#x27;%20and%20&#x27;2024-12-31T23:59:59&#x27;&amp;$limit=200000" target="_blank" rel="noopener">Download 2024 only (CSV) ↗</a></p>
+    <h3>About the format</h3>
+    <ul class="clean"><li>The second button calls the open-data <strong>API</strong> with a filter on the date, so you get one year as a normal CSV. Change the two dates to get another year.</li><li>Without <code>$limit</code>, the API gives only the first 1,000 rows. The link already sets it to 200,000.</li><li>The <code>location</code> column contains line breaks inside the text. <code>pd.read_csv</code> handles it, but Excel and <code>wc -l</code> will show more lines than rows.</li></ul>
+<pre><code>import pandas as pd
+
+crashes = pd.read_csv(&quot;nyc_collisions_2024.csv&quot;)
+crashes.shape        # (91317, 29)</code></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section">Main columns</h2>
+  <div class="panel table-wrap"><table><thead><tr><th>Column</th><th>What it holds</th></tr></thead><tbody><tr><td><code>crash_date, crash_time</code></td><td>When it happened (two text columns)</td></tr><tr><td><code>borough, zip_code</code></td><td>Where (borough = Brooklyn, Queens, Manhattan, Bronx, Staten Island)</td></tr><tr><td><code>latitude, longitude</code></td><td>Point on the map</td></tr><tr><td><code>on_street_name, cross_street_name, off_street_name</code></td><td>Street names</td></tr><tr><td><code>number_of_persons_injured / _killed</code></td><td>Total people hurt or killed</td></tr><tr><td><code>number_of_pedestrians_… / cyclist_… / motorist_…</code></td><td>Who was hurt or killed</td></tr><tr><td><code>contributing_factor_vehicle_1 … 5</code></td><td>The reason for each vehicle (e.g. Driver Inattention/Distraction)</td></tr><tr><td><code>vehicle_type_code1 … 5</code></td><td>Type of each vehicle (Sedan, Taxi, Bike, E-Bike…)</td></tr></tbody></table></div>
+</section>
+
+<section>
+  <h2 class="section">Watch out for</h2>
+  <div class="note"><strong>These are hints, not instructions.</strong> Check each one in the data, decide what to do, and explain your choice in the notebook.</div>
+  <div class="panel"><ul class="clean"><li><strong>Borough is empty for more than a quarter of the crashes</strong>, although most of them still have coordinates. Could the map tell you the borough?</li><li>Some crashes sit at <strong>latitude 0, longitude 0</strong>. That point is in the Atlantic Ocean.</li><li>Street names are written in many ways (<em>PKWY</em> / <em>Parkway</em>, upper and lower case).</li><li>The first contributing factor is often <strong>"Unspecified"</strong>. Is that a cause, or a missing value?</li><li>Vehicle types are free text with hundreds of spellings. Group them before you count.</li><li>Does the total of injured people always equal pedestrians + cyclists + motorists?</li></ul></div>
+</section>
+
+<section>
+  <h2 class="section">Questions to explore</h2>
+  <div class="panel"><h3>When?</h3><ol class="qs"><li>At what hours and on which days do most crashes happen?</li><li>Are the most dangerous hours the same as the busiest hours?</li></ol><h3>Where?</h3><ol class="qs"><li>Which boroughs and streets have the most crashes, and the most injuries per crash?</li><li>Where are the hot spots on the map?</li></ol><h3>Why?</h3><ol class="qs"><li>What are the most common causes?</li><li>Which causes hurt or kill people most often?</li></ol><h3>Who?</h3><ol class="qs"><li>Who is hurt most: pedestrians, cyclists or people in cars? Who is most likely to die?</li><li>Which vehicles are involved, and how often is someone injured when a bike or e-bike crashes?</li></ol></div>
+</section>
+
+<section>
+  <h2 class="section">Ideas for the app</h2>
+  <div class="panel"><ul class="clean"><li>A <strong>map</strong> of crashes and of fatal crashes, filtered by borough, month and severity.</li><li>An <strong>hour × weekday heat map</strong> of crashes.</li><li>A page on <strong>causes</strong>: the most common ones vs the most dangerous ones.</li><li>A page for <strong>road users</strong>: pedestrians, cyclists, motorists.</li></ul></div>
+</section>
+
+<a class="back" href="../index.html">← All datasets</a>
+
+</main>
+<footer class="site-foot"><div class="wrap">Python Data Analysis · Final project. The data belongs to its publishers. Check each source's terms before you reuse it.</div></footer>
+</body>
+</html>

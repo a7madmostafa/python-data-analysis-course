@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heart Disease Indicators (CDC 2022) · Final Project · Suggested Datasets</title>
+<meta name="description" content="Which habits and health conditions go with having had a heart attack?">
+<link rel="stylesheet" href="../style.css">
+<script>
+try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<header class="site-head"><div class="wrap">
+  <a class="brand" href="../index.html">Final Project · <span>Suggested Datasets</span></a>
+  <nav><a href="../index.html#datasets">All datasets</a></nav>
+</div></header>
+<main class="wrap">
+
+<a class="back" href="../index.html">← All datasets</a>
+<section class="page-head">
+  <span class="emoji" aria-hidden="true">❤️</span>
+  <h1>Heart Disease Indicators (CDC 2022)</h1>
+  <p class="lead">Which habits and health conditions go with having had a heart attack?</p>
+</section>
+
+<section><dl class="facts"><div><dt>Rows</dt><dd>445,132</dd></div><div><dt>Columns</dt><dd>40</dd></div><div><dt>Year</dt><dd>2022</dd></div><div><dt>Format</dt><dd>CSV in a zip</dd></div></dl></section>
+
+<section>
+  <h2 class="section">The data</h2>
+  <div class="panel"><p>Every year the US Centers for Disease Control (CDC) phones hundreds of thousands of adults and asks about their health: the <strong>BRFSS</strong> survey. This dataset is the <strong>2022</strong> survey, prepared as one table: one row per person, 40 questions.</p><p>It covers age, sex and state, habits (smoking, e-cigarettes, alcohol, physical activity, sleep), body measures (height, weight, BMI), and many conditions: heart attack, stroke, diabetes, asthma, depression, kidney disease…</p><p>No medical background is needed: almost every column is a simple answer like <em>Yes</em>, <em>No</em> or <em>Former smoker</em>.</p></div>
+</section>
+
+<section>
+  <h2 class="section">Download</h2>
+  <div class="panel">
+    <p><a class="btn" href="https://www.kaggle.com/datasets/kamilpytlak/personal-key-indicators-of-heart-disease" target="_blank" rel="noopener">Dataset (Kaggle) ↗</a><a class="btn ghost" href="https://www.cdc.gov/brfss/" target="_blank" rel="noopener">About the BRFSS survey (CDC) ↗</a></p>
+    <h3>About the format</h3>
+    <ul class="clean"><li>The zip has <strong>three files</strong>. Use <code>2022/heart_2022_with_nans.csv</code>, the version <strong>with missing values</strong>. Cleaning them is part of the project.</li><li>Don't use <code>heart_2022_no_nans.csv</code> (someone already deleted the rows with gaps) or the <code>2020</code> file (older and different columns).</li></ul>
+<pre><code>heart = pd.read_csv(&quot;2022/heart_2022_with_nans.csv&quot;)
+heart[&quot;HadHeartAttack&quot;].value_counts(dropna=False)</code></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section">Main columns</h2>
+  <div class="panel table-wrap"><table><thead><tr><th>Column</th><th>What it holds</th></tr></thead><tbody><tr><td><code>State, Sex, AgeCategory</code></td><td>Who and where (age in 5-year groups)</td></tr><tr><td><code>HadHeartAttack</code></td><td>The main column: ever had a heart attack (Yes / No)</td></tr><tr><td><code>SmokerStatus, ECigaretteUsage, AlcoholDrinkers</code></td><td>Habits</td></tr><tr><td><code>PhysicalActivities, SleepHours</code></td><td>Activity in the past month, sleep per night</td></tr><tr><td><code>HeightInMeters, WeightInKilograms, BMI</code></td><td>Body measures</td></tr><tr><td><code>HadStroke, HadDiabetes, HadAngina, HadCOPD…</code></td><td>Other conditions</td></tr><tr><td><code>GeneralHealth, PhysicalHealthDays, MentalHealthDays</code></td><td>How people rate their own health</td></tr></tbody></table></div>
+</section>
+
+<section>
+  <h2 class="section">Watch out for</h2>
+  <div class="note"><strong>These are hints, not instructions.</strong> Check each one in the data, decide what to do, and explain your choice in the notebook.</div>
+  <div class="panel"><ul class="clean"><li><strong>Missing values everywhere</strong>, from under 1% to almost 20% depending on the question. Which ones can you fill honestly, and which should stay missing?</li><li>BMI is missing for ~11% of the people, but some of them have a height and a weight…</li><li>Values that are hard to believe: <strong>24 hours of sleep</strong>, a BMI near 100.</li><li>Long answer texts (<em>"Current smoker - now smokes some days"</em>) need shorter labels before they fit on a chart.</li><li><code>HadDiabetes</code> has four answers, two of them "half yes".</li><li>⚠️ <strong>Age hides everything.</strong> Smokers, drinkers and inactive people have different ages. Compare groups <strong>inside the same age band</strong>.</li><li>A survey shows <strong>links, not causes</strong>. Some links may run backwards (people change habits <em>after</em> getting ill).</li></ul></div>
+</section>
+
+<section>
+  <h2 class="section">Questions to explore</h2>
+  <div class="panel"><h3>Age and sex</h3><ol class="qs"><li>How does the heart-attack rate change with age? Is it different for men and women?</li></ol><h3>Habits</h3><ol class="qs"><li>Do smokers have more heart attacks than people who never smoked, at the same age? What about former smokers?</li><li>Physical activity, alcohol, e-cigarettes: what do you see, and can you believe it?</li></ol><h3>Body and sleep</h3><ol class="qs"><li>Does BMI matter?</li><li>Is there a "right" amount of sleep?</li></ol><h3>Other conditions</h3><ol class="qs"><li>Which conditions go together with heart attacks? What happens when people have several?</li></ol><h3>Places</h3><ol class="qs"><li>Which US states have the highest rates?</li></ol></div>
+</section>
+
+<section>
+  <h2 class="section">Ideas for the app</h2>
+  <div class="panel"><ul class="clean"><li>A <strong>risk explorer</strong>: pick age band, sex and habits, see the heart-attack rate of people like that.</li><li>A <strong>habits page</strong> where every comparison is split by age band.</li><li>A <strong>map</strong> of the states.</li></ul></div>
+</section>
+
+<a class="back" href="../index.html">← All datasets</a>
+
+</main>
+<footer class="site-foot"><div class="wrap">Python Data Analysis · Final project. The data belongs to its publishers. Check each source's terms before you reuse it.</div></footer>
+</body>
+</html>

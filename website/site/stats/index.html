@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Descriptive Statistics</title>
+<meta name="description" content="Descriptive Statistics لـ Data Analysis: الـ mean والـ median والـ mode، والـ std والـ IQR، والـ five-number summary و describe()، والـ outliers، والـ skewness، والأرقام لكل جروب، كله على داتا NileCart.">
+<meta property="og:title" content="Descriptive Statistics: عمود كامل في كام رقم · Zero Grad">
+<meta property="og:description" content="المركز والانتشار والـ outliers، والـ mean والـ median إمتى ومين، بالعربي وعلى داتا NileCart.">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/stats/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/stats/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<script src="/assets/js/theme.js"></script>
+<link rel="apple-touch-icon" href="/assets/img/zero-grad-app-icon-512.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<script src="/assets/js/pwa.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ea; --surface:#fffdf8; --surface-2:#efeadf; --ink:#1c1e22; --muted:#5b616b; --line:#ddd6c6;
+  --accent:#101f40; --on-accent:#f5f2ea; --chalk-g:#15803d; --chalk-o:#c2410c; --add:#2563eb; --bad:#dc2626;
+  --c1:#0f766e; --c2:#2563eb; --c3:#b45309; --c4:#9333ea;
+  --board:#232323; --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+    --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+    --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+  --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+  --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--add)}
+html,body{overflow-x:clip}
+@media (max-width:520px){.brand{font-size:.8rem}.seg button{padding:.2rem .55rem;font-size:.8rem}.topbar-in{gap:.4rem}.top-actions{gap:.3rem}.iconbtn{width:30px;height:30px}}
+code,pre{font-family:"JetBrains Mono",monospace}
+.en{direction:ltr;unicode-bidi:isolate}
+code.i{font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .35rem;direction:ltr;unicode-bidi:isolate}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;right:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .1s}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:auto;padding:.55rem 16px;display:flex;gap:.75rem;align-items:center;justify-content:space-between}
+.top-actions{display:flex;gap:.5rem;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.25rem .8rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+
+/* layout */
+.wrap{max-width:1180px;margin:auto;padding:0 16px;display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media (min-width:1100px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:72px;align-self:start;padding-top:2.5rem;font-size:.9rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+  nav.toc a{display:block;padding:.3rem .9rem;color:var(--muted);text-decoration:none;margin-inline-start:-2px;border-inline-start:2px solid transparent;line-height:1.5}
+  nav.toc a.active{color:var(--ink);border-color:var(--accent);font-weight:500}
+}
+main{min-width:0;padding-bottom:6rem}
+
+/* hero */
+.hero{padding:3rem 0 1.5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.hero h1{font-family:"Caveat",cursive;font-size:clamp(3rem,9vw,5.2rem);line-height:1;margin:.5rem 0 .75rem;color:var(--accent);direction:ltr;text-align:right;font-weight:700}
+.lead{font-size:1.15rem;max-width:62ch;margin:0}
+
+/* notebook links */
+.nb-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.nb-btn{display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4rem 1rem;text-decoration:none}
+.nb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.nb-btn:hover{border-color:var(--accent)}
+
+/* sections */
+section.sec{padding-top:2.5rem;scroll-margin-top:64px}
+.sec-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:1.25rem}
+.sec-head h2{margin:0;font-size:1.55rem;line-height:1.35;display:flex;gap:.7rem;align-items:baseline}
+.num{font-family:"Caveat",cursive;color:var(--accent);font-size:2rem;line-height:1}
+h3.sub{font-size:1.15rem;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+.chalk{font-family:"Caveat",cursive;font-size:1.35em;color:var(--accent);direction:ltr;unicode-bidi:isolate;font-weight:700;line-height:1.2}
+.voice{margin:1.25rem 0;padding:.9rem 1.2rem;border-radius:var(--radius);background:var(--board);color:#f2c94c;font-family:"Caveat",cursive;font-size:1.9rem;direction:ltr;text-align:center;line-height:1.3}
+.voice small{display:block;font-family:"Noto Sans Arabic",sans-serif;font-size:.8rem;color:#a1a1a1;direction:rtl;margin-top:.25rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;line-height:1.6}
+.card b{display:block;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr;gap:1rem;margin:1rem 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.path{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem}
+.path h4{margin:0 0 .25rem;font-size:1.05rem}
+.path .sub{color:var(--muted);font-size:.85rem}
+.path.good{border-color:color-mix(in srgb,var(--chalk-g) 55%,var(--line))}
+.path.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.path.good h4{color:var(--chalk-g)}
+.path.bad h4{color:var(--bad)}
+
+/* the "use it when" box every chart gets */
+.when{display:grid;grid-template-columns:1fr;gap:.75rem;margin:1rem 0}
+@media(min-width:760px){.when{grid-template-columns:repeat(3,1fr)}}
+.when .card{border-top:3px solid var(--accent)}
+.when .card:nth-child(2){border-top-color:var(--chalk-g)}
+.when .card:nth-child(3){border-top-color:var(--chalk-o)}
+
+/* callouts */
+.callout{border-radius:var(--radius);padding:.9rem 1.1rem;margin:1.25rem 0;border:1px solid;font-size:.97rem}
+.callout .ttl{font-weight:700;font-size:.85rem;display:flex;gap:.4rem;align-items:center;margin-bottom:.15rem}
+.callout.add{border-color:color-mix(in srgb,var(--add) 45%,transparent);background:color-mix(in srgb,var(--add) 7%,var(--surface))}
+.callout.add .ttl{color:var(--add)}
+.callout.warn{border-color:color-mix(in srgb,var(--chalk-o) 55%,transparent);background:color-mix(in srgb,var(--chalk-o) 8%,var(--surface))}
+.callout.warn .ttl{color:var(--chalk-o)}
+.callout.insight{border-color:color-mix(in srgb,var(--chalk-g) 50%,transparent);background:color-mix(in srgb,var(--chalk-g) 8%,var(--surface))}
+.callout.insight .ttl{color:var(--chalk-g)}
+details.callout summary{cursor:pointer;list-style:none}
+details.callout summary::-webkit-details-marker{display:none}
+details.callout summary .ttl::after{content:"＋";margin-inline-start:auto}
+details.callout[open] summary .ttl::after{content:"－"}
+
+/* tables & code */
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.tbl th,.tbl td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.tbl thead th{background:var(--surface-2);font-size:.85rem}
+.tbl tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+pre{direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;padding:1rem 1.1rem;border-radius:var(--radius);overflow-x:auto;font-size:.85rem;line-height:1.65;margin:1rem 0}
+pre .c{color:#8a8a8a}
+pre .k{color:#f2c94c}
+pre .s{color:#4ade80}
+.codetabs{margin:1rem 0}
+.codetabs .seg{margin-bottom:-.4rem}
+.codetabs pre{margin-top:.6rem}
+.codetabs pre[hidden]{display:none}
+
+/* figures */
+figure.fig{margin:1.25rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.fig-scroll{overflow-x:auto}
+figure.fig svg{width:100%;min-width:520px;height:auto;display:block;direction:ltr}
+figure.fig svg text{font-family:Inter,"Noto Sans Arabic",sans-serif;fill:var(--ink)}
+figure.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+
+/* widgets */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.widget-head{display:flex;gap:.6rem;align-items:center;margin-bottom:.2rem}
+.widget-head .badge{font-size:.72rem;font-weight:700;color:var(--bg);background:var(--chalk-g);border-radius:999px;padding:.1rem .6rem;white-space:nowrap}
+.widget-head h3{margin:0;font-size:1.1rem}
+.widget .hint{color:var(--muted);font-size:.9rem;margin:.1rem 0 .8rem}
+.wgrid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:820px){.wgrid.cols{grid-template-columns:1.6fr 1fr}}
+canvas{width:100%;display:block;border-radius:10px;background:var(--surface-2);touch-action:none}
+.controls{display:grid;gap:.7rem;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;gap:.5rem}
+.ctl label output{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.4rem .85rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk.off{opacity:.45;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem}
+.stat{background:var(--surface-2);border-radius:10px;padding:.45rem .7rem;line-height:1.35}
+.stat span{display:block;font-size:.75rem;color:var(--muted)}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;unicode-bidi:isolate}
+.status{font-size:.9rem;min-height:1.6em;color:var(--muted);white-space:pre-line}
+.keys{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.5rem}
+.keys span{display:inline-flex;gap:.35rem;align-items:center}
+.keys i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+
+/* summary */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem}
+.sheet .card{padding:1rem}
+.sheet .card h4{margin:0 0 .3rem;font-size:.95rem;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding:1.5rem 0;margin-top:3rem}
+.muted{color:var(--muted);font-size:.9em}
+
+/* lesson navigation */
+.crumbs{display:flex;align-items:center;gap:.45rem;font-size:.9rem;white-space:nowrap;min-width:0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{color:var(--line)}
+.crumbs .here{font-weight:700;color:var(--ink)}
+a.iconbtn{display:grid;place-items:center;text-decoration:none;font-size:.95rem}
+.iconbtn.off{opacity:.3;pointer-events:none;display:grid;place-items:center}
+.pager{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;margin-top:3rem}
+.pg{display:flex;flex-direction:column;gap:.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);text-decoration:none;line-height:1.5}
+.pg span{font-size:.82rem;color:var(--muted)}
+.pg b{font-size:1rem;color:var(--accent)}
+a.pg:hover{border-color:var(--accent)}
+.pg.next{text-align:left}
+.pg.all{justify-content:center;text-align:center}
+.pg.off{border-style:dashed;background:transparent}
+.pg.off b{color:var(--muted)}
+@media (max-width:640px){.pager{grid-template-columns:1fr}.pg.next{text-align:right}.pg.all{order:3}}
+@media (max-width:520px){.crumbs .home,.crumbs .home+.sep{display:none}}
+@media (max-width:400px){.crumbs .course+.sep,.crumbs .here{display:none}}
+@media print{.topbar,nav.toc,#progress,.widget{display:none!important}body{background:#fff;color:#000;font-size:12pt}}
+
+/* descriptive statistics lesson */
+.shape{font-family:"JetBrains Mono",monospace;font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .4rem;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.optrow{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center;margin:.3rem 0 .8rem}
+.optrow .lbl{font-size:.85rem;color:var(--muted)}
+.optrow .seg{flex-wrap:wrap;max-width:100%;border-radius:16px}
+.stat.mean b{color:var(--chalk-o)}
+.stat.med b{color:var(--chalk-g)}
+.stat.trim b{color:var(--c4)}
+.tbl td.num,.tbl th.num{text-align:left;direction:ltr;font-family:"JetBrains Mono",monospace;font-size:.88rem;white-space:nowrap}
+.tbl tr.hl td{background:color-mix(in srgb,var(--chalk-o) 9%,var(--surface))}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here en">Descriptive Statistics</span></nav>
+    <div class="top-actions">
+      <a class="iconbtn" href="/courses/da/linalg/" aria-label="الدرس اللي فات: Linear Algebra خفيفة" title="الدرس اللي فات: Linear Algebra خفيفة">→</a><a class="iconbtn" href="/courses/da/numpy/" aria-label="الدرس الجاي: NumPy" title="الدرس الجاي: NumPy">←</a>
+      <button class="iconbtn" id="themeBtn" type="button" data-theme-toggle aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="المحتوى"><ol id="tocList"></ol></nav>
+  <main>
+    <div class="hero">
+      <div class="kicker">Zero Grad · كورس Data Analysis · الأساسيات</div>
+      <h1>Statistics</h1>
+      <p class="lead"><bdi>1,074</bdi> رقم إيراد محدش يقدر يقراهم واحد واحد.<br>
+        بس كام رقم مختارين صح يقدروا يوصفوهم: <b>العادي</b> كام، و<b>الأرقام بعيدة عن بعض</b> قد إيه، وفين <b>الغريب</b>.<br>
+        والرقم الغلط ممكن يحكي حكاية مش حقيقية.<br>
+        الدرس ده عن الأرقام دي، وإمتى تستخدم أنهي واحد فيهم.</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" id="kaggleLink" href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
+        <a class="nb-btn" href="https://www.kaggle.com/datasets/a7madmostafa/nilecart-sales" target="_blank" rel="noopener">🗂️ داتا NileCart على Kaggle</a>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <section class="sec" id="why">
+      <div class="sec-head"><h2><span class="num">1</span>عمود كامل في كام رقم</h2></div>
+      <p>أي عمود أرقام بتوصفه بـ 4 أسئلة:</p>
+      <div class="cards">
+        <div class="card"><b>المركز</b>القيمة "العادية" كام؟<br><span class="en">mean · median · mode</span></div>
+        <div class="card"><b>الانتشار</b>الأرقام بعيدة عن بعض قد إيه؟<br><span class="en">range · std · IQR</span></div>
+        <div class="card"><b>الشكل</b>متماثل، ولا ليه ذيل؟<br><span class="en">skewness</span></div>
+        <div class="card"><b>الغريب</b>فيه قيم بعيدة عن الباقي؟<br><span class="en">outliers</span></div>
+      </div>
+      <p>هنا هنجاوب الأسئلة دي بالأرقام، وفي دروس الـ Visualization هنشوفها بالرسم.<br>
+        وهنعرف إمتى الرقم بيكدب.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="sec" id="center">
+      <div class="sec-head"><h2><span class="num">2</span>المركز: mean و median و mode</h2></div>
+      <div class="two">
+        <div class="path"><h4><span class="en">Mean</span> (المتوسط)</h4><p>اجمع كل القيم، واقسم على عددهم.</p></div>
+        <div class="path"><h4><span class="en">Median</span> (الوسيط)</h4><p>رتّب القيم، وخد اللي في النص.<br>نص القيم تحته، ونص فوقه.</p></div>
+      </div>
+      <p>على إيراد NileCart: الـ mean <bdi>18,075</bdi> جنيه، والـ median <bdi>3,600</bdi>.<br>
+        خمس أضعاف! طب مين فيهم "الأوردر العادي"؟<br>
+        خلّينا نشوف مثال صغير: الـ 9 سطور بتوع عميل واحد، يوسف حسن.</p>
+      <div class="widget" id="wDrag"></div>
+      <p>8 من الـ 9 سطور تحت <bdi>7,000</bdi> جنيه.<br>
+        أوردر واحد بـ <bdi>136,800</bdi> شدّ الـ mean لحد <bdi>17,676</bdi>، رقم <b>مفيش ولا أوردر</b> من أوردراته قريب منه.<br>
+        والـ median فضل <bdi>2,400</bdi>: القيمة الخامسة من التسعة.</p>
+      <div class="callout insight"><div class="ttl">💡 Robust</div>
+        الإحصائية اللي قيمة واحدة متطرفة متقدرش تشدّها اسمها <b>robust</b>.<br>
+        الـ median robust، والـ mean لأ.<br>
+        غيّر الأوردر الكبير لـ <bdi>7,000</bdi>: الـ mean بينزل من <bdi>17,676</bdi> لـ <bdi>3,254</bdi>، والـ median مبيتحركش.</div>
+      <h3 class="sub">الـ Trimmed mean: حل وسط</h3>
+      <p>شيل أعلى وأقل نسبة من القيم (مثلًا <bdi>10%</bdi> من كل ناحية)، وخد متوسط الباقي:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الرقم</th><th class="num">revenue</th></tr></thead>
+        <tbody>
+          <tr><td>mean</td><td class="num">18,075</td></tr>
+          <tr><td>trimmed mean <bdi>5%</bdi></td><td class="num">12,151</td></tr>
+          <tr><td>trimmed mean <bdi>10%</bdi></td><td class="num">9,342</td></tr>
+          <tr><td>median</td><td class="num">3,600</td></tr>
+        </tbody>
+      </table></div>
+      <p>كل ما تشيل أكتر، كل ما يقرّب من الـ median (اللي هو أقصى trim: شلت كل حاجة إلا اللي في النص).</p>
+<pre><span class="k">from</span> scipy <span class="k">import</span> stats
+stats.trim_mean(rev, <span class="s">0.10</span>)     <span class="c"># 9,342</span></pre>
+      <h3 class="sub">الـ Mode: الأكتر تكرار</h3>
+      <p>الـ mean والـ median محتاجين أرقام.<br>
+        الـ <b>mode</b> بيشتغل على أي حاجة تقدر تعدّها، حتى الفئات:<br>
+        أكتر كمية بتتكرر 5، وأكتر منتج بيتباع Mouse، وأكتر segment هو Consumer.<br>
+        وفي أعمدة النصوص، الـ mode هو "المركز" الوحيد: مينفعش تجيب متوسط Consumer و Corporate.</p>
+<pre>done[<span class="s">"product_name"</span>].mode()[<span class="s">0</span>]     <span class="c"># 'Mouse'</span>
+done[<span class="s">"segment"</span>].value_counts()       <span class="c"># Consumer 553, Corporate 393, Small Business 127</span></pre>
+      <h3 class="sub">لما الاختيار بيغيّر الحكاية</h3>
+      <p>متوسط إيراد السطر في 2024 قصاد 2025:</p>
+      <figure class="fig"><div class="fig-scroll" id="yearFig"></div>
+        <figcaption>نفس الداتا، ورقمين بيقولوا عكس بعض. كل رسمة بمقياسها: الـ mean نفسه حوالي 5 أضعاف الـ median.</figcaption></figure>
+      <div class="two">
+        <div class="path"><h4>"الأوردر نزل <bdi>15%</bdi> في 2025"</h4><p>صح، بالـ mean: من <bdi>19,636</bdi> لـ <bdi>16,735</bdi>.</p></div>
+        <div class="path"><h4>"الأوردر العادي زاد <bdi>6%</bdi> في 2025"</h4><p>صح، بالـ median: من <bdi>3,560</bdi> لـ <bdi>3,780</bdi>.</p></div>
+      </div>
+      <p>الاتنين حسابات صح.<br>
+        2025 فيها سطور أكتر (578 قصاد 496)، بس أوردرات ضخمة أقل (19 فوق <bdi>100,000</bdi> جنيه، قصاد 24).<br>
+        فالـ mean نزل، والأوردر العادي كبر شوية.<br>
+        قول الرقم اللي بيجاوب السؤال، ولو مش متأكد، قول الاتنين.</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="sec" id="spread">
+      <div class="sec-head"><h2><span class="num">3</span>الانتشار: الأرقام بعيدة عن بعض قد إيه؟</h2></div>
+      <p>عمودين ممكن يبقى ليهم نفس المركز، وشكلهم مختلف خالص.<br>
+        الانتشار هو الرقم التاني اللي لازم تقوله.</p>
+      <h3 class="sub">الـ Range</h3>
+      <p>أكبر قيمة ناقص أصغر قيمة: <bdi>336,000 − 45.6</bdi>.<br>
+        بيعتمد على أطرف قيمتين بس، فأوردر واحد بيحدده. مش robust.</p>
+      <h3 class="sub">الـ Variance والـ Standard deviation</h3>
+      <p>كل قيمة بعيدة عن الـ mean قد إيه، في المتوسط؟<br>
+        ربّع المسافات (عشان السالب ميلغيش الموجب)، وخد متوسطها: ده الـ <b>variance</b>.<br>
+        وخد الجذر عشان ترجع للجنيه: ده الـ <b>standard deviation</b> (<span class="en">std</span>).</p>
+      <figure class="fig"><div class="fig-scroll" id="stdFig"></div>
+        <figcaption>مسافة كل أوردر من أوردرات يوسف عن الـ mean، ومربّعها. الأوردر الكبير لوحده أغلب الـ variance.</figcaption></figure>
+      <p>عشان المسافات بتتربّع، القيمة البعيدة بتتحسب أضعاف مضاعفة.<br>
+        فالـ std، زي الـ mean، مش robust.</p>
+      <div class="callout warn"><div class="ttl">⚠️ NumPy و Pandas بيدّوا رقمين مختلفين</div>
+        Pandas بتقسم على <span class="en">n − 1</span> (الـ std بتاع sample)، و NumPy بيقسم على <span class="en">n</span>:<br>
+        <span class="en">rev.std()</span> = <bdi>35,618.00</bdi>، و <span class="en">np.std(rev)</span> = <bdi>35,601.42</bdi>.<br>
+        على <bdi>1,074</bdi> سطر الفرق صغير، على 9 سطور لأ.<br>
+        اختار واحد وقول أنهي. في الكورس ده بنستخدم default بتاع Pandas، أو <span class="en">np.std(x, ddof=1)</span>.</div>
+      <h3 class="sub">الـ Percentiles والـ IQR</h3>
+      <p>الـ <b>percentile</b> رقم p هو القيمة اللي <bdi>p%</bdi> من الداتا تحتها. الـ median هو الـ percentile رقم 50.<br>
+        والـ <b>IQR</b> هو المسافة بين الـ 25 والـ 75: عرض النص اللي في النص.</p>
+<pre>rev.quantile([<span class="s">.25</span>, <span class="s">.50</span>, <span class="s">.75</span>])    <span class="c"># 1,093   3,600   18,900</span>
+iqr = <span class="s">18_900</span> - <span class="s">1_093</span>             <span class="c"># 17,807</span></pre>
+      <p>نص السطور اللي في النص بين <bdi>1,093</bdi> و <bdi>18,900</bdi> جنيه.<br>
+        والـ IQR، زي الـ median، مش فارق معاه الأطراف.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>المركز</th><th>الانتشار</th><th>Robust؟</th></tr></thead>
+        <tbody>
+          <tr><td>mean</td><td>std</td><td>✗</td></tr>
+          <tr><td>median</td><td>IQR</td><td>✓</td></tr>
+        </tbody>
+      </table></div>
+      <h3 class="sub">تقارن انتشار عمودين: الـ CV</h3>
+      <p>std قيمته 2.4 قطعة، و std قيمته <bdi>7,359</bdi> جنيه: مينفعش تقارنهم على طول.<br>
+        اقسم كل std على الـ mean بتاعه: ده الـ <b>coefficient of variation</b>.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>العمود</th><th class="num">mean</th><th class="num">std</th><th class="num">CV = std / mean</th></tr></thead>
+        <tbody>
+          <tr><td><span class="en">quantity</span></td><td class="num">4.05</td><td class="num">2.37</td><td class="num">0.58</td></tr>
+          <tr><td><span class="en">discount</span></td><td class="num">0.05</td><td class="num">0.07</td><td class="num">1.36</td></tr>
+          <tr><td><span class="en">unit_price</span></td><td class="num">4,587</td><td class="num">7,359</td><td class="num">1.60</td></tr>
+          <tr class="hl"><td><span class="en">revenue</span></td><td class="num">18,075</td><td class="num">35,618</td><td class="num">1.97</td></tr>
+        </tbody>
+      </table></div>
+      <p>الكمية أهدى عمود، والإيراد أكتر عمود بيتغيّر: الـ std حوالي ضعف الـ mean.</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="sec" id="describe">
+      <div class="sec-head"><h2><span class="num">4</span>الـ Five-number summary و <span class="en">describe()</span></h2></div>
+      <p><b>min و Q1 و median و Q3 و max</b>: 5 أرقام بيرسموا العمود كله.<br>
+        وهم بالظبط اللي الـ box plot بيرسمه.</p>
+      <figure class="fig"><div class="fig-scroll" id="fiveFig"></div>
+        <figcaption>الـ 5 أرقام على محور log، عشان يبانوا كلهم. الصندوق فيه نص السطور.</figcaption></figure>
+<pre>rev.describe()
+<span class="c">count      1,074.00
+mean      18,074.79
+std       35,618.00
+min           45.60
+25%        1,093.20
+50%        3,600.00
+75%       18,900.00
+max      336,000.00</span></pre>
+      <p>اقراه من فوق لتحت:</p>
+      <div class="cards">
+        <div class="card"><b><span class="en">count</span> <bdi>1,074</bdi></b>مفيش قيم ناقصة.</div>
+        <div class="card"><b><span class="en">mean</span> بعيد عن <span class="en">50%</span></b><bdi>18,075</bdi> قصاد <bdi>3,600</bdi>: فيه ذيل طويل يمين.</div>
+        <div class="card"><b><span class="en">std</span> ضعف الـ <span class="en">mean</span></b>الأرقام متفرّقة جدًا.</div>
+        <div class="card"><b><span class="en">75%</span> قصاد <span class="en">max</span></b><bdi>18,900</bdi> قصاد <bdi>336,000</bdi>: الربع الأخير ممدود 18 مرة.</div>
+      </div>
+      <p>وعلى جدول كامل، <span class="en">describe()</span> بيعمل كل أعمدة الأرقام مرة واحدة.<br>
+        ولأعمدة النصوص بيدّيك العدد، وعدد القيم المختلفة، والـ mode (<span class="en">top</span>)، وبيتكرر كام مرة (<span class="en">freq</span>).</p>
+<pre>done[[<span class="s">"category"</span>, <span class="s">"segment"</span>, <span class="s">"product_name"</span>]].describe()
+<span class="c">          category   segment product_name
+count         1074      1074         1074
+unique           4         4           11
+top    Accessories  Consumer        Mouse
+freq           453       553          189</span></pre>
+    </section>
+
+    <!-- 5 -->
+    <section class="sec" id="outliers">
+      <div class="sec-head"><h2><span class="num">5</span>الـ Outliers: القيم الغريبة</h2></div>
+      <p>الـ <b>outlier</b> قيمة بعيدة عن الباقي. فيه قاعدتين مشهورين:</p>
+      <div class="two">
+        <div class="path"><h4>قاعدة الـ IQR</h4><p>تحت <span class="en">Q1 − 1.5 × IQR</span> أو فوق <span class="en">Q3 + 1.5 × IQR</span>.<br>دي نفس شنبات الـ box plot.</p></div>
+        <div class="path"><h4>قاعدة الـ z-score</h4><p>أبعد من 3 std عن الـ mean.<br><span class="en">z = (x − mean) / std</span></p></div>
+      </div>
+      <p>قاعدة الـ IQR على كل الإيرادات بتقول إن <b>132 سطر</b> outliers، وإن السطور دي جابت <b><bdi>65%</bdi> من الإيراد</b>.<br>
+        دي مش غلطات. دي اللابتوبات والموبايلات: 127 منهم Electronics.</p>
+      <div class="widget" id="wOut"></div>
+      <p>جوّه كل فئة، 34 سطر بس بيبانوا: أوردرات كبيرة <b>بالنسبة لفئتها</b>، زي سطر فيه 8 أو 9 مكاتب.<br>
+        وعلى log scale، ولا سطر: بمقياس "كام صفر"، إيراد NileCart مفيهوش قيم غريبة خالص.</p>
+      <div class="voice">an outlier is a question, not an error<small>الـ outlier سؤال، مش غلطة. بص عليه قبل ما تمسحه</small></div>
+      <div class="callout warn"><div class="ttl">⚠️ إمتى يبقى غلطة؟</div>
+        كمية بالسالب، أو سعر صفر، أو تاريخ في المستقبل: دي غلطات، وليها مكان في درس التنضيف.<br>
+        لكن أوردر لابتوب بـ <bdi>336,000</bdi> جنيه مش غلطة. ده أحسن عميل عندك.</div>
+    </section>
+
+    <!-- 6 -->
+    <section class="sec" id="shape">
+      <div class="sec-head"><h2><span class="num">6</span>الشكل: الـ skewness كرقم</h2></div>
+      <p>الـ <b>skewness</b> بيقيس الـ distribution مايل قد إيه:<br>
+        صفر يعني متماثل، موجب يعني ذيل طويل يمين، سالب يعني ذيل طويل شمال.<br>
+        وتقريبًا، لو عدّى <bdi>±1</bdi> يبقى الميل قوي.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>العمود</th><th class="num">skew()</th><th>يعني</th></tr></thead>
+        <tbody>
+          <tr><td><span class="en">quantity</span></td><td class="num">0.78</td><td>مايل شوية</td></tr>
+          <tr><td><span class="en">unit_price</span></td><td class="num">2.29</td><td>مايل جامد</td></tr>
+          <tr class="hl"><td><span class="en">revenue</span></td><td class="num">3.69</td><td>مايل جامد جدًا</td></tr>
+          <tr><td><span class="en">log10(revenue)</span></td><td class="num">−0.06</td><td>متماثل تقريبًا</td></tr>
+        </tbody>
+      </table></div>
+      <p>الـ skew هو اللي بيقولك تقول أنهي رقم:</p>
+      <div class="two">
+        <div class="path good"><h4>متماثل تقريبًا (بين −1 و 1)</h4><p>الـ mean والـ std.</p></div>
+        <div class="path good"><h4>مايل جامد</h4><p>الـ median والـ IQR.<br>أو اشتغل على log scale.</p></div>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="sec" id="groups">
+      <div class="sec-head"><h2><span class="num">7</span>رقم لكل جروب</h2></div>
+<pre>done.groupby(<span class="s">"category"</span>)[<span class="s">"revenue"</span>].agg([<span class="s">"count"</span>, <span class="s">"mean"</span>, <span class="s">"median"</span>, <span class="s">"std"</span>])</pre>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th><span class="en">category</span></th><th class="num">count</th><th class="num">mean</th><th class="num">median</th><th class="num">std</th><th class="num">mean / median</th></tr></thead>
+        <tbody>
+          <tr><td>Electronics</td><td class="num">269</td><td class="num">58,541</td><td class="num">41,800</td><td class="num">52,091</td><td class="num">1.4</td></tr>
+          <tr><td>Furniture</td><td class="num">184</td><td class="num">12,286</td><td class="num">6,983</td><td class="num">12,570</td><td class="num">1.8</td></tr>
+          <tr><td>Accessories</td><td class="num">453</td><td class="num">3,012</td><td class="num">2,360</td><td class="num">2,229</td><td class="num">1.3</td></tr>
+          <tr><td>Stationery</td><td class="num">168</td><td class="num">237</td><td class="num">222</td><td class="num">144</td><td class="num">1.1</td></tr>
+          <tr class="hl"><td>الكل</td><td class="num">1,074</td><td class="num">18,075</td><td class="num">3,600</td><td class="num">35,618</td><td class="num">5.0</td></tr>
+        </tbody>
+      </table></div>
+      <p>جوّه كل فئة، الـ mean والـ median قريبين من بعض أكتر بكتير من العمود كله.<br>
+        جزء كبير من الميل جه من <b>الخلط</b>: أقلام ولابتوبات في عمود واحد.</p>
+      <div class="callout warn"><div class="ttl">⚠️ متوسط المتوسطات مش هو المتوسط</div>
+        متوسط الـ 4 متوسطات = <bdi>18,519</bdi>، ومتوسط كل السطور = <bdi>18,075</bdi>.<br>
+        متوسط المتوسطات بيدّي كل فئة نفس الوزن، سواء فيها 453 سطر أو 168.<br>
+        ولو وزنت كل متوسط بعدد سطوره، هترجع لـ <bdi>18,075</bdi> بالظبط.</div>
+      <div class="callout add"><div class="ttl">➕ قول العدد دايمًا</div>
+        median لجروب فيه 3 سطور معناه أقل بكتير من median لجروب فيه 400.<br>
+        خلّي الـ <span class="en">count</span> جنب أي رقم بتحسبه لجروب.</div>
+    </section>
+
+    <!-- 8 -->
+    <section class="sec" id="mistakes">
+      <div class="sec-head"><h2><span class="num">8</span>أخطاء شائعة</h2></div>
+      <div class="two">
+        <div class="path bad"><h4>✗ "المتوسط" وخلاص</h4><p>على داتا مايلة، الـ mean بيوصف أوردر محدش عمله.</p></div>
+        <div class="path good"><h4>✓ بص على الـ skew الأول</h4><p>مايل؟ قول الـ median والـ IQR، أو الاتنين.</p></div>
+        <div class="path bad"><h4>✗ تمسح كل الـ outliers</h4><p>هتمسح <bdi>65%</bdi> من إيراد NileCart.</p></div>
+        <div class="path good"><h4>✓ بص عليهم، وجوّه الجروبات</h4><p>غلطة؟ صلّحها أو امسحها. حقيقية؟ سيبها.</p></div>
+        <div class="path bad"><h4>✗ تقارن std من NumPy بـ std من Pandas</h4><p>واحد بيقسم على n، والتاني على n − 1.</p></div>
+        <div class="path good"><h4>✓ <span class="en">ddof</span> واحد في كل حتة</h4><p><span class="en">np.std(x, ddof=1)</span> = <span class="en">x.std()</span> في Pandas.</p></div>
+        <div class="path bad"><h4>✗ متوسط المتوسطات</h4><p>كل جروب بياخد نفس الوزن، مهما كان حجمه.</p></div>
+        <div class="path good"><h4>✓ احسب من السطور، أو وزّن بالعدد</h4><p>وقول الـ count جنب كل رقم.</p></div>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">9</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sheet">
+        <div class="card"><h4>المركز</h4>متماثل: <span class="en">mean</span> · مايل: <span class="en">median</span><br>نصوص: <span class="en">mode</span></div>
+        <div class="card"><h4>الانتشار</h4>مع الـ mean: <span class="en">std</span> · مع الـ median: <span class="en">IQR</span><br>وللمقارنة: <span class="en">CV = std / mean</span></div>
+        <div class="card"><h4>describe()</h4>count و mean و std<br>والـ five-number summary</div>
+        <div class="card"><h4>Outliers</h4><span class="en">Q3 + 1.5 × IQR</span> أو <span class="en">|z| &gt; 3</span><br>جوّه الجروبات، وسؤال مش غلطة</div>
+        <div class="card"><h4>Skew</h4>أكتر من <bdi>±1</bdi>: ميل قوي<br>والـ log بيعدّله</div>
+        <div class="card"><h4>الجروبات</h4><span class="en">groupby().agg()</span> مع الـ count<br>ومتوسط المتوسطات ≠ المتوسط</div>
+      </div>
+      <div class="nb-links">
+        <a class="nb-btn primary" data-kaggle href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
+      </div>
+    </section>
+
+    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/linalg/"><span>→ الدرس اللي فات</span><b><span class="en">Linear Algebra</span> خفيفة</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><a class="pg next" href="/courses/da/numpy/"><span>الدرس الجاي ←</span><b class="en">NumPy</b></a></nav>
+
+    <footer>
+      الداتا: NileCart، متجر وهمي في القاهرة، بالجنيه المصري.<br>
+      كل الأرقام في الدرس محسوبة من نفس الداتا اللي في النوت بوك.
+    </footer>
+  </main>
+</div>
+
+<script src="../assets/data/stats.js"></script>
+<script src="../assets/data/sales.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const KAGGLE = "https://www.kaggle.com/code/a7madmostafa/zero-grad-da-descriptive-statistics";
+const ST = window.STATS, S = window.SALES;
+const nf = v => Math.round(v).toLocaleString("en");
+const kf = v => Math.abs(v) >= 1000 ? (v / 1000).toLocaleString("en", { maximumFractionDigits: v >= 1e4 ? 0 : 1 }) + "k" : String(Math.round(v));
+
+/* ---------- stats helpers (same definitions as Pandas) ---------- */
+const sum = a => a.reduce((s, v) => s + v, 0);
+const mean = a => sum(a) / a.length;
+const std = (a, ddof = 1) => { const m = mean(a); return Math.sqrt(sum(a.map(v => (v - m) ** 2)) / (a.length - ddof)); };
+const sorted = a => [...a].sort((x, y) => x - y);
+function quantile(sa, p) { const h = (sa.length - 1) * p, lo = Math.floor(h); return sa[lo] + (h - lo) * ((sa[lo + 1] ?? sa[lo]) - sa[lo]); }
+const median = a => quantile(sorted(a), .5);
+const trimMean = (a, f) => { const sa = sorted(a), k = Math.floor(a.length * f); return mean(sa.slice(k, sa.length - k)); };
+
+/* ---------- canvas helpers ---------- */
+function setup(cv, h) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 300;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + "px";
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.direction = "ltr";
+  return { ctx, w, h };
+}
+function head(title, hint, badge = "جرّب بنفسك") { return `<div class="widget-head"><span class="badge">${badge}</span><h3>${title}</h3></div><p class="hint">${hint}</p>`; }
+const redrawers = []; const onRedraw = f => redrawers.push(f);
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => redrawers.forEach(f => f()), 120); });
+function vline(ctx, x, top, bot, color, dash, label, side = "right") {
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash(dash ? [6, 4] : []);
+  ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bot); ctx.stroke(); ctx.setLineDash([]);
+  if (label) { ctx.fillStyle = color; ctx.font = "bold 11px 'JetBrains Mono', monospace"; ctx.textAlign = side === "right" ? "left" : "right"; ctx.fillText(label, x + (side === "right" ? 5 : -5), top + 11); }
+  ctx.restore();
+}
+
+/* ---------- static SVG figures ---------- */
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(html, vb, label) { return `<svg viewBox="${vb}" role="img" aria-label="${label}" xmlns="${NS}">${html}</svg>`; }
+const label = (x, y, t, { fs = 12, col = "--muted", bold = false, anchor = "middle" } = {}) =>
+  `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${fs}"${bold ? ' font-weight="700"' : ""} style="fill:var(${col})">${t}</text>`;
+const rect = (x, y, w, h, fill, extra = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" style="fill:${fill};${extra}"/>`;
+const tint = (c, p = 22) => `color-mix(in srgb,var(${c}) ${p}%,var(--surface))`;
+
+function yearFig() {
+  const D = { mean: [19636, 16735], median: [3560, 3780] };
+  let o = "";
+  const panel = (x0, key, col, note) => {
+    const v = D[key], max = Math.max(...v) * 1.15, bw = 70, base = 170, H = 120;
+    o += label(x0 + 95, 22, key, { fs: 15, col: "--ink", bold: true });
+    v.forEach((val, i) => {
+      const h = val / max * H, x = x0 + 20 + i * 100;
+      o += rect(x, base - h, bw, h, i ? `var(${col})` : tint(col, 45));
+      o += label(x + bw / 2, base - h - 7, nf(val), { fs: 12, col: "--ink", bold: true }) + label(x + bw / 2, base + 18, 2024 + i, { fs: 12 });
+    });
+    o += `<line x1="${x0 + 10}" y1="${base}" x2="${x0 + 200}" y2="${base}" style="stroke:var(--line)"/>`;
+    o += label(x0 + 95, base + 42, note, { fs: 13, col: col, bold: true });
+  };
+  panel(40, "mean", "--chalk-o", "−15%");
+  panel(380, "median", "--chalk-g", "+6%");
+  o += label(330, 120, "vs", { fs: 14 });
+  $("#yearFig").innerHTML = svgEl(o, "0 0 660 225", "الـ mean والـ median في 2024 و 2025");
+}
+function stdFig() {
+  const a = ST.revenue, m = mean(a), sq = a.map(v => (v - m) ** 2), tot = sum(sq);
+  let o = label(70, 18, "order", { fs: 11, bold: true, anchor: "end" }) + label(150, 18, "x − mean", { fs: 11, bold: true, anchor: "end" }) + label(170, 18, "(x − mean)², share of the total", { fs: 11, bold: true, anchor: "start" });
+  a.forEach((v, i) => {
+    const y = 30 + i * 22, w = sq[i] / tot * 420, big = sq[i] / tot > .5;
+    o += label(70, y + 13, nf(v), { fs: 11.5, col: "--ink", anchor: "end" }) + label(150, y + 13, (v - m > 0 ? "+" : "−") + nf(Math.abs(v - m)), { fs: 11.5, col: v > m ? "--chalk-o" : "--add", anchor: "end" });
+    o += rect(170, y + 3, Math.max(2, w), 14, big ? "var(--chalk-o)" : "var(--add)", big ? "" : "opacity:.7");
+    const pct = (sq[i] / tot * 100).toFixed(sq[i] / tot < .1 ? 1 : 0) + "%";
+    o += big ? label(164 + w, y + 14, pct, { fs: 11.5, col: "--bg", anchor: "end", bold: true }) : label(176 + Math.max(2, w), y + 14, pct, { fs: 11 });
+  });
+  const y = 30 + a.length * 22 + 14;
+  o += label(170, y + 8, `mean = ${nf(m)}  ·  std (ddof=0) = √(mean of the squares) = ${nf(std(a, 0))}`, { fs: 11.5, col: "--ink", anchor: "start" });
+  $("#stdFig").innerHTML = svgEl(o, `0 0 660 ${y + 20}`, "المسافات عن الـ mean ومربعاتها");
+}
+function fiveFig() {
+  const sa = sorted(S.revenue), v = [sa[0], quantile(sa, .25), quantile(sa, .5), quantile(sa, .75), sa[sa.length - 1]];
+  const names = ["min", "Q1 (25%)", "median (50%)", "Q3 (75%)", "max"], lo = Math.log10(30), hi = Math.log10(500000);
+  const sx = x => 40 + (Math.log10(x) - lo) / (hi - lo) * 580, yb = 70;
+  let o = `<line x1="${sx(v[0])}" y1="${yb + 25}" x2="${sx(v[4])}" y2="${yb + 25}" style="stroke:var(--muted);stroke-width:1.5"/>`;
+  o += rect(sx(v[1]), yb, sx(v[3]) - sx(v[1]), 50, tint("--add", 25), "stroke:var(--add);stroke-width:1.5");
+  o += `<line x1="${sx(v[2])}" y1="${yb}" x2="${sx(v[2])}" y2="${yb + 50}" style="stroke:var(--chalk-g);stroke-width:3"/>`;
+  [0, 4].forEach(i => o += `<line x1="${sx(v[i])}" y1="${yb + 13}" x2="${sx(v[i])}" y2="${yb + 37}" style="stroke:var(--muted);stroke-width:1.5"/>`);
+  v.forEach((x, i) => {
+    const up = i % 2 === 0, col = i === 2 ? "--chalk-g" : i === 1 || i === 3 ? "--add" : "--ink";
+    o += label(sx(x), up ? yb - 22 : yb + 72, names[i], { fs: 11.5, col, bold: true }) + label(sx(x), up ? yb - 8 : yb + 87, nf(x), { fs: 11.5, col: "--ink" });
+  });
+  [100, 1000, 10000, 100000].forEach(t => o += `<line x1="${sx(t)}" y1="178" x2="${sx(t)}" y2="183" style="stroke:var(--muted)"/>` + label(sx(t), 196, kf(t), { fs: 10.5 }));
+  o += `<line x1="40" y1="178" x2="620" y2="178" style="stroke:var(--line)"/>`;
+  o += label(sx(v[3]) - 8, yb + 30, "IQR: half the lines", { fs: 10.5, col: "--add", anchor: "end" });
+  $("#fiveFig").innerHTML = svgEl(o, "0 0 660 205", "الـ five-number summary للإيراد");
+}
+
+/* ---------- widget: drag one value ---------- */
+function dragWidget(root) {
+  const orig = ST.revenue.slice(); let a = orig.slice(), drag = -1;
+  const MAX = 300000, sq = v => Math.sqrt(v), ticks = [0, 1000, 5000, 20000, 50000, 100000, 200000, 300000];
+  root.innerHTML = head(`اسحب أوردر: ${ST.name}`, "اسحب أي نقطة يمين وشمال (خصوصًا الكبيرة اللي على اليمين)، وشوف مين بيتحرك ومين لأ. المحور مضغوط (square root) عشان الصغيرين يبانوا.") + `
+    <canvas></canvas>
+    <div class="stats" style="margin-top:.8rem" data-s="stats"></div>
+    <div class="btns" style="margin-top:.7rem"><button class="btn" data-a="small">خلّي الكبير 7,000</button><button class="btn" data-a="huge">خلّيه 300,000</button><button class="btn" data-a="reset">رجّع الأصل</button></div>
+    <div class="status" data-s="msg" style="margin-top:.5rem"></div>`;
+  const cv = $("canvas", root); let geo;
+  function draw() {
+    const h = 170, { ctx, w } = setup(cv, h), pad = { l: 16, r: 20 }, base = 118;
+    const sx = v => pad.l + sq(v) / sq(MAX) * (w - pad.l - pad.r); geo = { sx, w, pad };
+    ctx.strokeStyle = cssv("--line"); ctx.beginPath(); ctx.moveTo(pad.l, base + 14); ctx.lineTo(w - pad.r, base + 14); ctx.stroke();
+    ctx.font = "10px 'JetBrains Mono', monospace"; ctx.textAlign = "center"; ctx.fillStyle = cssv("--muted");
+    ticks.forEach(t => { if (w < 460 && (t === 1000 || t === 300000)) return; ctx.fillText(kf(t), sx(t), base + 30); ctx.fillRect(sx(t), base + 12, 1, 5); });
+    const m = mean(a), md = median(a), tm = trimMean(a, .12);   // 9 values: drop 1 at each end
+    vline(ctx, sx(m), 8, base + 14, cssv("--chalk-o"), false, "mean", m > MAX * .55 ? "left" : "right");
+    vline(ctx, sx(md), 26, base + 14, cssv("--chalk-g"), true, "median");
+    vline(ctx, sx(tm), 44, base + 14, cssv("--c4"), true, "trimmed", tm > MAX * .55 ? "left" : "right");
+    const order = a.map((v, i) => [v, i]).sort((x, y) => x[0] - y[0]);
+    order.forEach(([v, i], r) => {
+      const y = base - (r % 3) * 16;
+      ctx.fillStyle = i === drag ? cssv("--chalk-o") : cssv("--add"); ctx.globalAlpha = .9;
+      ctx.beginPath(); ctx.arc(sx(v), y, 7, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
+    });
+    geo.ys = order.reduce((o, [v, i], r) => (o[i] = base - (r % 3) * 16, o), {});
+    $("[data-s=stats]", root).innerHTML =
+      `<div class="stat mean"><span>mean</span><b>${nf(m)}</b></div>` +
+      `<div class="stat med"><span>median</span><b>${nf(md)}</b></div>` +
+      `<div class="stat trim"><span>trimmed mean (بدون أصغر وأكبر قيمة)</span><b>${nf(tm)}</b></div>` +
+      `<div class="stat"><span>std</span><b>${nf(std(a))}</b></div>` +
+      `<div class="stat"><span>IQR</span><b>${nf(quantile(sorted(a), .75) - quantile(sorted(a), .25))}</b></div>`;
+    const below = a.filter(v => v < m).length;
+    $("[data-s=msg]", root).textContent = `${below} من الـ 9 أوردرات تحت الـ mean.` +
+      (below >= 7 ? `\nالـ mean مش "العادي" هنا: القيمة الكبيرة شدّته بعيد عن معظم الأوردرات.` : `\nالـ mean والـ median قريبين: مفيش قيمة واحدة بتشدّ لوحدها.`);
+  }
+  const pick = e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; let best = -1, bd = 18; a.forEach((v, i) => { const d = Math.hypot(geo.sx(v) - x, (geo.ys[i] ?? 0) - y); if (d < bd) { bd = d; best = i; } }); return best; };
+  const valAt = x => Math.max(10, Math.min(MAX, ((x - geo.pad.l) / (geo.w - geo.pad.l - geo.pad.r) * sq(MAX)) ** 2));
+  cv.addEventListener("pointerdown", e => { drag = pick(e); if (drag >= 0) { cv.setPointerCapture(e.pointerId); draw(); } });
+  cv.addEventListener("pointermove", e => { if (drag < 0) { cv.style.cursor = pick(e) >= 0 ? "grab" : "default"; return; } a[drag] = Math.round(valAt(e.clientX - cv.getBoundingClientRect().left)); draw(); });
+  cv.addEventListener("pointerup", () => { drag = -1; draw(); });
+  const bigI = () => a.indexOf(Math.max(...a));
+  $$("[data-a]", root).forEach(b => b.onclick = () => {
+    const k = b.dataset.a; if (k === "reset") a = orig.slice(); else a[bigI()] = k === "small" ? 7000 : 300000; draw();
+  });
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: outlier rules ---------- */
+function outWidget(root) {
+  const r = S.revenue, ci = S.cat, CATS = S.cats, n = r.length, total = sum(r);
+  const METH = [["iqr", 1.5, "IQR × 1.5"], ["iqr", 3, "IQR × 3"], ["z", 3, "|z| > 3"], ["z", 2, "|z| > 2"]];
+  const SCOPE = [["all", "كل السطور مع بعض"], ["cat", "جوّه كل فئة"], ["log", "على log10"]];
+  let mi = 0, sc = "all";
+  root.innerHTML = head("مين الـ outlier؟", "اختار القاعدة، وتطبّقها على إيه. النقط الحمرا هي اللي القاعدة بتقول عليها outlier، والخط المتقطع هو الحد.") + `
+    <div class="optrow"><span class="lbl">القاعدة</span><div class="seg">${METH.map((m, i) => `<button data-m="${i}" aria-pressed="${i === mi}" class="en">${m[2]}</button>`).join("")}</div></div>
+    <div class="optrow"><span class="lbl">على</span><div class="seg">${SCOPE.map(([k, t]) => `<button data-sc="${k}" aria-pressed="${k === sc}">${t}</button>`).join("")}</div></div>
+    <div class="wgrid cols"><div><canvas></canvas></div>
+      <div class="controls"><div class="stats" data-s="stats"></div><div class="status" data-s="msg"></div></div></div>`;
+  const cv = $("canvas", root);
+  const jit = i => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1;
+  function fences(vals) {
+    const [kind, k] = METH[mi];
+    if (kind === "iqr") { const sa = sorted(vals), q1 = quantile(sa, .25), q3 = quantile(sa, .75), i = q3 - q1; return [q1 - k * i, q3 + k * i]; }
+    const m = mean(vals), s = std(vals); return [m - k * s, m + k * s];
+  }
+  function draw() {
+    const tf = sc === "log" ? Math.log10 : v => v, inv = sc === "log" ? v => 10 ** v : v => v;
+    const F = {};
+    if (sc === "cat") CATS.forEach((_, c) => F[c] = fences(r.filter((_, i) => ci[i] === c).map(tf)));
+    else { const f = fences(r.map(tf)); CATS.forEach((_, c) => F[c] = f); }
+    const flag = r.map((v, i) => tf(v) < F[ci[i]][0] || tf(v) > F[ci[i]][1]);
+    const cnt = flag.filter(Boolean).length, fsum = sum(r.filter((_, i) => flag[i]));
+    const byCat = CATS.map((_, c) => flag.filter((f, i) => f && ci[i] === c).length);
+    $("[data-s=stats]", root).innerHTML =
+      `<div class="stat"><span>outliers</span><b>${cnt}</b></div>` +
+      `<div class="stat"><span>من السطور</span><b>${(cnt / n * 100).toFixed(1)}%</b></div>` +
+      `<div class="stat"><span>من الإيراد</span><b>${(fsum / total * 100).toFixed(0)}%</b></div>`;
+    $("[data-s=msg]", root).textContent = cnt === 0 ? "ولا سطر بعيد عن الباقي بالقاعدة دي." :
+      [3, 2, 1, 0].filter(c => byCat[c]).map(c => `${CATS[c]}: ${byCat[c]}`).join(" · ") +
+      (sc === "all" && fsum / total > .3 ? `\nالقاعدة بتعلّم على فئة كاملة، مش على غلطات. ${(fsum / total * 100).toFixed(0)}% من الإيراد "outliers"؟` :
+        sc === "cat" ? `\nكل سطر هنا كبير بالنسبة لفئته، مش بالنسبة لكل السطور.` : "");
+    // strip plot
+    const h = cv.clientWidth < 460 ? 210 : 240, { ctx, w } = setup(cv, h), pad = { l: 86, r: 12, t: 10, b: 26 };
+    const lo = Math.log10(30), hi = Math.log10(500000), sx = v => pad.l + (Math.log10(Math.max(30, Math.min(500000, v))) - lo) / (hi - lo) * (w - pad.l - pad.r);
+    const bands = [3, 1, 2, 0], bh = (h - pad.t - pad.b) / 4;
+    ctx.font = "11px Inter, sans-serif"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    bands.forEach((c, b) => { ctx.fillStyle = cssv("--muted"); ctx.fillText(CATS[c], pad.l - 8, pad.t + b * bh + bh / 2); });
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.font = "10px 'JetBrains Mono', monospace";
+    [100, 1000, 10000, 100000].forEach(v => { ctx.fillStyle = cssv("--muted"); ctx.fillText(kf(v), sx(v), h - 8); ctx.strokeStyle = cssv("--line"); ctx.beginPath(); ctx.moveTo(sx(v), pad.t); ctx.lineTo(sx(v), h - pad.b); ctx.stroke(); });
+    for (let pass = 0; pass < 2; pass++) for (let i = 0; i < n; i++) {
+      if (flag[i] !== !!pass) continue;
+      const y = pad.t + bands.indexOf(ci[i]) * bh + bh * (.15 + .7 * jit(i));
+      ctx.globalAlpha = flag[i] ? .9 : .25; ctx.fillStyle = flag[i] ? cssv("--bad") : cssv("--muted");
+      ctx.beginPath(); ctx.arc(sx(r[i]), y, flag[i] ? 2.7 : 2.1, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1; ctx.strokeStyle = cssv("--chalk-o"); ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+    bands.forEach((c, b) => F[c].forEach(f => { const v = inv(f); if (v <= 30 || v >= 500000) return; ctx.beginPath(); ctx.moveTo(sx(v), pad.t + b * bh + 2); ctx.lineTo(sx(v), pad.t + (b + 1) * bh - 2); ctx.stroke(); }));
+    ctx.setLineDash([]); ctx.lineWidth = 1;
+  }
+  $$("[data-m]", root).forEach(b => b.onclick = () => { mi = +b.dataset.m; $$("[data-m]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  $$("[data-sc]", root).forEach(b => b.onclick = () => { sc = b.dataset.sc; $$("[data-sc]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  draw(); onRedraw(draw);
+}
+
+/* ---------- page chrome ---------- */
+function chrome() {
+  $$("#kaggleLink, [data-kaggle]").forEach(a => a.href = KAGGLE);
+  const toc = $("#tocList"), links = {};
+  $$("section.sec").forEach(sec => {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + sec.id; a.textContent = $("h2", sec).textContent.replace(/^\d+/, "").trim();
+    li.appendChild(a); toc.appendChild(li); links[sec.id] = a;
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { Object.values(links).forEach(a => a.classList.remove("active")); links[e.target.id].classList.add("active"); } }), { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  window.addEventListener("scroll", () => { const h = document.documentElement; $("#progress").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; }, { passive: true });
+  // theme: the site's /assets/js/theme.js saves the choice (shared with the notebook and the rest of the site)
+  // and runs the toggle; the canvases only need a redraw when it changes
+  new MutationObserver(() => redrawers.forEach(f => f())).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => redrawers.forEach(f => f()));
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  chrome();
+  yearFig(); stdFig(); fiveFig();
+  dragWidget($("#wDrag")); outWidget($("#wOut"));
+});
+})();
+</script>
+</body>
+</html>

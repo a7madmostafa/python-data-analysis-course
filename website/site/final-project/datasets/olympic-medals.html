@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>120 Years of Olympic History · Final Project · Suggested Datasets</title>
+<meta name="description" content="Who wins Olympic medals, does hosting help, and how have Egypt and the Arab countries done?">
+<link rel="stylesheet" href="../style.css">
+<script>
+try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<header class="site-head"><div class="wrap">
+  <a class="brand" href="../index.html">Final Project · <span>Suggested Datasets</span></a>
+  <nav><a href="../index.html#datasets">All datasets</a></nav>
+</div></header>
+<main class="wrap">
+
+<a class="back" href="../index.html">← All datasets</a>
+<section class="page-head">
+  <span class="emoji" aria-hidden="true">🏅</span>
+  <h1>120 Years of Olympic History</h1>
+  <p class="lead">Who wins Olympic medals, does hosting help, and how have Egypt and the Arab countries done?</p>
+</section>
+
+<section><dl class="facts"><div><dt>Rows</dt><dd>271,116</dd></div><div><dt>Columns</dt><dd>15</dd></div><div><dt>Period</dt><dd>1896 → 2016</dd></div><div><dt>Format</dt><dd>2 CSV files in a zip</dd></div></dl></section>
+
+<section>
+  <h2 class="section">The data</h2>
+  <div class="panel"><p>One row for every athlete in every event of the modern Olympic Games, Summer and Winter, from <strong>Athens 1896 to Rio 2016</strong>. It has the athlete's name, sex, age, height, weight, team, country code, the Games, sport, event, and the medal if they won one.</p><p>A second small file turns the three-letter country codes (EGY, USA, URS…) into country names.</p></div>
+</section>
+
+<section>
+  <h2 class="section">Download</h2>
+  <div class="panel">
+    <p><a class="btn" href="https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results" target="_blank" rel="noopener">Dataset (Kaggle) ↗</a></p>
+    <h3>About the format</h3>
+    <ul class="clean"><li>The zip has two files: <code>athlete_events.csv</code> (the athletes) and <code>noc_regions.csv</code> (country code → country). You need to <strong>merge</strong> them on <code>NOC</code>.</li><li>One row = one athlete <strong>in one event</strong>. A swimmer in 5 events appears 5 times.</li></ul>
+<pre><code>athletes = pd.read_csv(&quot;athlete_events.csv&quot;)
+regions = pd.read_csv(&quot;noc_regions.csv&quot;)
+df = athletes.merge(regions, on=&quot;NOC&quot;, how=&quot;left&quot;)</code></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section">Main columns</h2>
+  <div class="panel table-wrap"><table><thead><tr><th>Column</th><th>What it holds</th></tr></thead><tbody><tr><td><code>ID, Name, Sex, Age, Height, Weight</code></td><td>The athlete</td></tr><tr><td><code>Team, NOC</code></td><td>Team name and 3-letter country code</td></tr><tr><td><code>Games, Year, Season, City</code></td><td>Which Games (e.g. 2016 Summer, Rio de Janeiro)</td></tr><tr><td><code>Sport, Event</code></td><td>e.g. Weightlifting / Weightlifting Men's Lightweight</td></tr><tr><td><code>Medal</code></td><td>Gold, Silver, Bronze, or empty</td></tr><tr><td><code>region (noc_regions)</code></td><td>Country name for the code</td></tr></tbody></table></div>
+</section>
+
+<section>
+  <h2 class="section">Watch out for</h2>
+  <div class="note"><strong>These are hints, not instructions.</strong> Check each one in the data, decide what to do, and explain your choice in the notebook.</div>
+  <div class="panel"><ul class="clean"><li><strong><code>Medal</code> is empty for 85% of rows.</strong> Is that missing data, or something else?</li><li>⚠️ <strong>Team medals:</strong> a football gold gives a row to each of the 18 players, but the country wins <strong>one</strong> medal. Count carefully.</li><li>Height and weight are missing for many early athletes.</li><li>Some codes are missing from <code>noc_regions.csv</code>, and old countries need decisions: the Soviet Union, East/West Germany, and the 1960 <em>United Arab Republic</em> (Egypt + Syria).</li><li>There are duplicate rows, and some events are not normal sports (the 1906 Games, art competitions).</li><li>The data stops in 2016: no Tokyo 2020 or Paris 2024.</li></ul></div>
+</section>
+
+<section>
+  <h2 class="section">Questions to explore</h2>
+  <div class="panel"><h3>Growth</h3><ol class="qs"><li>How have the Games grown: athletes, countries, events?</li><li>How has the share of women changed?</li></ol><h3>Medals</h3><ol class="qs"><li>Which countries win the most medals, all time and since 2000?</li><li>Does hosting the Games bring more medals?</li></ol><h3>Athletes</h3><ol class="qs"><li>How do age, height and weight differ by sport? Are medallists older or younger?</li></ol><h3>Egypt and the Arab world</h3><ol class="qs"><li>How many medals have Egypt and the other Arab countries won, in which sports and when?</li></ol></div>
+</section>
+
+<section>
+  <h2 class="section">Ideas for the app</h2>
+  <div class="panel"><ul class="clean"><li>A <strong>medal table</strong> with a year slider and Summer/Winter switch.</li><li>A <strong>country page</strong>: pick a country, see its medals by year and sport (start with Egypt).</li><li>An <strong>athletes page</strong>: body measures by sport.</li></ul></div>
+</section>
+
+<a class="back" href="../index.html">← All datasets</a>
+
+</main>
+<footer class="site-foot"><div class="wrap">Python Data Analysis · Final project. The data belongs to its publishers. Check each source's terms before you reuse it.</div></footer>
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pandas Basics</title>
+<meta name="description" content="أساسيات Pandas لـ Data Analysis: الـ Series والـ DataFrame، و read_csv، وأول نظرة على الجدول، والأعمدة، و loc و iloc، والفلترة، والترتيب، كله على داتا NileCart.">
+<meta property="og:title" content="أساسيات Pandas: اقرا، بص، اختار، فلتر · Zero Grad">
+<meta property="og:description" content="read_csv و info و loc و iloc والفلترة، بالعربي وعلى داتا NileCart.">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/pandas/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/pandas/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<script src="/assets/js/theme.js"></script>
+<link rel="apple-touch-icon" href="/assets/img/zero-grad-app-icon-512.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<script src="/assets/js/pwa.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ea; --surface:#fffdf8; --surface-2:#efeadf; --ink:#1c1e22; --muted:#5b616b; --line:#ddd6c6;
+  --accent:#101f40; --on-accent:#f5f2ea; --chalk-g:#15803d; --chalk-o:#c2410c; --add:#2563eb; --bad:#dc2626;
+  --c1:#0f766e; --c2:#2563eb; --c3:#b45309; --c4:#9333ea;
+  --board:#232323; --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+    --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+    --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+  --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+  --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--add)}
+html,body{overflow-x:clip}
+@media (max-width:520px){.brand{font-size:.8rem}.seg button{padding:.2rem .55rem;font-size:.8rem}.topbar-in{gap:.4rem}.top-actions{gap:.3rem}.iconbtn{width:30px;height:30px}}
+code,pre{font-family:"JetBrains Mono",monospace}
+.en{direction:ltr;unicode-bidi:isolate}
+code.i{font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .35rem;direction:ltr;unicode-bidi:isolate}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;right:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .1s}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:auto;padding:.55rem 16px;display:flex;gap:.75rem;align-items:center;justify-content:space-between}
+.top-actions{display:flex;gap:.5rem;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.25rem .8rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+
+/* layout */
+.wrap{max-width:1180px;margin:auto;padding:0 16px;display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media (min-width:1100px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:72px;align-self:start;padding-top:2.5rem;font-size:.9rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+  nav.toc a{display:block;padding:.3rem .9rem;color:var(--muted);text-decoration:none;margin-inline-start:-2px;border-inline-start:2px solid transparent;line-height:1.5}
+  nav.toc a.active{color:var(--ink);border-color:var(--accent);font-weight:500}
+}
+main{min-width:0;padding-bottom:6rem}
+
+/* hero */
+.hero{padding:3rem 0 1.5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.hero h1{font-family:"Caveat",cursive;font-size:clamp(3rem,9vw,5.2rem);line-height:1;margin:.5rem 0 .75rem;color:var(--accent);direction:ltr;text-align:right;font-weight:700}
+.lead{font-size:1.15rem;max-width:62ch;margin:0}
+
+/* notebook links */
+.nb-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.nb-btn{display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4rem 1rem;text-decoration:none}
+.nb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.nb-btn:hover{border-color:var(--accent)}
+
+/* sections */
+section.sec{padding-top:2.5rem;scroll-margin-top:64px}
+.sec-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:1.25rem}
+.sec-head h2{margin:0;font-size:1.55rem;line-height:1.35;display:flex;gap:.7rem;align-items:baseline}
+.num{font-family:"Caveat",cursive;color:var(--accent);font-size:2rem;line-height:1}
+h3.sub{font-size:1.15rem;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+.chalk{font-family:"Caveat",cursive;font-size:1.35em;color:var(--accent);direction:ltr;unicode-bidi:isolate;font-weight:700;line-height:1.2}
+.voice{margin:1.25rem 0;padding:.9rem 1.2rem;border-radius:var(--radius);background:var(--board);color:#f2c94c;font-family:"Caveat",cursive;font-size:1.9rem;direction:ltr;text-align:center;line-height:1.3}
+.voice small{display:block;font-family:"Noto Sans Arabic",sans-serif;font-size:.8rem;color:#a1a1a1;direction:rtl;margin-top:.25rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;line-height:1.6}
+.card b{display:block;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr;gap:1rem;margin:1rem 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.path{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem}
+.path h4{margin:0 0 .25rem;font-size:1.05rem}
+.path .sub{color:var(--muted);font-size:.85rem}
+.path.good{border-color:color-mix(in srgb,var(--chalk-g) 55%,var(--line))}
+.path.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.path.good h4{color:var(--chalk-g)}
+.path.bad h4{color:var(--bad)}
+
+/* the "use it when" box every chart gets */
+.when{display:grid;grid-template-columns:1fr;gap:.75rem;margin:1rem 0}
+@media(min-width:760px){.when{grid-template-columns:repeat(3,1fr)}}
+.when .card{border-top:3px solid var(--accent)}
+.when .card:nth-child(2){border-top-color:var(--chalk-g)}
+.when .card:nth-child(3){border-top-color:var(--chalk-o)}
+
+/* callouts */
+.callout{border-radius:var(--radius);padding:.9rem 1.1rem;margin:1.25rem 0;border:1px solid;font-size:.97rem}
+.callout .ttl{font-weight:700;font-size:.85rem;display:flex;gap:.4rem;align-items:center;margin-bottom:.15rem}
+.callout.add{border-color:color-mix(in srgb,var(--add) 45%,transparent);background:color-mix(in srgb,var(--add) 7%,var(--surface))}
+.callout.add .ttl{color:var(--add)}
+.callout.warn{border-color:color-mix(in srgb,var(--chalk-o) 55%,transparent);background:color-mix(in srgb,var(--chalk-o) 8%,var(--surface))}
+.callout.warn .ttl{color:var(--chalk-o)}
+.callout.insight{border-color:color-mix(in srgb,var(--chalk-g) 50%,transparent);background:color-mix(in srgb,var(--chalk-g) 8%,var(--surface))}
+.callout.insight .ttl{color:var(--chalk-g)}
+details.callout summary{cursor:pointer;list-style:none}
+details.callout summary::-webkit-details-marker{display:none}
+details.callout summary .ttl::after{content:"＋";margin-inline-start:auto}
+details.callout[open] summary .ttl::after{content:"－"}
+
+/* tables & code */
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.tbl th,.tbl td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.tbl thead th{background:var(--surface-2);font-size:.85rem}
+.tbl tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+pre{direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;padding:1rem 1.1rem;border-radius:var(--radius);overflow-x:auto;font-size:.85rem;line-height:1.65;margin:1rem 0}
+pre .c{color:#8a8a8a}
+pre .k{color:#f2c94c}
+pre .s{color:#4ade80}
+.codetabs{margin:1rem 0}
+.codetabs .seg{margin-bottom:-.4rem}
+.codetabs pre{margin-top:.6rem}
+.codetabs pre[hidden]{display:none}
+
+/* figures */
+figure.fig{margin:1.25rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.fig-scroll{overflow-x:auto}
+figure.fig svg{width:100%;min-width:520px;height:auto;display:block;direction:ltr}
+figure.fig svg text{font-family:Inter,"Noto Sans Arabic",sans-serif;fill:var(--ink)}
+figure.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+
+/* widgets */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.widget-head{display:flex;gap:.6rem;align-items:center;margin-bottom:.2rem}
+.widget-head .badge{font-size:.72rem;font-weight:700;color:var(--bg);background:var(--chalk-g);border-radius:999px;padding:.1rem .6rem;white-space:nowrap}
+.widget-head h3{margin:0;font-size:1.1rem}
+.widget .hint{color:var(--muted);font-size:.9rem;margin:.1rem 0 .8rem}
+.wgrid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:820px){.wgrid.cols{grid-template-columns:1.6fr 1fr}}
+canvas{width:100%;display:block;border-radius:10px;background:var(--surface-2);touch-action:none}
+.controls{display:grid;gap:.7rem;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;gap:.5rem}
+.ctl label output{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.4rem .85rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk.off{opacity:.45;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem}
+.stat{background:var(--surface-2);border-radius:10px;padding:.45rem .7rem;line-height:1.35}
+.stat span{display:block;font-size:.75rem;color:var(--muted)}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;unicode-bidi:isolate}
+.status{font-size:.9rem;min-height:1.6em;color:var(--muted);white-space:pre-line}
+.keys{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.5rem}
+.keys span{display:inline-flex;gap:.35rem;align-items:center}
+.keys i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+
+/* summary */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem}
+.sheet .card{padding:1rem}
+.sheet .card h4{margin:0 0 .3rem;font-size:.95rem;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding:1.5rem 0;margin-top:3rem}
+.muted{color:var(--muted);font-size:.9em}
+
+/* lesson navigation */
+.crumbs{display:flex;align-items:center;gap:.45rem;font-size:.9rem;white-space:nowrap;min-width:0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{color:var(--line)}
+.crumbs .here{font-weight:700;color:var(--ink)}
+a.iconbtn{display:grid;place-items:center;text-decoration:none;font-size:.95rem}
+.iconbtn.off{opacity:.3;pointer-events:none;display:grid;place-items:center}
+.pager{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;margin-top:3rem}
+.pg{display:flex;flex-direction:column;gap:.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);text-decoration:none;line-height:1.5}
+.pg span{font-size:.82rem;color:var(--muted)}
+.pg b{font-size:1rem;color:var(--accent)}
+a.pg:hover{border-color:var(--accent)}
+.pg.next{text-align:left}
+.pg.all{justify-content:center;text-align:center}
+.pg.off{border-style:dashed;background:transparent}
+.pg.off b{color:var(--muted)}
+@media (max-width:640px){.pager{grid-template-columns:1fr}.pg.next{text-align:right}.pg.all{order:3}}
+@media (max-width:520px){.crumbs .home,.crumbs .home+.sep{display:none}}
+@media (max-width:400px){.crumbs .course+.sep,.crumbs .here{display:none}}
+@media print{.topbar,nav.toc,#progress,.widget{display:none!important}body{background:#fff;color:#000;font-size:12pt}}
+
+/* pandas basics lesson */
+.shape{font-family:"JetBrains Mono",monospace;font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .4rem;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.optrow{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center;margin:.3rem 0 .8rem}
+.optrow .lbl{font-size:.85rem;color:var(--muted);min-width:4.5em}
+.optrow .seg{flex-wrap:wrap;max-width:100%;border-radius:16px}
+.codeline{font-family:"JetBrains Mono",monospace;direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;border-radius:12px;padding:.7rem 1rem;font-size:.85rem;line-height:1.8;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.codeline .k{color:#f2c94c}.codeline .s{color:#4ade80}.codeline .c{color:#8a8a8a}.codeline .e{color:#f87171}
+.presets{display:flex;flex-wrap:wrap;gap:.4rem;direction:ltr;justify-content:flex-start;margin:.2rem 0 .8rem}
+.presets button{font:inherit;font-family:"JetBrains Mono",monospace;font-size:.78rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:8px;padding:.3rem .6rem;cursor:pointer}
+.presets button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tbl.df{margin:0;font-family:"JetBrains Mono",monospace;font-size:.78rem;direction:ltr;width:100%}
+.tbl.df th,.tbl.df td{text-align:left;padding:.32rem .55rem;white-space:nowrap;transition:background .15s}
+.tbl.df th.pos,.tbl.df td.pos{color:var(--muted);font-weight:400;font-size:.7rem;text-align:center;background:transparent}
+.tbl.df th.ix,.tbl.df td.ix{font-weight:700;color:var(--ink)}
+.tbl.df td.rn{text-align:right}
+.tbl.df td.rowon{background:color-mix(in srgb,var(--chalk-o) 14%,var(--surface))}
+.tbl.df td.colon{background:color-mix(in srgb,var(--add) 14%,var(--surface))}
+.tbl.df td.on{background:color-mix(in srgb,var(--chalk-g) 32%,var(--surface));font-weight:700}
+.tbl.df th.colon{color:var(--add)}
+.tbl.df td.ix.rowon{color:var(--chalk-o)}
+.result{margin-top:.7rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chips label{display:inline-flex;gap:.35rem;align-items:center;font-size:.85rem;border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:.2rem .7rem;cursor:pointer}
+.chips input{accent-color:var(--accent)}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here">أساسيات <span class="en">Pandas</span></span></nav>
+    <div class="top-actions">
+      <a class="iconbtn" href="/courses/da/numpy/" aria-label="الدرس اللي فات: NumPy" title="الدرس اللي فات: NumPy">→</a><a class="iconbtn" href="/courses/da/grouping/" aria-label="الدرس الجاي: Grouping &amp; Joining" title="الدرس الجاي: Grouping &amp; Joining">←</a>
+      <button class="iconbtn" id="themeBtn" type="button" data-theme-toggle aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="المحتوى"><ol id="tocList"></ol></nav>
+  <main>
+    <div class="hero">
+      <div class="kicker">Zero Grad · كورس Data Analysis · Pandas</div>
+      <h1>Pandas</h1>
+      <p class="lead">NumPy إدّانا arrays من نوع واحد.<br>
+        Pandas بتحط كذا array جنب بعض، وبتدّي كل عمود اسم، وكل سطر label: <b>جدول</b>.<br>
+        وأغلب يوم الـ Data Analyst بيعدّي جوّه الجدول ده.<br>
+        في الدرس ده: تقرا الجدول، وتبص عليه، وتختار منه، وتفلتره، وترتّبه.</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" id="kaggleLink" href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
+        <a class="nb-btn" href="https://www.kaggle.com/datasets/a7madmostafa/nilecart-sales" target="_blank" rel="noopener">🗂️ داتا NileCart على Kaggle</a>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <section class="sec" id="frame">
+      <div class="sec-head"><h2><span class="num">1</span>Series و DataFrame</h2></div>
+      <p>الـ <b>Series</b> عمود واحد: array من NumPy، ومعاه <b>index</b>، يعني label لكل قيمة.<br>
+        والـ <b>DataFrame</b> جدول: كذا Series ليهم نفس الـ index، Series لكل عمود.</p>
+      <figure class="fig"><div class="fig-scroll" id="anatomyFig"></div>
+        <figcaption>الـ index على الشمال، وأسماء الأعمدة فوق، وكل عمود Series جوّاه array من NumPy بنوع واحد.</figcaption></figure>
+<pre>sales.index       <span class="c"># RangeIndex(start=0, stop=1466): 0, 1, 2, ... by default</span>
+sales.columns     <span class="c"># ['order_id', 'order_date', 'customer_id', 'name', ...]</span>
+sales[<span class="s">"revenue"</span>]  <span class="c"># one column: a Series</span>
+sales[<span class="s">"revenue"</span>].to_numpy()   <span class="c"># the NumPy array underneath</span></pre>
+      <p>عشان كل عمود array من NumPy، كل اللي اتعلمناه في درس NumPy شغال هنا:<br>
+        الحساب على العمود كله، والـ boolean mask، والـ <span class="en">sum()</span> والـ <span class="en">mean()</span>.<br>
+        الفرق إن الأعمدة ليها أسامي، والسطور ليها labels.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="sec" id="read">
+      <div class="sec-head"><h2><span class="num">2</span>القراءة والكتابة</h2></div>
+      <p>ملف الـ CSV مجرد نص.<br>
+        Pandas بتخمّن نوع كل عمود: الأرقام بتبقى أرقام، وأي حاجة تانية بتفضل نص (<span class="en">object</span>)، حتى التواريخ.<br>
+        فلازم تقولها أنهي أعمدة تواريخ:</p>
+<pre>sales = pd.read_csv(<span class="s">"sales.csv"</span>)
+sales[<span class="s">"order_date"</span>].dtype     <span class="c"># object: text!</span>
+
+sales = pd.read_csv(<span class="s">"sales.csv"</span>, parse_dates=[<span class="s">"order_date"</span>])
+sales[<span class="s">"order_date"</span>].dtype     <span class="c"># datetime64[ns]</span></pre>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الـ argument</th><th>بيعمل إيه</th></tr></thead>
+        <tbody>
+          <tr><td><span class="en">parse_dates=["col"]</span></td><td>يقرا الأعمدة دي كتواريخ</td></tr>
+          <tr><td><span class="en">usecols=[...]</span></td><td>يقرا الأعمدة دي بس</td></tr>
+          <tr><td><span class="en">nrows=5</span></td><td>يقرا أول كام سطر بس (تبص على ملف ضخم)</td></tr>
+          <tr><td><span class="en">index_col="col"</span></td><td>يستخدم عمود كـ index</td></tr>
+          <tr><td><span class="en">sep=";"</span></td><td>فاصل تاني (ملفات كتير أوروبية بتستخدم <span class="en">;</span>)</td></tr>
+          <tr><td><span class="en">encoding="utf-8"</span></td><td>الـ encoding بتاع النص (النص العربي محتاج الصح)</td></tr>
+        </tbody>
+      </table></div>
+      <p>وعشان تكتب جدول في ملف:</p>
+<pre>big.to_csv(<span class="s">"big_orders.csv"</span>, index=<span class="k">False</span>)   <span class="c"># don't write 0, 1, 2 ... as a column</span></pre>
+      <div class="callout warn"><div class="ttl">⚠️ <span class="en">index=False</span></div>
+        لو نسيتها، الـ index (0، 1، 2، ...) هيتكتب كعمود.<br>
+        والمرة الجاية لما تقرا الملف، هتلاقي عمود زيادة اسمه <span class="en">Unnamed: 0</span>.</div>
+    </section>
+
+    <!-- 3 -->
+    <section class="sec" id="look">
+      <div class="sec-head"><h2><span class="num">3</span>أول نظرة</h2></div>
+      <p>قبل أي تحليل، نفس الأسئلة القليلة، كل مرة:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>السؤال</th><th>الكود</th><th>في NileCart</th></tr></thead>
+        <tbody>
+          <tr><td>حجمه قد إيه؟</td><td><span class="en">df.shape</span></td><td><span class="shape">(1466, 18)</span></td></tr>
+          <tr><td>السطر شكله إيه؟</td><td><span class="en">df.head()</span>، <span class="en">df.sample(5)</span></td><td>أوردر لكل سطر</td></tr>
+          <tr><td>نوع كل عمود، وفيه ناقص؟</td><td><span class="en">df.info()</span></td><td>4 int، 6 float، 7 نص، وتاريخ واحد</td></tr>
+          <tr><td>كام قيمة ناقصة في كل عمود؟</td><td><span class="en">df.isna().sum()</span></td><td>صفر في <span class="en">sales.csv</span>، وفيه في <span class="en">orders.csv</span></td></tr>
+          <tr><td>الأرقام شكلها إيه؟</td><td><span class="en">df.describe()</span></td><td>درس <span class="en">Descriptive Statistics</span></td></tr>
+          <tr><td>كام قيمة مختلفة في كل عمود؟</td><td><span class="en">df.nunique()</span></td><td>160 عميل، 11 منتج، 5 حالات</td></tr>
+          <tr><td>كل قيمة بتتكرر كام مرة؟</td><td><span class="en">df["col"].value_counts()</span></td><td><span class="en">completed</span> 1,074 من 1,466</td></tr>
+        </tbody>
+      </table></div>
+<pre>sales[<span class="s">"status"</span>].value_counts(normalize=<span class="k">True</span>)   <span class="c"># shares instead of counts</span>
+<span class="c">completed   0.73
+shipped     0.13
+returned    0.07
+cancelled   0.06
+unknown     0.01</span></pre>
+      <p>ومن النظرة دي بس، طلعنا بحاجات:</p>
+      <div class="cards">
+        <div class="card"><b><bdi>73%</bdi> بس completed</b>أي تحليل للإيراد لازم يبدأ بفلتر على <span class="en">status</span>.</div>
+        <div class="card"><b>فيه <span class="en">unknown</span></b>في <span class="en">status</span>، و <span class="en">Unknown</span> في <span class="en">region</span> و <span class="en">segment</span>: داتا وسخة نفتكرها.</div>
+        <div class="card"><b><bdi>1,466</bdi> سطر و 160 عميل</b>حوالي 9 سطور لكل عميل.</div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="sec" id="columns">
+      <div class="sec-head"><h2><span class="num">4</span>الأعمدة</h2></div>
+<pre>sales[<span class="s">"revenue"</span>]                          <span class="c"># one name -&gt; a Series</span>
+sales[[<span class="s">"name"</span>, <span class="s">"product_name"</span>, <span class="s">"revenue"</span>]]   <span class="c"># a list of names -&gt; a DataFrame</span></pre>
+      <p>لاحظ القوسين المربعين مرتين: البرّانيين للاختيار، والجوّانيين بيعملوا list.</p>
+      <h3 class="sub">أعمدة جديدة</h3>
+      <p>الحساب على الأعمدة element by element، زي NumPy بالظبط.<br>
+        و <span class="en">.dt</span> بيدّيك أجزاء التاريخ، و <span class="en">.str</span> أدوات النصوص، على العمود كله:</p>
+<pre>sales[<span class="s">"margin"</span>] = sales[<span class="s">"profit"</span>] / sales[<span class="s">"revenue"</span>]
+sales[<span class="s">"year"</span>]   = sales[<span class="s">"order_date"</span>].dt.year
+sales[<span class="s">"month"</span>]  = sales[<span class="s">"order_date"</span>].dt.month
+sales[<span class="s">"first_name"</span>] = sales[<span class="s">"name"</span>].str.split().str[<span class="s">0</span>]   <span class="c"># "Yasmin Mostafa" -&gt; "Yasmin"</span></pre>
+      <h3 class="sub">تغيير الاسم والنوع، والمسح</h3>
+<pre>tidy = (sales
+        .rename(columns={<span class="s">"product_name"</span>: <span class="s">"product"</span>})
+        .astype({<span class="s">"quantity"</span>: <span class="s">"int64"</span>})        <span class="c"># safe: sales.csv has no NaN</span>
+        .drop(columns=[<span class="s">"first_name"</span>]))</pre>
+      <div class="callout add"><div class="ttl">➕ بيرجّعوا جدول جديد</div>
+        <span class="en">rename</span> و <span class="en">astype</span> و <span class="en">drop</span> مبيغيّروش <span class="en">sales</span> نفسه.<br>
+        بيرجّعوا جدول <b>جديد</b>، فلازم تحطه في متغير (<span class="en">tidy = ...</span>) عشان تحتفظ بيه.<br>
+        والقوسين حوالين السلسلة بيخلّوك تكتب كل خطوة في سطر.</div>
+    </section>
+
+    <!-- 5 -->
+    <section class="sec" id="loc">
+      <div class="sec-head"><h2><span class="num">5</span>loc و iloc: بالـ label ولا بالمكان؟</h2></div>
+      <div class="two">
+        <div class="path"><h4><span class="en">iloc[...]</span>: بالمكان</h4><p>0، 1، 2، ... زي الـ list.<br>الـ i معناها integer position.</p></div>
+        <div class="path"><h4><span class="en">loc[...]</span>: بالـ label</h4><p>أي حاجة موجودة في الـ index.</p></div>
+      </div>
+      <p>مع الـ index العادي (0، 1، 2، ...) الاتنين شكلهم واحد.<br>
+        خلّي <span class="en">order_id</span> هو الـ index، والفرق يبان:<br>
+        الملف مش مترتّب بـ <span class="en">order_id</span>، فأول سطر هو الأوردر <b>10002</b>، والتاني <b>10001</b>.</p>
+<pre>s = sales.set_index(<span class="s">"order_id"</span>)
+s.iloc[<span class="s">0</span>]        <span class="c"># position 0: order 10002, Fatma Hassan</span>
+s.loc[<span class="s">10001</span>]     <span class="c"># label 10001: the second row, Yasmin Mostafa</span></pre>
+      <div class="widget" id="wLoc"></div>
+      <div class="callout warn"><div class="ttl">⚠️ الـ slice: <span class="en">loc</span> بيشمل الآخر، و <span class="en">iloc</span> لأ</div>
+        <span class="en">iloc[0:3]</span> زي Python: الأماكن 0 و 1 و 2، والآخر مش داخل.<br>
+        <span class="en">loc[10002:10003]</span> من الـ label ده للـ label ده، <b>الاتنين داخلين</b>، وبترتيب السطور في الجدول مش ترتيب الأرقام.<br>
+        فطلعوا 4 سطور: 10002، 10001، 10004، 10003.</div>
+      <h3 class="sub">تغيير القيم: دايمًا من خلال <span class="en">loc</span></h3>
+<pre>sales.loc[sales[<span class="s">"region"</span>] == <span class="s">"Unknown"</span>, <span class="s">"region"</span>] = <span class="s">"Not given"</span>   <span class="c"># rows, column = value</span>
+
+sales[sales[<span class="s">"region"</span>] == <span class="s">"Unknown"</span>][<span class="s">"region"</span>] = <span class="s">"Not given"</span>  <span class="c"># chained: changes a temporary copy</span></pre>
+      <p>السطر التاني بيختار السطور، وبعدين العمود، في خطوتين.<br>
+        فالتغيير بيروح على نسخة مؤقتة، مش على <span class="en">sales</span>.<br>
+        في Pandas 2 كان ساعات بيشتغل وساعات لأ، ومعاه <span class="en">SettingWithCopyWarning</span>.<br>
+        ومن Pandas 3 عمره ما بيغيّر الجدول، و Pandas بتطلّع warning اسمه <span class="en">ChainedAssignmentError</span>.<br>
+        الحل واحد: <span class="en">df.loc[rows, column] = value</span>، في خطوة واحدة.</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="sec" id="filter">
+      <div class="sec-head"><h2><span class="num">6</span>الفلترة</h2></div>
+      <p>نفس الـ boolean mask بتاع NumPy، بأسماء الأعمدة:</p>
+<pre>mask = sales[<span class="s">"status"</span>] == <span class="s">"completed"</span>    <span class="c"># a Series of True / False, one per row</span>
+done = sales[mask]                        <span class="c"># 1,074 of 1,466 rows</span></pre>
+      <div class="widget" id="wFilter"></div>
+      <h3 class="sub">اختصارات</h3>
+<pre>sales[sales[<span class="s">"status"</span>].isin([<span class="s">"returned"</span>, <span class="s">"cancelled"</span>])]   <span class="c"># 187: one of several values</span>
+done[done[<span class="s">"revenue"</span>].between(<span class="s">1_000</span>, <span class="s">5_000</span>)]          <span class="c"># 357: both ends included</span>
+sales[sales[<span class="s">"name"</span>].str.contains(<span class="s">"Mostafa"</span>)]           <span class="c"># 222: text that contains ...</span>
+
+sales.query(<span class="s">"status == 'completed' and revenue &gt; 100_000"</span>)   <span class="c"># 43: the condition as a string</span>
+sales.query(<span class="s">"revenue &gt; @cutoff"</span>)                            <span class="c"># @ uses a Python variable</span></pre>
+      <p>وتقدر تفلتر وتختار أعمدة في <span class="en">loc</span> واحد:</p>
+<pre>sales.loc[(sales[<span class="s">"status"</span>] == <span class="s">"completed"</span>) &amp; (sales[<span class="s">"region"</span>] == <span class="s">"Canal"</span>),
+          [<span class="s">"order_date"</span>, <span class="s">"name"</span>, <span class="s">"product_name"</span>, <span class="s">"revenue"</span>]]</pre>
+    </section>
+
+    <!-- 7 -->
+    <section class="sec" id="sort">
+      <div class="sec-head"><h2><span class="num">7</span>الترتيب</h2></div>
+<pre>done.sort_values(<span class="s">"revenue"</span>, ascending=<span class="k">False</span>).head()          <span class="c"># the 5 biggest lines: all laptops</span>
+done.sort_values([<span class="s">"category"</span>, <span class="s">"revenue"</span>], ascending=[<span class="k">True</span>, <span class="k">False</span>])   <span class="c"># ties in the first broken by the second</span>
+done.nlargest(<span class="s">3</span>, <span class="s">"profit"</span>)                                <span class="c"># shortcut for sort + head</span>
+s.sort_index()                                           <span class="c"># by the index labels: 10001, 10002, 10003 ...</span></pre>
+      <div class="callout insight"><div class="ttl">💡 ده الـ argsort</div>
+        في درس NumPy، <span class="en">argsort</span> طلّع نفس أكبر 5 أوردرات: كلهم لابتوب.<br>
+        <span class="en">sort_values</span> هو الـ argsort ده، متطبّق على كل الأعمدة مرة واحدة، فالسطر بيفضل متماسك.</div>
+    </section>
+
+    <!-- 8 -->
+    <section class="sec" id="mistakes">
+      <div class="sec-head"><h2><span class="num">8</span>أخطاء شائعة</h2></div>
+      <div class="two">
+        <div class="path bad"><h4>✗ تنسى <span class="en">parse_dates</span></h4><p>التاريخ بيفضل نص، و <span class="en">.dt.year</span> يطلّع error.</p></div>
+        <div class="path good"><h4>✓ <span class="en">parse_dates=["order_date"]</span></h4><p>واتأكد بـ <span class="en">df.info()</span>.</p></div>
+        <div class="path bad"><h4>✗ <span class="en">df["a", "b"]</span></h4><p>KeyError: Pandas فاكرة إن ده اسم عمود واحد.</p></div>
+        <div class="path good"><h4>✓ <span class="en">df[["a", "b"]]</span></h4><p>list جوّه الأقواس.</p></div>
+        <div class="path bad"><h4>✗ <span class="en">loc</span> بالمكان أو <span class="en">iloc</span> بالـ label</h4><p>بيشتغل بالصدفة مع الـ index العادي، ويبوظ أول ما تغيّره أو ترتّب.</p></div>
+        <div class="path good"><h4>✓ اعرف الـ index بتاعك</h4><p>label؟ <span class="en">loc</span>. مكان؟ <span class="en">iloc</span>.</p></div>
+        <div class="path bad"><h4>✗ <span class="en">df[cond]["col"] = value</span></h4><p>بيغيّر نسخة، والجدول زي ما هو.</p></div>
+        <div class="path good"><h4>✓ <span class="en">df.loc[cond, "col"] = value</span></h4><p>خطوة واحدة.</p></div>
+        <div class="path bad"><h4>✗ <span class="en">df.drop(columns=[...])</span> وخلاص</h4><p>الجدول الأصلي مبيتغيّرش.</p></div>
+        <div class="path good"><h4>✓ <span class="en">df = df.drop(columns=[...])</span></h4><p>خزّن النتيجة.</p></div>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">9</span>الخلاصة في كارت واحد</h2></div>
+      <div class="sheet">
+        <div class="card"><h4>القراءة والكتابة</h4><span class="en">read_csv(path, parse_dates=[...])</span><br><span class="en">to_csv(path, index=False)</span></div>
+        <div class="card"><h4>أول نظرة</h4><span class="en">shape · head · info</span><br><span class="en">isna().sum() · describe · nunique · value_counts</span></div>
+        <div class="card"><h4>الأعمدة</h4><span class="en">df["a"]</span> · <span class="en">df[["a", "b"]]</span><br><span class="en">.dt · .str · rename · astype · drop</span></div>
+        <div class="card"><h4>loc و iloc</h4>label: <span class="en">loc</span> (الآخر داخل)<br>مكان: <span class="en">iloc</span> (الآخر مش داخل)</div>
+        <div class="card"><h4>الفلترة</h4><span class="en">df[(c1) &amp; (c2)]</span><br><span class="en">isin · between · str.contains · query</span></div>
+        <div class="card"><h4>الترتيب والتعديل</h4><span class="en">sort_values · nlargest · sort_index</span><br><span class="en">df.loc[cond, "col"] = value</span></div>
+      </div>
+      <div class="nb-links">
+        <a class="nb-btn primary" data-kaggle href="#" target="_blank" rel="noopener">📓 افتح النوت بوك على Kaggle</a>
+        <a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a>
+      </div>
+    </section>
+
+    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/numpy/"><span>→ الدرس اللي فات</span><b class="en">NumPy</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><a class="pg next" href="/courses/da/grouping/"><span>الدرس الجاي ←</span><b class="en">Grouping &amp; Joining</b></a></nav>
+
+    <footer>
+      الداتا: NileCart، متجر وهمي في القاهرة، بالجنيه المصري.<br>
+      كل الأرقام في الدرس محسوبة من نفس الداتا اللي في النوت بوك.
+    </footer>
+  </main>
+</div>
+
+<script src="../assets/data/pandas.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const KAGGLE = "https://www.kaggle.com/code/a7madmostafa/zero-grad-da-pandas-basics";
+const P = window.PANDAS, LV = P.levels, N = P.order_id.length;
+const nf = v => Math.round(v).toLocaleString("en");
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const val = (c, i) => LV[c] ? LV[c][P[c][i]] : P[c][i];
+function head(title, hint, badge = "جرّب بنفسك") { return `<div class="widget-head"><span class="badge">${badge}</span><h3>${title}</h3></div><p class="hint">${hint}</p>`; }
+
+/* ---------- figure: anatomy of a DataFrame ---------- */
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(html, vb, label) { return `<svg viewBox="${vb}" role="img" aria-label="${label}" xmlns="${NS}">${html}</svg>`; }
+const label = (x, y, t, { fs = 12, col = "--muted", bold = false, anchor = "middle" } = {}) =>
+  `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${fs}"${bold ? ' font-weight="700"' : ""} style="fill:var(${col})">${t}</text>`;
+function anatomyFig() {
+  const cols = ["name", "product_name", "revenue", "status"], cw = [162, 108, 96, 92], x0 = 150, top = 64, rh = 26, R = 5;
+  const xs = [x0]; cw.forEach(v => xs.push(xs[xs.length - 1] + v)); const right = xs[xs.length - 1];
+  let o = `<rect x="${xs[2]}" y="${top - rh}" width="${cw[2]}" height="${rh * (R + 1)}" rx="4" style="fill:var(--add);opacity:.13"/>`;
+  o += `<rect x="${x0 - 50}" y="${top}" width="50" height="${rh * R}" style="fill:var(--chalk-o);opacity:.12"/>`;
+  o += `<rect x="${x0}" y="${top - rh}" width="${right - x0}" height="${rh}" style="fill:var(--surface-2)"/>`;
+  for (let r = 0; r <= R; r++) o += `<line x1="${x0 - 50}" y1="${top + r * rh}" x2="${right}" y2="${top + r * rh}" style="stroke:var(--line)"/>`;
+  cols.forEach((c, j) => o += label(xs[j] + 8, top - 8, c, { fs: 12, col: j === 2 ? "--add" : "--ink", bold: true, anchor: "start" }));
+  for (let i = 0; i < R; i++) {
+    o += label(x0 - 25, top + i * rh + 17, i, { fs: 12, col: "--chalk-o", bold: true });
+    cols.forEach((c, j) => { const v = val(c === "product_name" ? "product_name" : c, i); o += label(c === "revenue" ? xs[j + 1] - 10 : xs[j] + 8, top + i * rh + 17, c === "revenue" ? nf(v) : v, { fs: 11.5, col: "--ink", anchor: c === "revenue" ? "end" : "start" }); });
+  }
+  const by = top + rh * R;
+  o += label(x0 - 25, by + 22, "index", { fs: 12, col: "--chalk-o", bold: true }) + label(x0 - 25, by + 37, "row labels", { fs: 10.5, col: "--chalk-o" });
+  o += `<path d="M${x0} 18 L${right} 18" style="stroke:var(--ink);stroke-width:1.2"/><path d="M${x0} 14 L${x0} 22 M${right} 14 L${right} 22" style="stroke:var(--ink);stroke-width:1.2"/>`;
+  o += label((x0 + right) / 2, 12, "columns: the column names", { fs: 11.5, col: "--ink", bold: true });
+  o += label(xs[2] + cw[2] / 2, by + 22, "a Series", { fs: 12, col: "--add", bold: true }) + label(xs[2] + cw[2] / 2, by + 37, "float64 array + index", { fs: 10.5, col: "--add" });
+  o += label(x0 + 8, by + 22, "⋮ 1,466 rows", { fs: 11, anchor: "start" });
+  o += label(right + 14, top + 40, "sales", { fs: 14, col: "--ink", bold: true, anchor: "start" }) + label(right + 14, top + 57, "a DataFrame", { fs: 11, anchor: "start" }) + label(right + 14, top + 72, "shape (1466, 18)", { fs: 11, col: "--add", anchor: "start" });
+  $("#anatomyFig").innerHTML = svgEl(o, `0 0 720 ${by + 50}`, "تشريح الـ DataFrame");
+}
+
+/* ---------- widget: loc and iloc ---------- */
+function locWidget(root) {
+  const R = 8, COLS = ["name", "product_name", "quantity", "revenue", "status"], ids = P.order_id.slice(0, R);
+  const all = [...Array(COLS.length).keys()], allR = [...Array(R).keys()];
+  const done = allR.filter(i => val("status", i) === "completed");
+  const PRE = [
+    { c: `s.iloc[0]`, r: [0], k: all, out: "Series", n: "المكان 0: أول سطر، وهو الأوردر 10002 (مش 10001)." },
+    { c: `s.loc[10001]`, r: [1], k: all, out: "Series", n: "الـ label 10001: موجود في المكان 1." },
+    { c: `s.iloc[0:3]`, r: [0, 1, 2], k: all, out: "DataFrame", n: "الأماكن 0 و 1 و 2. الآخر (3) مش داخل، زي Python." },
+    { c: `s.loc[10002:10003]`, r: [0, 1, 2, 3], k: all, out: "DataFrame", n: "من الـ label 10002 لحد 10003، الاتنين داخلين، وبترتيب السطور: 4 سطور." },
+    { c: `s.loc[10001, "revenue"]`, r: [1], k: [3], out: "scalar", n: "سطر واحد وعمود واحد: قيمة واحدة." },
+    { c: `s.iloc[1, 3]`, r: [1], k: [3], out: "scalar", n: "نفس الخانة بالأماكن: السطر 1، العمود 3 (العدّ من صفر، والـ index مش عمود)." },
+    { c: `s.iloc[:3, :2]`, r: [0, 1, 2], k: [0, 1], out: "DataFrame", n: "أول 3 سطور، وأول عمودين." },
+    { c: `s.loc[:, ["name", "revenue"]]`, r: allR, k: [0, 3], out: "DataFrame", n: "كل السطور (:)، والعمودين دول بس." },
+    { c: `s.iloc[[0, 2, 4]]`, r: [0, 2, 4], k: all, out: "DataFrame", n: "list من الأماكن: سطور مش جنب بعض." },
+    { c: `s.loc[s["status"] == "completed", ["name", "revenue"]]`, r: done, k: [0, 3], out: "DataFrame", n: "mask للسطور، و list للأعمدة: فلتر واختيار في خطوة واحدة." },
+    { c: `s.loc[10008]`, err: "KeyError: 10008", n: "مفيش label اسمه 10008: الأوردر ده مش موجود في الجدول أصلًا." },
+    { c: `s.iloc[8]`, err: "IndexError: single positional indexer is out-of-bounds", n: "الجدول ده فيه 8 سطور، فآخر مكان 7." },
+  ];
+  let pi = 0;
+  root.innerHTML = head("loc ولا iloc؟", "اختار سطر كود، وشوف أنهي خانات بتتاخد. الأرقام الرمادي على الشمال هي الأماكن، والـ index هو order_id.") + `
+    <div class="codeline" style="margin-bottom:.7rem">s = sales.set_index(<span class="s">"order_id"</span>)[[<span class="s">"name"</span>, <span class="s">"product_name"</span>, <span class="s">"quantity"</span>, <span class="s">"revenue"</span>, <span class="s">"status"</span>]].head(<span class="s">8</span>)</div>
+    <div class="presets">${PRE.map((p, i) => `<button data-p="${i}" aria-pressed="${i === pi}">${esc(p.c)}</button>`).join("")}</div>
+    <div class="tbl-wrap" data-s="tbl"></div>
+    <div class="codeline result" data-s="code"></div>
+    <div class="status" data-s="msg" style="margin-top:.5rem"></div>`;
+  function draw() {
+    const p = PRE[pi], rs = new Set(p.r || []), ks = new Set(p.k || []);
+    let t = `<table class="tbl df"><thead><tr><th class="pos">pos</th><th class="ix">order_id</th>${COLS.map((c, j) => `<th class="${!p.err && ks.has(j) && ks.size < COLS.length ? "colon" : ""}">${c}</th>`).join("")}</tr></thead><tbody>`;
+    for (let i = 0; i < R; i++) {
+      const rOn = !p.err && rs.has(i);
+      t += `<tr><td class="pos">${i}</td><td class="ix ${rOn && rs.size < R ? "rowon" : ""}">${ids[i]}</td>` + COLS.map((c, j) => {
+        const v = val(c, i), on = rOn && ks.has(j);
+        return `<td class="${on ? "on" : !p.err && rs.has(i) && rs.size < R ? "rowon" : !p.err && ks.has(j) && ks.size < COLS.length ? "colon" : ""}${typeof v === "number" ? " rn" : ""}">${c === "revenue" ? v.toLocaleString("en", { minimumFractionDigits: 1 }) : esc(v)}</td>`;
+      }).join("") + `</tr>`;
+    }
+    $("[data-s=tbl]", root).innerHTML = t + "</tbody></table>";
+    let out;
+    if (p.err) out = `<span class="e"># ${esc(p.err)}</span>`;
+    else if (p.out === "scalar") out = `<span class="c"># ${val(COLS[p.k[0]], p.r[0]).toLocaleString("en")}   (one value)</span>`;
+    else if (p.out === "Series") out = `<span class="c"># a Series: ${COLS.length} values, the row's columns.  name = ${ids[p.r[0]]}</span>`;
+    else out = `<span class="c"># a DataFrame, shape (${p.r.length}, ${p.k.length})</span>`;
+    $("[data-s=code]", root).innerHTML = `${esc(p.c)}\n${out}`;
+    $("[data-s=msg]", root).textContent = p.n;
+  }
+  $$("[data-p]", root).forEach(b => b.onclick = () => { pi = +b.dataset.p; $$("[data-p]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  draw();
+}
+
+/* ---------- widget: build a filter ---------- */
+function filterWidget(root) {
+  const CATS = LV.category, REG = LV.region.filter(r => r !== "Unknown");
+  const st = { status: "any", cats: new Set(), region: "", rev: 0, name: "" };
+  const REV = [0, 1000, 10000, 100000];
+  root.innerHTML = head("ابنِ الفلتر", "كل شرط بتضيفه بيتحط بين قوسين، ويتربط بالباقي بـ &. شوف الكود، وعدد السطور اللي فضلت.") + `
+    <div class="optrow"><span class="lbl en">status</span><div class="seg">
+      <button data-st="any" aria-pressed="true">أي حالة</button><button data-st="eq" aria-pressed="false" class="en">== "completed"</button><button data-st="ne" aria-pressed="false" class="en">!= "completed"</button></div></div>
+    <div class="optrow"><span class="lbl en">category</span><div class="chips">${CATS.map(c => `<label><input type="checkbox" value="${c}">${c}</label>`).join("")}</div></div>
+    <div class="optrow"><span class="lbl en">region</span><select class="sel" data-reg><option value="">أي منطقة</option>${REG.map(r => `<option>${r}</option>`).join("")}</select></div>
+    <div class="optrow"><span class="lbl en">revenue</span><div class="seg">${REV.map(v => `<button data-rev="${v}" aria-pressed="${v === 0}" class="en">${v ? "> " + (v / 1000) + "k" : "أي قيمة"}</button>`).join("")}</div></div>
+    <div class="optrow"><span class="lbl en">name</span><input class="sel" data-name placeholder="str.contains, مثلًا Mostafa" style="direction:ltr;min-width:14em"></div>
+    <div class="codeline" data-s="code"></div>
+    <div class="stats" style="margin:.8rem 0" data-s="stats"></div>
+    <div class="tbl-wrap" data-s="tbl"></div>
+    <div class="status" data-s="msg" style="margin-top:.5rem"></div>`;
+  function draw() {
+    const conds = [], tests = [];
+    if (st.status !== "any") { const op = st.status === "eq" ? "==" : "!="; conds.push(`sales["status"] ${op} <span class="s">"completed"</span>`); tests.push(i => (val("status", i) === "completed") === (st.status === "eq")); }
+    const cs = [...st.cats];
+    if (cs.length === 1) { conds.push(`sales["category"] == <span class="s">"${cs[0]}"</span>`); tests.push(i => val("category", i) === cs[0]); }
+    else if (cs.length > 1) { conds.push(`sales["category"].isin([${cs.map(c => `<span class="s">"${c}"</span>`).join(", ")}])`); tests.push(i => st.cats.has(val("category", i))); }
+    if (st.region) { conds.push(`sales["region"] == <span class="s">"${esc(st.region)}"</span>`); tests.push(i => val("region", i) === st.region); }
+    if (st.rev) { conds.push(`sales["revenue"] &gt; <span class="s">${String(st.rev).replace(/\B(?=(\d{3})+(?!\d))/g, "_")}</span>`); tests.push(i => P.revenue[i] > st.rev); }
+    if (st.name) { conds.push(`sales["name"].str.contains(<span class="s">"${esc(st.name)}"</span>)`); tests.push(i => val("name", i).includes(st.name)); }
+    const code = conds.length === 0 ? "sales" : conds.length === 1 ? `sales[${conds[0]}]` : `sales[\n    (${conds.join(") &amp;\n    (")})\n]`;
+    const rows = []; for (let i = 0; i < N; i++) if (tests.every(f => f(i))) rows.push(i);
+    const rev = rows.reduce((a, i) => a + P.revenue[i], 0);
+    $("[data-s=code]", root).innerHTML = code + `\n<span class="c"># ${nf(rows.length)} rows</span>`;
+    $("[data-s=stats]", root).innerHTML =
+      `<div class="stat"><span>len(...)</span><b>${nf(rows.length)}</b></div>` +
+      `<div class="stat"><span>من <bdi>1,466</bdi></span><b>${(rows.length / N * 100).toFixed(1)}%</b></div>` +
+      `<div class="stat"><span><bdi dir="ltr">["revenue"].sum()</bdi></span><b>${(rev / 1e6).toFixed(2)}M</b></div>`;
+    const C = [["order_id"], ["date", "order_date"], ["name"], ["product_name"], ["region"], ["revenue"], ["status"]];
+    $("[data-s=tbl]", root).innerHTML = rows.length === 0 ? "" : `<table class="tbl df"><thead><tr>${C.map(c => `<th>${c[1] || c[0]}</th>`).join("")}</tr></thead><tbody>` +
+      rows.slice(0, 6).map(i => `<tr>${C.map(([c]) => { const v = val(c, i); return `<td class="${c === "revenue" ? "rn" : ""}">${c === "revenue" ? v.toLocaleString("en", { minimumFractionDigits: 1 }) : esc(v)}</td>`; }).join("")}</tr>`).join("") + `</tbody></table>`;
+    $("[data-s=msg]", root).textContent = rows.length === 0 ? "مفيش ولا سطر بيحقق كل الشروط مع بعض. شيل شرط." :
+      rows.length > 6 ? `أول 6 سطور من ${nf(rows.length)}، زي .head(6).` : "";
+  }
+  $$("[data-st]", root).forEach(b => b.onclick = () => { st.status = b.dataset.st; $$("[data-st]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  $$("[data-rev]", root).forEach(b => b.onclick = () => { st.rev = +b.dataset.rev; $$("[data-rev]", root).forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); });
+  $$(".chips input", root).forEach(c => c.onchange = () => { c.checked ? st.cats.add(c.value) : st.cats.delete(c.value); draw(); });
+  $("[data-reg]", root).onchange = e => { st.region = e.target.value; draw(); };
+  $("[data-name]", root).oninput = e => { st.name = e.target.value.trim(); draw(); };
+  draw();
+}
+
+/* ---------- page chrome ---------- */
+function chrome() {
+  $$("#kaggleLink, [data-kaggle]").forEach(a => a.href = KAGGLE);
+  const toc = $("#tocList"), links = {};
+  $$("section.sec").forEach(sec => {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + sec.id; a.textContent = $("h2", sec).textContent.replace(/^\d+/, "").trim();
+    li.appendChild(a); toc.appendChild(li); links[sec.id] = a;
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { Object.values(links).forEach(a => a.classList.remove("active")); links[e.target.id].classList.add("active"); } }), { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  window.addEventListener("scroll", () => { const h = document.documentElement; $("#progress").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; }, { passive: true });
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  chrome();
+  anatomyFig();
+  locWidget($("#wLoc")); filterWidget($("#wFilter"));
+});
+})();
+</script>
+</body>
+</html>

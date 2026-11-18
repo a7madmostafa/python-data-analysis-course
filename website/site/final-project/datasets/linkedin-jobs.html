@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinkedIn Job Postings (US, 2024) · Final Project · Suggested Datasets</title>
+<meta name="description" content="Which jobs and skills are in demand, what pays, and does remote work change anything?">
+<link rel="stylesheet" href="../style.css">
+<script>
+try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<header class="site-head"><div class="wrap">
+  <a class="brand" href="../index.html">Final Project · <span>Suggested Datasets</span></a>
+  <nav><a href="../index.html#datasets">All datasets</a></nav>
+</div></header>
+<main class="wrap">
+
+<a class="back" href="../index.html">← All datasets</a>
+<section class="page-head">
+  <span class="emoji" aria-hidden="true">💼</span>
+  <h1>LinkedIn Job Postings (US, 2024)</h1>
+  <p class="lead">Which jobs and skills are in demand, what pays, and does remote work change anything?</p>
+</section>
+
+<section><dl class="facts"><div><dt>Postings</dt><dd>123,849</dd></div><div><dt>Tables</dt><dd>10 CSV files</dd></div><div><dt>Period</dt><dd>Mar–Apr 2024</dd></div><div><dt>Format</dt><dd>CSV files in folders</dd></div></dl></section>
+
+<section>
+  <h2 class="section">The data</h2>
+  <div class="panel"><p>About <strong>124,000 job postings</strong> published on LinkedIn in the US over four weeks of spring 2024. Each posting has a title, company, location, work type, experience level, salary (sometimes), remote flag, views and applications.</p><p>Extra tables link each posting to its <strong>job functions</strong> (Sales, IT, Management… LinkedIn calls them "skills"), its <strong>industries</strong>, its benefits, and to company information.</p></div>
+</section>
+
+<section>
+  <h2 class="section">Download</h2>
+  <div class="panel">
+    <p><a class="btn" href="https://www.kaggle.com/datasets/arshkon/linkedin-job-postings" target="_blank" rel="noopener">Dataset (Kaggle) ↗</a></p>
+    <h3>About the format</h3>
+    <ul class="clean"><li>The download is a zip of several folders: <code>postings.csv</code> at the top, then <code>jobs/</code> (job_skills, job_industries, salaries, benefits), <code>mappings/</code> (skills, industries) and <code>companies/</code>.</li><li><strong><code>postings.csv</code> is ~500 MB</strong>, mostly because of two long text columns (<code>description</code>, <code>skills_desc</code>). If your laptop struggles, read without them with <code>usecols</code>.</li><li>Time columns (<code>listed_time</code>, <code>expiry</code>…) are <strong>milliseconds since 1970</strong>: <code>pd.to_datetime(col, unit="ms")</code>.</li><li>Push only a small cleaned file to GitHub (GitHub refuses files over 100 MB).</li></ul>
+<pre><code>jobs = pd.read_csv(&quot;postings.csv&quot;, usecols=lambda c: c not in (&quot;description&quot;, &quot;skills_desc&quot;))
+skills = pd.read_csv(&quot;jobs/job_skills.csv&quot;).merge(pd.read_csv(&quot;mappings/skills.csv&quot;), on=&quot;skill_abr&quot;)
+jobs[&quot;listed&quot;] = pd.to_datetime(jobs[&quot;listed_time&quot;], unit=&quot;ms&quot;)</code></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section">Main columns</h2>
+  <div class="panel table-wrap"><table><thead><tr><th>Column</th><th>What it holds</th></tr></thead><tbody><tr><td><code>job_id, title, company_name, location</code></td><td>The posting (location like "Chicago, IL")</td></tr><tr><td><code>formatted_work_type, formatted_experience_level</code></td><td>Full-time / contract…; entry level / mid-senior…</td></tr><tr><td><code>min_salary, med_salary, max_salary, pay_period</code></td><td>Salary and its period (hourly, monthly, yearly…)</td></tr><tr><td><code>remote_allowed</code></td><td>1 = remote, empty = not remote</td></tr><tr><td><code>views, applies</code></td><td>How much attention the posting got</td></tr><tr><td><code>jobs/job_skills + mappings/skills</code></td><td>Job functions of each posting (up to 3)</td></tr><tr><td><code>jobs/job_industries + mappings/industries</code></td><td>Industries of each posting</td></tr></tbody></table></div>
+</section>
+
+<section>
+  <h2 class="section">Watch out for</h2>
+  <div class="note"><strong>These are hints, not instructions.</strong> Check each one in the data, decide what to do, and explain your choice in the notebook.</div>
+  <div class="panel"><ul class="clean"><li><strong>Only about 30% of postings give a salary</strong>, and in different <strong>pay periods</strong>: hourly, weekly, monthly, yearly. Turn them into one unit before you compare.</li><li>Look at the salaries marked <em>BIWEEKLY</em>. Do they look like two weeks of pay?</li><li>The ready-made <code>normalized_salary</code> column has mistakes. Check it before you trust it.</li><li>The same job is sometimes <strong>posted twice</strong>.</li><li>Job titles are written in many ways (<em>Sales Manager</em>, <em>sales manager</em>, <em>Sales Manager - Retail</em>).</li><li><code>remote_allowed</code> is 1 or empty: what does empty mean?</li><li>A posting can have several job functions and industries. Be careful not to count a posting twice.</li></ul></div>
+</section>
+
+<section>
+  <h2 class="section">Questions to explore</h2>
+  <div class="panel"><h3>Demand</h3><ol class="qs"><li>Which job titles, job functions and industries have the most postings?</li></ol><h3>Work</h3><ol class="qs"><li>How many jobs are full-time, contract, part-time? Entry level or senior? Remote?</li><li>Which kinds of jobs are most often remote?</li></ol><h3>Pay</h3><ol class="qs"><li>What does pay depend on: experience level, job function, title?</li><li>Do remote jobs pay more?</li></ol><h3>Where and attention</h3><ol class="qs"><li>Which states have the most jobs, and the best pay?</li><li>Which postings get the most views and applications?</li></ol></div>
+</section>
+
+<section>
+  <h2 class="section">Ideas for the app</h2>
+  <div class="panel"><ul class="clean"><li>A <strong>job explorer</strong>: filter by function, level, remote, state, or search a title.</li><li>A <strong>salary page</strong> built on one yearly salary unit.</li><li>A <strong>map</strong> of postings and median pay by state.</li></ul></div>
+</section>
+
+<a class="back" href="../index.html">← All datasets</a>
+
+</main>
+<footer class="site-foot"><div class="wrap">Python Data Analysis · Final project. The data belongs to its publishers. Check each source's terms before you reuse it.</div></footer>
+</body>
+</html>

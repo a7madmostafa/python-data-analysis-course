@@ -1,0 +1,55 @@
+{
+  "site_base": "/courses/da",
+  "kaggle_user": "a7madmostafa",
+  "kaggle_dataset": "nilecart-sales",
+  "lessons": {
+    "intro": {
+      "title": "Introduction to Data Analysis",
+      "title_ar": "مقدمة",
+      "notebook": "1-foundations/01_intro.ipynb",
+      "kaggle_slug": "zero-grad-da-introduction-to-data-analysis"
+    },
+    "linalg": {
+      "title": "Light Linear Algebra",
+      "title_ar": "Linear Algebra خفيفة",
+      "notebook": "1-foundations/02_linear_algebra.ipynb",
+      "kaggle_slug": "zero-grad-da-light-linear-algebra"
+    },
+    "stats": {
+      "title": "Descriptive Statistics",
+      "title_ar": "Descriptive Statistics",
+      "notebook": "1-foundations/03_statistics.ipynb",
+      "kaggle_slug": "zero-grad-da-descriptive-statistics"
+    },
+    "numpy": {
+      "title": "NumPy",
+      "title_ar": "NumPy",
+      "notebook": "2-numpy/numpy.ipynb",
+      "kaggle_slug": "zero-grad-da-numpy"
+    },
+    "pandas": {
+      "title": "Pandas Basics",
+      "title_ar": "أساسيات Pandas",
+      "notebook": "3-pandas/01_pandas_basics.ipynb",
+      "kaggle_slug": "zero-grad-da-pandas-basics"
+    },
+    "grouping": {
+      "title": "Grouping & Joining",
+      "title_ar": "Grouping & Joining",
+      "notebook": "3-pandas/02_grouping_joining.ipynb",
+      "kaggle_slug": "zero-grad-da-grouping-and-joining"
+    },
+    "cleaning": {
+      "title": "Light Cleaning",
+      "title_ar": "تنضيف الداتا",
+      "notebook": "3-pandas/03_cleaning.ipynb",
+      "kaggle_slug": "zero-grad-da-light-cleaning"
+    },
+    "viz": {
+      "title": "Why Visualize, and Which Chart",
+      "title_ar": "ليه نرسم؟",
+      "notebook": "website/drafts/viz.ipynb",
+      "kaggle_slug": "zero-grad-da-why-visualize"
+    }
+  }
+}

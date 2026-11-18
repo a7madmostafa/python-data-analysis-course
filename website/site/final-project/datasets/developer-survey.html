@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stack Overflow Developer Survey · Final Project · Suggested Datasets</title>
+<meta name="description" content="Who writes code, in which languages, for how much, how do developers feel about AI, and how is all this changing?">
+<link rel="stylesheet" href="../style.css">
+<script>
+try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<header class="site-head"><div class="wrap">
+  <a class="brand" href="../index.html">Final Project · <span>Suggested Datasets</span></a>
+  <nav><a href="../index.html#datasets">All datasets</a></nav>
+</div></header>
+<main class="wrap">
+
+<a class="back" href="../index.html">← All datasets</a>
+<section class="page-head">
+  <span class="emoji" aria-hidden="true">💻</span>
+  <h1>Stack Overflow Developer Survey</h1>
+  <p class="lead">Who writes code, in which languages, for how much, how do developers feel about AI, and how is all this changing?</p>
+</section>
+
+<section><dl class="facts"><div><dt>Rows (2024)</dt><dd>65,437</dd></div><div><dt>Columns (2024)</dt><dd>114</dd></div><div><dt>Years</dt><dd>2011 → today</dd></div><div><dt>Format</dt><dd>One zip per year</dd></div></dl></section>
+
+<section>
+  <h2 class="section">The data</h2>
+  <div class="panel"><p>Every year Stack Overflow asks developers around the world about their work: their country, age, job, experience, the languages and tools they use and want to learn, their salary and, in recent years, what they think about AI. In <strong>2024</strong> alone, 65,437 people answered.</p><p><strong>You choose the time frame.</strong> Work on <strong>one year</strong> for a deep look, or download <strong>two or three years</strong> and compare them: which languages are rising, did remote work grow or shrink, did AI use change? You can also stack the years in one table and follow a question over time.</p><p>It's data about <strong>people like you</strong>: future developers and data people. Egypt is in it too (262 answers in 2024).</p></div>
+</section>
+
+<section>
+  <h2 class="section">Download</h2>
+  <div class="panel">
+    <p><a class="btn" href="https://survey.stackoverflow.co/" target="_blank" rel="noopener">Official results page (all years) ↗</a><a class="btn ghost" href="https://www.kaggle.com/datasets/joebeachcapital/stack-overflow-annual-developer-survey-2024" target="_blank" rel="noopener">Kaggle copy of 2011–2024 ↗</a><a class="btn ghost" href="https://www.kaggle.com/datasets/berkayalan/stack-overflow-annual-developer-survey-2024" target="_blank" rel="noopener">Kaggle copy of 2024 only ↗</a></p>
+    <h3>About the format</h3>
+    <ul class="clean"><li>On the official page, each year has its own <strong>full data set (CSV)</strong> download: a zip with <code>survey_results_public.csv</code> (the answers; ~160 MB for 2024), <code>survey_results_schema.csv</code> (the full text of every question) and a PDF.</li><li><strong>Read the schema file of each year.</strong> Questions are added, removed and reworded, and <strong>column names change between years</strong>. Find the columns that mean the same thing and give them one name before you put years together.</li><li>To combine years: add a <code>year</code> column to each table, keep only the columns you need (with the same names), then <code>pd.concat</code>. Compare only questions that were asked in every year you use.</li><li><strong>Multi-answer questions</strong> keep all answers in one cell, separated by <code>;</code>, e.g. <em>"Bash/Shell;Go;HTML/CSS;Java"</em>. Use <code>.str.split(";")</code> and <code>.explode()</code> to count them.</li><li>In some Kaggle copies, apostrophes became a strange character (<em>"Bachelor�s"</em>).</li></ul>
+<pre><code>import pandas as pd
+
+s23 = pd.read_csv(&quot;2023/survey_results_public.csv&quot;, low_memory=False).assign(year=2023)
+s24 = pd.read_csv(&quot;2024/survey_results_public.csv&quot;, low_memory=False).assign(year=2024)
+
+common = s23.columns.intersection(s24.columns)      # the columns both years share (check the schema too!)
+both = pd.concat([s23[common], s24[common]], ignore_index=True)
+both.groupby(&quot;year&quot;).size()</code></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section">Main columns</h2>
+  <div class="panel table-wrap"><table><thead><tr><th>Column</th><th>What it holds</th></tr></thead><tbody><tr><td><code>MainBranch, Employment</code></td><td>Developer by profession, student, hobbyist…; full-time, freelance…</td></tr><tr><td><code>Country, Age, EdLevel</code></td><td>Who they are</td></tr><tr><td><code>YearsCode, YearsCodePro</code></td><td>Experience (text, with "Less than 1 year")</td></tr><tr><td><code>DevType, RemoteWork, OrgSize</code></td><td>Job role, remote / hybrid / in-person, company size</td></tr><tr><td><code>LanguageHaveWorkedWith / WantToWorkWith / Admired</code></td><td>Languages used, wanted, and loved (multi-answer, 2024 names)</td></tr><tr><td><code>ConvertedCompYearly</code></td><td>Yearly salary converted to US dollars (2024 name)</td></tr><tr><td><code>AISelect, AISent, AIThreat</code></td><td>AI use and opinions (recent years only)</td></tr></tbody></table></div>
+</section>
+
+<section>
+  <h2 class="section">Watch out for</h2>
+  <div class="note"><strong>These are hints, not instructions.</strong> Check each one in the data, decide what to do, and explain your choice in the notebook.</div>
+  <div class="panel"><ul class="clean"><li><strong>Most questions were optional:</strong> in 2024 only about a third of the people gave a salary.</li><li>Salaries go from <strong>$1 to millions of dollars a year</strong>. Which ones can you trust?</li><li>Compare salaries of <strong>comparable people</strong> (full-time professional developers), not students with managers.</li><li><code>YearsCodePro</code> is text: numbers plus <em>"Less than 1 year"</em> and <em>"More than 50 years"</em>.</li><li>Country names are long (<em>"United Kingdom of Great Britain and Northern Ireland"</em>), and may be spelled differently in different years.</li><li><strong>Comparing years:</strong> the same question can have new answer options or a new wording. Is a change in the data a real change, or a change in the question?</li><li><strong>Different people answer each year</strong>, and the number of answers changes. Compare shares (%), not counts.</li><li>Salaries in dollars say nothing about cost of living, and inflation changes them from year to year.</li><li>Who answers a Stack Overflow survey? Are they all developers in the world?</li></ul></div>
+</section>
+
+<section>
+  <h2 class="section">Questions to explore</h2>
+  <div class="panel"><h3>Who</h3><ol class="qs"><li>Where do the respondents come from? How old are they, and what jobs do they do?</li></ol><h3>Languages</h3><ol class="qs"><li>Which languages are used most? Which ones do people want to learn next?</li><li>Which languages do their users love, and which are used only because people have to?</li></ol><h3>Salary</h3><ol class="qs"><li>What decides a developer's salary: country, experience, role, remote work?</li><li>Do remote developers earn more? Even in the same country?</li></ol><h3>AI</h3><ol class="qs"><li>Who uses AI tools: young or old, junior or senior? Do developers see AI as a threat?</li></ol><h3>Over time (if you take several years)</h3><ol class="qs"><li>Which languages and tools are rising or falling?</li><li>Did remote work grow or shrink after 2020?</li><li>Did AI use and trust change from one year to the next?</li><li>Did salaries move, for the same role and experience?</li></ol><h3>Egypt</h3><ol class="qs"><li>How do Egyptian developers compare with the world: languages, AI use, experience? And over the years?</li></ol></div>
+</section>
+
+<section>
+  <h2 class="section">Ideas for the app</h2>
+  <div class="panel"><ul class="clean"><li>A <strong>salary explorer</strong> by country, experience and role.</li><li>A <strong>languages page</strong>: used vs wanted vs loved.</li><li>An <strong>Egypt vs the world</strong> page.</li><li>With several years: a <strong>year selector</strong>, or a <strong>trends page</strong> with one line per language or tool.</li></ul></div>
+</section>
+
+<a class="back" href="../index.html">← All datasets</a>
+
+</main>
+<footer class="site-foot"><div class="wrap">Python Data Analysis · Final project. The data belongs to its publishers. Check each source's terms before you reuse it.</div></footer>
+</body>
+</html>
