@@ -1,0 +1,227 @@
+<!--meta
+{"title": "More Charts",
+ "h1": "More Charts",
+ "lead": "الدروس اللي فاتت فيها الرسومات اللي بنستخدمها كل يوم. الدرس ده بيلم <b>النادرة</b>:<br>أغلب المشاريع مش هتحتاجها، بس لما واحد يحتاجها، كويس تعرف إنها موجودة.<br>كل رسمة: مثال واحد على NileCart، وسطر واحد <b>إمتى تستخدمها</b>.",
+ "description": "رسومات أقل استخدامًا في Matplotlib و Seaborn بالعربي: twinx و stackplot و errorbar و hexbin و 3D والـ racing bars، و stripplot و swarmplot و pointplot و ecdfplot و lmplot و jointplot و clustermap، وإمتى كل واحدة تنفع.",
+ "og_description": "الرسومات النادرة، وإمتى كل واحدة تنفع، بالعربي وعلى داتا NileCart.",
+ "next_soon": "Mini EDA",
+ "scripts": ["../assets/data/vizlib.js"]}
+-->
+    <section class="sec" id="map">
+      <div class="sec-head"><h2><span class="num">1</span>الخريطة</h2></div>
+      <p>اختار الاحتياج، وشوف الرسمة اللي بتجاوبه والكود بتاعها:</p>
+      <div class="widget" id="wPick"></div>
+    </section>
+
+    <section class="sec" id="mpl">
+      <div class="sec-head"><h2><span class="num">2</span>Matplotlib</h2></div>
+      <h3 class="sub">رياضة في النص، ومناطق مضلّلة</h3>
+<pre>ax.text(<span class="s">0.98</span>, <span class="s">0.95</span>, <span class="s">rf"$\mu = {rev.mean():,.0f}$"</span>, transform=ax.transAxes, ha=<span class="s">"right"</span>, va=<span class="s">"top"</span>)   <span class="c"># (0,0) bottom-left, (1,1) top-right</span>
+ax.set_xlabel(<span class="s">r"$\log_{10}$(revenue)"</span>)                                                   <span class="c"># $...$ is typeset as maths</span>
+ax.axvspan(pd.Timestamp(<span class="s">"2024-11-01"</span>), pd.Timestamp(<span class="s">"2024-12-31"</span>), color=<span class="s">"#E89B2D"</span>, alpha=<span class="s">0.15</span>)   <span class="c"># a period</span>
+ax.axhspan(by_month.quantile(<span class="s">0.25</span>), by_month.quantile(<span class="s">0.75</span>), alpha=<span class="s">0.1</span>)                      <span class="c"># a range</span></pre>
+      <h3 class="sub">محور y تاني: <span class="en">ax.twinx()</span></h3>
+      <p>لما مقياسين بوحدتين مختلفتين بيكمّلوا بعض فعلًا، زي <b>عدد</b> سطور الأوردرات والإيراد <b>بالجنيه</b>.
+        <span class="en">ax2 = ax1.twinx()</span> بيضيف Axes تانية بنفس محور x ومحور y على اليمين.<br>
+        استخدمه بحذر: بمقياسين، أي حد يقدر يخلّي أي خط يبان أكبر من التاني. جرّب:</p>
+      <div class="widget" id="wTwin"></div>
+      <h3 class="sub"><span class="en">stackplot</span>، و <span class="en">errorbar</span>، و <span class="en">hexbin</span></h3>
+<pre>ax.stackplot(by_cat.index, by_cat.T.values, labels=by_cat.columns)     <span class="c"># top edge = the total; biggest group at the bottom</span>
+
+stats = sales.groupby(<span class="s">"category"</span>)[<span class="s">"revenue"</span>].agg([<span class="s">"mean"</span>, <span class="s">"sem"</span>])     <span class="c"># sem = std / sqrt(n)</span>
+ax.errorbar(stats.index, stats[<span class="s">"mean"</span>], yerr=stats[<span class="s">"sem"</span>], fmt=<span class="s">"o"</span>, capsize=<span class="s">5</span>)
+
+hb = ax.hexbin(sales[<span class="s">"revenue"</span>], sales[<span class="s">"profit"</span>], gridsize=<span class="s">30</span>, bins=<span class="s">"log"</span>, mincnt=<span class="s">1</span>, xscale=<span class="s">"log"</span>)
+fig.colorbar(hb, label=<span class="s">"Order lines (log scale)"</span>)</pre>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الفئة</th><th>متوسط إيراد السطر</th><th>standard error</th></tr></thead>
+        <tbody>
+          <tr><td class="en">Stationery</td><td><bdi>248</bdi></td><td><bdi>10</bdi></td></tr>
+          <tr><td class="en">Accessories</td><td><bdi>3,041</bdi></td><td><bdi>91</bdi></td></tr>
+          <tr><td class="en">Furniture</td><td><bdi>13,484</bdi></td><td><bdi>845</bdi></td></tr>
+          <tr><td class="en">Electronics</td><td><bdi>57,987</bdi></td><td><bdi>2,624</bdi></td></tr>
+        </tbody>
+      </table></div>
+      <p>الـ <span class="en">errorbar</span> لما تكون حاسب المتوسطات وعدم التأكد بنفسك. لو معاك السطور الخام، <span class="en">sns.barplot</span> بيعملها لوحده.</p>
+      <h3 class="sub">3D</h3>
+<pre>ax = fig.add_subplot(projection=<span class="s">"3d"</span>)                   <span class="c"># same methods, plus a third coordinate</span>
+ax.scatter(part[<span class="s">"unit_price"</span>], part[<span class="s">"quantity"</span>], part[<span class="s">"revenue"</span>])
+ax.view_init(elev=<span class="s">20</span>, azim=-<span class="s">60</span>)                         <span class="c"># camera height and rotation, in degrees</span></pre>
+      <div class="callout warn"><div class="ttl">⚠️ منظرها حلو، بس جرّب تقرا منها رقم</div>
+        مش هتعرف. المنظور بيبوّظ الارتفاعات، والنقط بتستخبى ورا بعض. في الشغل الحقيقي، نفس المعلومة أوضح في 2D،
+        والمتغير التالت بـ <span class="en">hue</span> أو <span class="en">col=</span>.</div>
+      <h3 class="sub">Racing bars</h3>
+      <p>لما بتحكي حكاية تغيّر مع الوقت في <b>talk</b>. في تقرير مكتوب، line chart.<br>
+        <span class="en">FuncAnimation(fig, draw, frames=n)</span> بينادي <span class="en">draw(i)</span> مرة لكل frame، و <span class="en">draw</span> بيرسم الشهر رقم i من الأول:</p>
+      <div class="widget" id="wRace"></div>
+<pre>cum = sales.pivot_table(index=sales[<span class="s">"order_date"</span>].dt.to_period(<span class="s">"M"</span>), columns=<span class="s">"product_name"</span>,
+                        values=<span class="s">"revenue"</span>, aggfunc=<span class="s">"sum"</span>).fillna(<span class="s">0</span>).cumsum()      <span class="c"># one row per month</span>
+<span class="k">def</span> draw(i):
+    ax.clear()
+    top = cum.iloc[i].nlargest(<span class="s">8</span>).sort_values()                              <span class="c"># top 8, biggest on top</span>
+    ax.barh(top.index, top.values, color=[color_of[p] <span class="k">for</span> p <span class="k">in</span> top.index])   <span class="c"># each product keeps its colour</span>
+    ax.set_xlim(<span class="s">0</span>, cum.values.max() * <span class="s">1.15</span>)                                  <span class="c"># fixed axis</span>
+anim = animation.FuncAnimation(fig, draw, frames=len(cum), interval=<span class="s">400</span>)
+anim.save(<span class="s">"figures/racing_bars.gif"</span>, writer=<span class="s">"pillow"</span>, fps=<span class="s">3</span>)                  <span class="c"># or HTML(anim.to_jshtml())</span></pre>
+      <p class="muted">فيه package اسمها <span class="en">bar_chart_race</span> بتعملها في سطر، بس مبقتش متصانة وبتبوظ مع pandas الحالية، فبنعملها بنفسنا: 15 سطر.</p>
+    </section>
+
+    <section class="sec" id="sns">
+      <div class="sec-head"><h2><span class="num">3</span>Seaborn</h2></div>
+      <div class="cards">
+        <div class="card"><b class="en">stripplot</b>كل سطر في كل مجموعة. ⚠️ في Accessories مئات النقط فوق بعض: overplotting. خفّفه بـ <span class="en">alpha</span> أو نقط أصغر، أو روح لـ box أو violin.</div>
+        <div class="card"><b class="en">swarmplot</b>strip بيبعد النقط عن بعض، فمفيش نقطة بتخبّي التانية. لمجموعة <b>صغيرة</b> بس: مع آلاف السطور المكان بيخلص.</div>
+        <div class="card"><b class="en">pointplot</b>متوسط بيتغيّر عبر مجموعات ليها ترتيب: الميل أسهل في المقارنة من ارتفاع الـ bars. Electronics بتنزل من 10,400 لخسارة 1,750، والباقيين بالكاد بيتحركوا.</div>
+        <div class="card"><b class="en">lmplot / regplot</b>خط مستقيم في scatter، خط لكل مجموعة. الميل = هامش الربح: 0.49 لـ Accessories، و 0.39 لـ Furniture، و 0.13 بس لـ Electronics.</div>
+        <div class="card"><b class="en">jointplot</b>العلاقة بين عمودين، وتوزيع كل واحد على الجنب، في figure واحدة.</div>
+        <div class="card"><b class="en">clustermap</b>heatmap بيرتّب الصفوف والأعمدة عشان الشبه يقعد جنب الشبه. <span class="en">z_score=1</span> بيقارن كل عمود على مقياسه. Alexandria والقناة: Electronics حوالي 84% من إيرادهم، والدلتا لوحدها عند 75%.</div>
+      </div>
+      <h3 class="sub"><span class="en">ecdfplot</span>: كام في المية تحت X؟</h3>
+      <p>لكل قيمة على x، المنحنى بيدّي نسبة السطور اللي عندها أو أقل. مفيش bins تختارها، والمجموعات المختلفة في الحجم بتتقارن بسهولة. حرّك الـ X:</p>
+      <div class="widget" id="wEcdf"></div>
+<pre>sns.ecdfplot(data=known, x=<span class="s">"revenue"</span>, hue=<span class="s">"segment"</span>, log_scale=<span class="k">True</span>)
+known.groupby(<span class="s">"segment"</span>)[<span class="s">"revenue"</span>].apply(<span class="k">lambda</span> r: (r &lt;= <span class="s">1000</span>).mean())</pre>
+    </section>
+
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">4</span>الخلاصة في كارت واحد</h2></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الرسمة</th><th>الكود</th><th>إمتى</th></tr></thead>
+        <tbody>
+          <tr><td>رياضة في النص</td><td class="en">r"$\mu = 5$", transform=ax.transAxes</td><td>label محتاج معادلة</td></tr>
+          <tr><td>منطقة مضلّلة</td><td class="en">ax.axvspan(a, b), ax.axhspan(a, b)</td><td>فترة أو نطاق مهم</td></tr>
+          <tr><td>محور y تاني</td><td class="en">ax2 = ax.twinx()</td><td>وحدتين بيكمّلوا بعض</td></tr>
+          <tr><td>Stacked area</td><td class="en">ax.stackplot(x, ys, labels=...)</td><td>الإجمالي مع الوقت وأجزاؤه</td></tr>
+          <tr><td>Error bars</td><td class="en">ax.errorbar(x, y, yerr=...)</td><td>حسبت عدم التأكد بنفسك</td></tr>
+          <tr><td>Hexagons</td><td class="en">ax.hexbin(x, y, gridsize=30)</td><td>نقط أكتر من إن scatter يشيلها</td></tr>
+          <tr><td>3D</td><td class="en">fig.add_subplot(projection="3d")</td><td>البُعد التالت هو النقطة نفسها</td></tr>
+          <tr><td>Racing bars</td><td class="en">animation.FuncAnimation(fig, draw, frames=n)</td><td>talk عن تغيّر مع الوقت</td></tr>
+          <tr><td>كل سطر</td><td class="en">sns.stripplot, sns.swarmplot</td><td>مجموعات صغيرة، سطور فردية</td></tr>
+          <tr><td>متوسط واتجاه</td><td class="en">sns.pointplot</td><td>مقارنة الميل عبر مجموعات مترتّبة</td></tr>
+          <tr><td>النسبة تحت X</td><td class="en">sns.ecdfplot</td><td>"كام في المية تحت X؟"</td></tr>
+          <tr><td>خط اتجاه</td><td class="en">sns.lmplot, sns.regplot</td><td>خط مستقيم في scatter</td></tr>
+          <tr><td>علاقة + توزيعات</td><td class="en">sns.jointplot</td><td>الاتنين في figure واحدة</td></tr>
+          <tr><td>مجموعات شبه بعض</td><td class="en">sns.clustermap</td><td>أنهي صفوف بتتصرف زي بعض</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+<style>
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.5rem;margin:.2rem 0 .9rem}
+.qgrid button{font:inherit;font-size:.9rem;text-align:right;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:12px;padding:.55rem .75rem;cursor:pointer;line-height:1.45}
+.qgrid button small{display:block;color:var(--muted);font-size:.75rem}
+.qgrid button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));box-shadow:inset 0 0 0 1px var(--accent)}
+.answer{display:grid;gap:.3rem;font-size:.95rem}.answer b{color:var(--accent)}
+.codeout{direction:ltr;text-align:left;font-family:"JetBrains Mono",monospace;font-size:.82rem;background:var(--board);color:#e6e6e6;border-radius:10px;padding:.6rem .8rem;margin-top:.6rem;overflow-x:auto;white-space:pre}
+</style>
+<script>
+const V = window.VL, L = V.levels, N = V.revenue.length, ALL = [...Array(N).keys()];
+const YM = V.date.map(d => d.slice(0, 7)), MONTHS = [...new Set(YM)].sort();
+const MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const lab = m => MO[+m.slice(5) - 1] + " " + m.slice(0, 4);
+
+/* ---------- widget: which rare chart? ---------- */
+function pickWidget(root) {
+  const Q = [
+    ["label محتاج معادلة أو رمز", "Maths in text", 'ax.text(0.98, 0.95, r"$\\mu = 18{,}991$", transform=ax.transAxes)', "Matplotlib"],
+    ["فترة أو نطاق أهم من أي نقطة", "axvspan / axhspan", 'ax.axvspan(pd.Timestamp("2024-11-01"), pd.Timestamp("2024-12-31"), alpha=0.15)', "Matplotlib"],
+    ["مقياسين بوحدتين مختلفتين", "twinx", "ax2 = ax1.twinx()\nax2.plot(m.index, m[\"revenue\"])", "Matplotlib"],
+    ["الإجمالي مع الوقت ومتكوّن من إيه", "stackplot", "ax.stackplot(by_cat.index, by_cat.T.values, labels=by_cat.columns)", "Matplotlib"],
+    ["حسبت المتوسط وعدم التأكد بنفسي", "errorbar", 'ax.errorbar(stats.index, stats["mean"], yerr=stats["sem"], fmt="o", capsize=5)', "Matplotlib"],
+    ["نقط كتير قوي، الـ scatter بقى بقعة", "hexbin", 'ax.hexbin(x, y, gridsize=30, bins="log", mincnt=1)', "Matplotlib"],
+    ["البُعد التالت هو النقطة", "3D", 'ax = fig.add_subplot(projection="3d")\nax.scatter(x, y, z)', "Matplotlib"],
+    ["حكاية تغيّر مع الوقت في talk", "Racing bars", "anim = animation.FuncAnimation(fig, draw, frames=len(cum))", "Matplotlib"],
+    ["كل سطر في كل مجموعة", "stripplot / swarmplot", 'sns.stripplot(data=sales, x="category", y="revenue", alpha=0.3, jitter=0.25)', "Seaborn"],
+    ["متوسط بيتغيّر عبر مجموعات مترتّبة", "pointplot", 'sns.pointplot(data=big, x="discount", y="profit", hue="category")', "Seaborn"],
+    ["كام في المية تحت X؟", "ecdfplot", 'sns.ecdfplot(data=known, x="revenue", hue="segment", log_scale=True)', "Seaborn"],
+    ["خط مستقيم في scatter، لكل مجموعة", "lmplot / regplot", 'sns.lmplot(data=big, x="revenue", y="profit", col="category")', "Seaborn"],
+    ["علاقة + توزيع كل عمود", "jointplot", 'sns.jointplot(data=sales, x="revenue", y="profit")', "Seaborn"],
+    ["أنهي مجموعات بتتصرف زي بعض", "clustermap", 'sns.clustermap(share, z_score=1, cmap="RdBu_r", center=0, annot=True)', "Seaborn"],
+  ];
+  let qi = 0;
+  root.innerHTML = head("محتاج إيه؟", "14 احتياج، ولكل واحد الرسمة النادرة اللي بتجاوبه.") + `
+    <div class="qgrid">${Q.map((q, i) => `<button data-q="${i}" aria-pressed="${i === qi}">${q[0]}<small>${q[3]}</small></button>`).join("")}</div>
+    <div class="answer" data-s="ans"></div><div class="codeout" data-s="code"></div>`;
+  const show = () => { $("[data-s=ans]", root).innerHTML = `<div><b class="en">${Q[qi][1]}</b></div>`; $("[data-s=code]", root).textContent = Q[qi][2]; };
+  segPick(root, "data-q", v => { qi = +v; show(); }); show();
+}
+
+/* ---------- widget: twinx can make any line look bigger ---------- */
+function twinWidget(root) {
+  const cnt = MONTHS.map(m => YM.filter(x => x === m).length), rev = MONTHS.map(m => ALL.filter(i => YM[i] === m).reduce((a, i) => a + V.revenue[i], 0));
+  let rmax = Math.max(...rev) * 1.1, rmin = 0;
+  root.innerHTML = head("عدد السطور (bars) والإيراد (خط)", "نفس الداتا. غيّر حدود المحور اللي على اليمين، وشوف الخط بيقول حكاية تانية خالص.") + `
+    <div class="wgrid cols"><div><canvas></canvas></div><div class="controls">
+      <div class="ctl"><label>ax2.set_ylim(bottom) <output data-o="lo">0</output></label><input type="range" min="0" max="1500000" step="50000" value="0" data-r="lo"></div>
+      <div class="ctl"><label>ax2.set_ylim(top) <output data-o="hi"></output></label><input type="range" min="2000000" max="12000000" step="250000" value="${Math.round(rmax)}" data-r="hi"></div>
+      <div class="status" data-s="msg"></div></div></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const h = 250, { ctx, w } = setup(cv, h), pad = { l: 34, r: 50, t: 12, b: 26 }, cmax = Math.max(...cnt) * 1.1;
+    const bw = (w - pad.l - pad.r) / MONTHS.length, sx = k => pad.l + k * bw + bw / 2, syl = v => h - pad.b - v / cmax * (h - pad.t - pad.b), syr = v => h - pad.b - (v - rmin) / (rmax - rmin) * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    cnt.forEach((c, k) => { ctx.fillStyle = cssv("--muted"); ctx.globalAlpha = .45; ctx.fillRect(sx(k) - bw * .35, syl(c), bw * .7, syl(0) - syl(c)); }); ctx.globalAlpha = 1;
+    ctx.save(); ctx.beginPath(); ctx.rect(pad.l, pad.t, w - pad.l - pad.r, h - pad.t - pad.b); ctx.clip();
+    ctx.strokeStyle = cssv("--bad"); ctx.lineWidth = 2.2; ctx.beginPath(); rev.forEach((v, k) => k ? ctx.lineTo(sx(k), syr(v)) : ctx.moveTo(sx(k), syr(v))); ctx.stroke(); ctx.restore();
+    text(ctx, nf(cmax / 1.1), pad.l - 4, syl(cmax / 1.1) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" });
+    [rmin, rmax].forEach(v => text(ctx, (v / 1e6).toFixed(1) + "M", w - pad.r + 4, syr(v) + 3, { col: "--bad", font: "10px 'JetBrains Mono', monospace" }));
+    [0, 12, 23].forEach(k => text(ctx, lab(MONTHS[k]), sx(k), h - 8, { align: "center", font: "10px Inter, sans-serif" }));
+    $("[data-o=lo]", root).textContent = (rmin / 1e6).toFixed(2) + "M"; $("[data-o=hi]", root).textContent = (rmax / 1e6).toFixed(1) + "M";
+    $("[data-s=msg]", root).textContent = rmax > Math.max(...rev) * 2.5 ? "الإيراد بقى خط مفرود تحت: \"الأوردرات بتزيد والإيراد ثابت\". كدب." :
+      rmin > 600000 ? "قصّينا تحت المحور: الإيراد بقى بيطلع وينزل أضعاف الأوردرات. كدب برضه." : "المحورين متظبّطين على الداتا: الاتنين ماشيين مع بعض (correlation = 0.87).";
+  }
+  $("[data-r=lo]", root).oninput = e => { rmin = +e.target.value; draw(); };
+  $("[data-r=hi]", root).oninput = e => { rmax = +e.target.value; draw(); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: racing bars ---------- */
+function raceWidget(root) {
+  const P = L.product_name, cum = []; let run = P.map(() => 0);
+  MONTHS.forEach(m => { ALL.forEach(i => { if (YM[i] === m) run[V.product_name[i]] += V.revenue[i]; }); cum.push([...run]); });
+  const max = Math.max(...cum[cum.length - 1]), pal = ["#0F766E", "#E89B2D", "#D95D4A", "#152B3C", "#7C8B96", "#2563eb", "#9333ea", "#15803d", "#b45309", "#db2777", "#0891b2"];
+  let fi = 0, timer = null;
+  root.innerHTML = head("الإيراد التراكمي لكل منتج", "frame لكل شهر، أعلى 8 منتجات. كل منتج محتفظ بلونه، والمحور ثابت.") + `
+    <div class="optrow"><button class="btn primary" data-a="play">▶ play</button><div class="ctl" style="flex:1;min-width:180px"><label>frame <output data-o="f"></output></label><input type="range" min="0" max="${MONTHS.length - 1}" value="0" data-r="f"></div></div>
+    <canvas></canvas>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const h = 280, { ctx, w } = setup(cv, h), pad = { l: 92, r: 70, t: 8, b: 8 }, top = cum[fi].map((v, k) => [P[k], v, k]).sort((a, b) => b[1] - a[1]).slice(0, 8), bh = (h - pad.t - pad.b) / 8;
+    top.forEach(([p, v, k], r) => { const y = pad.t + r * bh, L2 = v / (max * 1.05) * (w - pad.l - pad.r); ctx.fillStyle = pal[k % pal.length]; ctx.fillRect(pad.l, y + bh * .12, L2, bh * .76);
+      text(ctx, p, pad.l - 6, y + bh / 2, { col: "--ink", align: "right", base: "middle", font: "11.5px Inter, sans-serif" });
+      text(ctx, nf(v), pad.l + L2 + 5, y + bh / 2, { base: "middle", font: "10.5px 'JetBrains Mono', monospace" }); });
+    text(ctx, lab(MONTHS[fi]), w - 10, h - 14, { col: "--muted", align: "right", font: "bold 22px Inter, sans-serif" });
+    $("[data-o=f]", root).textContent = lab(MONTHS[fi]);
+  }
+  const set = i => { fi = i; $("[data-r=f]", root).value = i; draw(); };
+  $("[data-r=f]", root).oninput = e => set(+e.target.value);
+  $("[data-a=play]", root).onclick = e => { if (timer) { clearInterval(timer); timer = null; e.target.textContent = "▶ play"; return; }
+    if (fi >= MONTHS.length - 1) set(0); e.target.textContent = "⏸ pause";
+    timer = setInterval(() => { if (fi >= MONTHS.length - 1) { clearInterval(timer); timer = null; e.target.textContent = "▶ play"; return; } set(fi + 1); }, 450); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: ECDF with a moving threshold ---------- */
+function ecdfWidget(root) {
+  const SEGS = ["Consumer", "Corporate", "Small Business"], vals = SEGS.map(s => ALL.filter(i => V.segment[i] === L.segment.indexOf(s)).map(i => V.revenue[i]).sort((a, b) => a - b));
+  let X = 1000;
+  root.innerHTML = head("sns.ecdfplot(x=\"revenue\", hue=\"segment\")", "حرّك الخط الرأسي: الأرقام تحت هي نسبة السطور اللي إيرادها X أو أقل.") + `
+    <div class="ctl"><label>X <output data-o="x">1,000</output></label><input type="range" min="1.7" max="5.5" step="0.01" value="3" data-r="x"></div>
+    <canvas></canvas><div class="stats" data-s="st" style="margin-top:.6rem"></div>`;
+  const cv = $("canvas", root), lx = [1.6, 5.6];
+  function draw() {
+    const h = 240, { ctx, w } = setup(cv, h), pad = { l: 36, r: 12, t: 10, b: 26 };
+    const sx = v => pad.l + (Math.log10(v) - lx[0]) / (lx[1] - lx[0]) * (w - pad.l - pad.r), sy = p => h - pad.b - p * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    [0, .5, 1].forEach(p => text(ctx, p, pad.l - 5, sy(p) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" }));
+    [100, 1000, 10000, 100000].forEach(v => text(ctx, v >= 1000 ? v / 1000 + "k" : v, sx(v), h - 8, { align: "center", font: "10px 'JetBrains Mono', monospace" }));
+    vals.forEach((a, k) => { ctx.strokeStyle = PAL()[k]; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx(a[0]), sy(0)); a.forEach((v, j) => { ctx.lineTo(sx(v), sy(j / a.length)); ctx.lineTo(sx(v), sy((j + 1) / a.length)); }); ctx.stroke(); });
+    ctx.strokeStyle = cssv("--ink"); ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(sx(X), pad.t); ctx.lineTo(sx(X), h - pad.b); ctx.stroke(); ctx.setLineDash([]);
+    $("[data-s=st]", root).innerHTML = SEGS.map((s, k) => `<div class="stat" style="border-inline-start:3px solid ${PAL()[k]}"><span>${s}: ≤ ${nf(X)}</span><b>${Math.round(vals[k].filter(v => v <= X).length / vals[k].length * 100)}%</b></div>`).join("");
+  }
+  $("[data-r=x]", root).oninput = e => { X = Math.round(10 ** +e.target.value); $("[data-o=x]", root).textContent = nf(X); draw(); };
+  draw(); onRedraw(draw);
+}
+
+function main() { pickWidget($("#wPick")); twinWidget($("#wTwin")); raceWidget($("#wRace")); ecdfWidget($("#wEcdf")); }
+</script>

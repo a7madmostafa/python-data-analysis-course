@@ -65,6 +65,11 @@
       "title": "Plotly",
       "title_ar": "Plotly",
       "notebook": "4-visualization/04_plotly.ipynb"
+    },
+    "more-charts": {
+      "title": "More Charts",
+      "title_ar": "رسومات تانية",
+      "notebook": "4-visualization/05_more_charts.ipynb"
     }
   }
 }

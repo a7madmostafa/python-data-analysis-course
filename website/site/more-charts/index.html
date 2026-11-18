@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>More Charts</title>
+<meta name="description" content="رسومات أقل استخدامًا في Matplotlib و Seaborn بالعربي: twinx و stackplot و errorbar و hexbin و 3D والـ racing bars، و stripplot و swarmplot و pointplot و ecdfplot و lmplot و jointplot و clustermap، وإمتى كل واحدة تنفع.">
+<meta property="og:title" content="رسومات تانية · Zero Grad">
+<meta property="og:description" content="الرسومات النادرة، وإمتى كل واحدة تنفع، بالعربي وعلى داتا NileCart.">
+<meta property="og:image" content="https://zero-grad.com/assets/img/link-preview-zerograd-1200x630.png">
+<meta property="og:url" content="https://zero-grad.com/courses/da/more-charts/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://zero-grad.com/courses/da/more-charts/">
+<link rel="icon" href="/assets/img/zero-grad-app-icon.svg" type="image/svg+xml">
+<script src="/assets/js/theme.js"></script>
+<link rel="apple-touch-icon" href="/assets/img/zero-grad-app-icon-512.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<script src="/assets/js/pwa.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ea; --surface:#fffdf8; --surface-2:#efeadf; --ink:#1c1e22; --muted:#5b616b; --line:#ddd6c6;
+  --accent:#101f40; --on-accent:#f5f2ea; --chalk-g:#15803d; --chalk-o:#c2410c; --add:#2563eb; --bad:#dc2626;
+  --c1:#0f766e; --c2:#2563eb; --c3:#b45309; --c4:#9333ea;
+  --board:#232323; --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.05);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+    --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+    --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1d; --surface-2:#262626; --ink:#ececec; --muted:#a1a1a1; --line:#333;
+  --accent:#f5f2ea; --on-accent:#141414; --chalk-g:#4ade80; --chalk-o:#fb923c; --add:#60a5fa; --bad:#f87171;
+  --c1:#2dd4bf; --c2:#60a5fa; --c3:#fbbf24; --c4:#c084fc;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--add)}
+html,body{overflow-x:clip}
+@media (max-width:520px){.brand{font-size:.8rem}.seg button{padding:.2rem .55rem;font-size:.8rem}.topbar-in{gap:.4rem}.top-actions{gap:.3rem}.iconbtn{width:30px;height:30px}}
+code,pre{font-family:"JetBrains Mono",monospace}
+.en{direction:ltr;unicode-bidi:isolate}
+code.i{font-size:.85em;background:var(--surface-2);border-radius:6px;padding:.05rem .35rem;direction:ltr;unicode-bidi:isolate}
+
+/* progress + top bar */
+#progress{position:fixed;top:0;right:0;height:3px;background:var(--accent);width:0;z-index:50;transition:width .1s}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:auto;padding:.55rem 16px;display:flex;gap:.75rem;align-items:center;justify-content:space-between}
+.top-actions{display:flex;gap:.5rem;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.25rem .8rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+
+/* layout */
+.wrap{max-width:1180px;margin:auto;padding:0 16px;display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media (min-width:1100px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+nav.toc{display:none}
+@media (min-width:1100px){
+  nav.toc{display:block;position:sticky;top:72px;align-self:start;padding-top:2.5rem;font-size:.9rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-inline-start:2px solid var(--line)}
+  nav.toc a{display:block;padding:.3rem .9rem;color:var(--muted);text-decoration:none;margin-inline-start:-2px;border-inline-start:2px solid transparent;line-height:1.5}
+  nav.toc a.active{color:var(--ink);border-color:var(--accent);font-weight:500}
+}
+main{min-width:0;padding-bottom:6rem}
+
+/* hero */
+.hero{padding:3rem 0 1.5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.hero h1{font-family:"Caveat",cursive;font-size:clamp(3rem,9vw,5.2rem);line-height:1;margin:.5rem 0 .75rem;color:var(--accent);direction:ltr;text-align:right;font-weight:700}
+.lead{font-size:1.15rem;max-width:62ch;margin:0}
+
+/* notebook links */
+.nb-links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.nb-btn{display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4rem 1rem;text-decoration:none}
+.nb-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.nb-btn:hover{border-color:var(--accent)}
+
+/* sections */
+section.sec{padding-top:2.5rem;scroll-margin-top:64px}
+.sec-head{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:1.25rem}
+.sec-head h2{margin:0;font-size:1.55rem;line-height:1.35;display:flex;gap:.7rem;align-items:baseline}
+.num{font-family:"Caveat",cursive;color:var(--accent);font-size:2rem;line-height:1}
+h3.sub{font-size:1.15rem;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+.chalk{font-family:"Caveat",cursive;font-size:1.35em;color:var(--accent);direction:ltr;unicode-bidi:isolate;font-weight:700;line-height:1.2}
+.voice{margin:1.25rem 0;padding:.9rem 1.2rem;border-radius:var(--radius);background:var(--board);color:#f2c94c;font-family:"Caveat",cursive;font-size:1.9rem;direction:ltr;text-align:center;line-height:1.3}
+.voice small{display:block;font-family:"Noto Sans Arabic",sans-serif;font-size:.8rem;color:#a1a1a1;direction:rtl;margin-top:.25rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;line-height:1.6}
+.card b{display:block;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr;gap:1rem;margin:1rem 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.path{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.1rem}
+.path h4{margin:0 0 .25rem;font-size:1.05rem}
+.path .sub{color:var(--muted);font-size:.85rem}
+.path.good{border-color:color-mix(in srgb,var(--chalk-g) 55%,var(--line))}
+.path.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.path.good h4{color:var(--chalk-g)}
+.path.bad h4{color:var(--bad)}
+
+/* the "use it when" box every chart gets */
+.when{display:grid;grid-template-columns:1fr;gap:.75rem;margin:1rem 0}
+@media(min-width:760px){.when{grid-template-columns:repeat(3,1fr)}}
+.when .card{border-top:3px solid var(--accent)}
+.when .card:nth-child(2){border-top-color:var(--chalk-g)}
+.when .card:nth-child(3){border-top-color:var(--chalk-o)}
+
+/* callouts */
+.callout{border-radius:var(--radius);padding:.9rem 1.1rem;margin:1.25rem 0;border:1px solid;font-size:.97rem}
+.callout .ttl{font-weight:700;font-size:.85rem;display:flex;gap:.4rem;align-items:center;margin-bottom:.15rem}
+.callout.add{border-color:color-mix(in srgb,var(--add) 45%,transparent);background:color-mix(in srgb,var(--add) 7%,var(--surface))}
+.callout.add .ttl{color:var(--add)}
+.callout.warn{border-color:color-mix(in srgb,var(--chalk-o) 55%,transparent);background:color-mix(in srgb,var(--chalk-o) 8%,var(--surface))}
+.callout.warn .ttl{color:var(--chalk-o)}
+.callout.insight{border-color:color-mix(in srgb,var(--chalk-g) 50%,transparent);background:color-mix(in srgb,var(--chalk-g) 8%,var(--surface))}
+.callout.insight .ttl{color:var(--chalk-g)}
+details.callout summary{cursor:pointer;list-style:none}
+details.callout summary::-webkit-details-marker{display:none}
+details.callout summary .ttl::after{content:"＋";margin-inline-start:auto}
+details.callout[open] summary .ttl::after{content:"－"}
+
+/* tables & code */
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.tbl th,.tbl td{padding:.55rem .8rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.tbl thead th{background:var(--surface-2);font-size:.85rem}
+.tbl tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+pre{direction:ltr;text-align:left;background:var(--board);color:#e6e6e6;padding:1rem 1.1rem;border-radius:var(--radius);overflow-x:auto;font-size:.85rem;line-height:1.65;margin:1rem 0}
+pre .c{color:#8a8a8a}
+pre .k{color:#f2c94c}
+pre .s{color:#4ade80}
+.codetabs{margin:1rem 0}
+.codetabs .seg{margin-bottom:-.4rem}
+.codetabs pre{margin-top:.6rem}
+.codetabs pre[hidden]{display:none}
+
+/* figures */
+figure.fig{margin:1.25rem 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+.fig-scroll{overflow-x:auto}
+figure.fig svg{width:100%;min-width:520px;height:auto;display:block;direction:ltr}
+figure.fig svg text{font-family:Inter,"Noto Sans Arabic",sans-serif;fill:var(--ink)}
+figure.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+
+/* widgets */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.widget-head{display:flex;gap:.6rem;align-items:center;margin-bottom:.2rem}
+.widget-head .badge{font-size:.72rem;font-weight:700;color:var(--bg);background:var(--chalk-g);border-radius:999px;padding:.1rem .6rem;white-space:nowrap}
+.widget-head h3{margin:0;font-size:1.1rem}
+.widget .hint{color:var(--muted);font-size:.9rem;margin:.1rem 0 .8rem}
+.wgrid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:820px){.wgrid.cols{grid-template-columns:1.6fr 1fr}}
+canvas{width:100%;display:block;border-radius:10px;background:var(--surface-2);touch-action:none}
+.controls{display:grid;gap:.7rem;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;gap:.5rem}
+.ctl label output{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.4rem .85rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk.off{opacity:.45;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem}
+.stat{background:var(--surface-2);border-radius:10px;padding:.45rem .7rem;line-height:1.35}
+.stat span{display:block;font-size:.75rem;color:var(--muted)}
+.stat b{font-family:"JetBrains Mono",monospace;font-size:1rem;direction:ltr;unicode-bidi:isolate}
+.status{font-size:.9rem;min-height:1.6em;color:var(--muted);white-space:pre-line}
+.keys{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.5rem}
+.keys span{display:inline-flex;gap:.35rem;align-items:center}
+.keys i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sel{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:.35rem .6rem}
+
+/* summary */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem}
+.sheet .card{padding:1rem}
+.sheet .card h4{margin:0 0 .3rem;font-size:.95rem;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding:1.5rem 0;margin-top:3rem}
+.muted{color:var(--muted);font-size:.9em}
+
+/* lesson navigation */
+.crumbs{display:flex;align-items:center;gap:.45rem;font-size:.9rem;white-space:nowrap;min-width:0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{color:var(--line)}
+.crumbs .here{font-weight:700;color:var(--ink)}
+a.iconbtn{display:grid;place-items:center;text-decoration:none;font-size:.95rem}
+.iconbtn.off{opacity:.3;pointer-events:none;display:grid;place-items:center}
+.pager{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;margin-top:3rem}
+.pg{display:flex;flex-direction:column;gap:.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);text-decoration:none;line-height:1.5}
+.pg span{font-size:.82rem;color:var(--muted)}
+.pg b{font-size:1rem;color:var(--accent)}
+a.pg:hover{border-color:var(--accent)}
+.pg.next{text-align:left}
+.pg.all{justify-content:center;text-align:center}
+.pg.off{border-style:dashed;background:transparent}
+.pg.off b{color:var(--muted)}
+@media (max-width:640px){.pager{grid-template-columns:1fr}.pg.next{text-align:right}.pg.all{order:3}}
+@media (max-width:520px){.crumbs .home,.crumbs .home+.sep{display:none}}
+@media (max-width:400px){.crumbs .course+.sep,.crumbs .here{display:none}}
+@media print{.topbar,nav.toc,#progress,.widget{display:none!important}body{background:#fff;color:#000;font-size:12pt}}
+
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.5rem;margin:.2rem 0 .9rem}
+.qgrid button{font:inherit;font-size:.9rem;text-align:right;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:12px;padding:.55rem .75rem;cursor:pointer;line-height:1.45}
+.qgrid button small{display:block;color:var(--muted);font-size:.75rem}
+.qgrid button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));box-shadow:inset 0 0 0 1px var(--accent)}
+.answer{display:grid;gap:.3rem;font-size:.95rem}.answer b{color:var(--accent)}
+.codeout{direction:ltr;text-align:left;font-family:"JetBrains Mono",monospace;font-size:.82rem;background:var(--board);color:#e6e6e6;border-radius:10px;padding:.6rem .8rem;margin-top:.6rem;overflow-x:auto;white-space:pre}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <div class="topbar-in">
+    <nav class="crumbs" aria-label="أنت هنا"><a class="home" href="/">Zero Grad</a><span class="sep">›</span><a class="course" href="/courses/da/">كورس Data Analysis</a><span class="sep">›</span><span class="here">رسومات تانية</span></nav>
+    <div class="top-actions">
+      <a class="iconbtn" href="/courses/da/plotly/" aria-label="الدرس اللي فات: Plotly" title="الدرس اللي فات: Plotly">→</a><span class="iconbtn off" aria-hidden="true">←</span>
+      <button class="iconbtn" id="themeBtn" type="button" data-theme-toggle aria-label="تغيير الثيم" title="فاتح / غامق">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="المحتوى"><ol id="tocList"></ol></nav>
+  <main>
+    <div class="hero">
+      <div class="kicker">Zero Grad · كورس Data Analysis · Visualization</div>
+      <h1>More Charts</h1>
+      <p class="lead">الدروس اللي فاتت فيها الرسومات اللي بنستخدمها كل يوم. الدرس ده بيلم <b>النادرة</b>:<br>أغلب المشاريع مش هتحتاجها، بس لما واحد يحتاجها، كويس تعرف إنها موجودة.<br>كل رسمة: مثال واحد على NileCart، وسطر واحد <b>إمتى تستخدمها</b>.</p>
+      <div class="nb-links">
+        <a class="nb-btn primary" href="https://github.com/a7madmostafa/python-data-analysis-course/blob/main/4-visualization/05_more_charts.ipynb" target="_blank" rel="noopener">📓 النوت بوك على GitHub</a><a class="nb-btn" href="notebook/">👀 اعرض النوت بوك هنا</a><a class="nb-btn" href="https://www.kaggle.com/datasets/a7madmostafa/nilecart-sales" target="_blank" rel="noopener">🗂️ داتا NileCart على Kaggle</a>
+      </div>
+    </div>
+
+<section class="sec" id="map">
+      <div class="sec-head"><h2><span class="num">1</span>الخريطة</h2></div>
+      <p>اختار الاحتياج، وشوف الرسمة اللي بتجاوبه والكود بتاعها:</p>
+      <div class="widget" id="wPick"></div>
+    </section>
+
+    <section class="sec" id="mpl">
+      <div class="sec-head"><h2><span class="num">2</span>Matplotlib</h2></div>
+      <h3 class="sub">رياضة في النص، ومناطق مضلّلة</h3>
+<pre>ax.text(<span class="s">0.98</span>, <span class="s">0.95</span>, <span class="s">rf"$\mu = {rev.mean():,.0f}$"</span>, transform=ax.transAxes, ha=<span class="s">"right"</span>, va=<span class="s">"top"</span>)   <span class="c"># (0,0) bottom-left, (1,1) top-right</span>
+ax.set_xlabel(<span class="s">r"$\log_{10}$(revenue)"</span>)                                                   <span class="c"># $...$ is typeset as maths</span>
+ax.axvspan(pd.Timestamp(<span class="s">"2024-11-01"</span>), pd.Timestamp(<span class="s">"2024-12-31"</span>), color=<span class="s">"#E89B2D"</span>, alpha=<span class="s">0.15</span>)   <span class="c"># a period</span>
+ax.axhspan(by_month.quantile(<span class="s">0.25</span>), by_month.quantile(<span class="s">0.75</span>), alpha=<span class="s">0.1</span>)                      <span class="c"># a range</span></pre>
+      <h3 class="sub">محور y تاني: <span class="en">ax.twinx()</span></h3>
+      <p>لما مقياسين بوحدتين مختلفتين بيكمّلوا بعض فعلًا، زي <b>عدد</b> سطور الأوردرات والإيراد <b>بالجنيه</b>.
+        <span class="en">ax2 = ax1.twinx()</span> بيضيف Axes تانية بنفس محور x ومحور y على اليمين.<br>
+        استخدمه بحذر: بمقياسين، أي حد يقدر يخلّي أي خط يبان أكبر من التاني. جرّب:</p>
+      <div class="widget" id="wTwin"></div>
+      <h3 class="sub"><span class="en">stackplot</span>، و <span class="en">errorbar</span>، و <span class="en">hexbin</span></h3>
+<pre>ax.stackplot(by_cat.index, by_cat.T.values, labels=by_cat.columns)     <span class="c"># top edge = the total; biggest group at the bottom</span>
+
+stats = sales.groupby(<span class="s">"category"</span>)[<span class="s">"revenue"</span>].agg([<span class="s">"mean"</span>, <span class="s">"sem"</span>])     <span class="c"># sem = std / sqrt(n)</span>
+ax.errorbar(stats.index, stats[<span class="s">"mean"</span>], yerr=stats[<span class="s">"sem"</span>], fmt=<span class="s">"o"</span>, capsize=<span class="s">5</span>)
+
+hb = ax.hexbin(sales[<span class="s">"revenue"</span>], sales[<span class="s">"profit"</span>], gridsize=<span class="s">30</span>, bins=<span class="s">"log"</span>, mincnt=<span class="s">1</span>, xscale=<span class="s">"log"</span>)
+fig.colorbar(hb, label=<span class="s">"Order lines (log scale)"</span>)</pre>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الفئة</th><th>متوسط إيراد السطر</th><th>standard error</th></tr></thead>
+        <tbody>
+          <tr><td class="en">Stationery</td><td><bdi>248</bdi></td><td><bdi>10</bdi></td></tr>
+          <tr><td class="en">Accessories</td><td><bdi>3,041</bdi></td><td><bdi>91</bdi></td></tr>
+          <tr><td class="en">Furniture</td><td><bdi>13,484</bdi></td><td><bdi>845</bdi></td></tr>
+          <tr><td class="en">Electronics</td><td><bdi>57,987</bdi></td><td><bdi>2,624</bdi></td></tr>
+        </tbody>
+      </table></div>
+      <p>الـ <span class="en">errorbar</span> لما تكون حاسب المتوسطات وعدم التأكد بنفسك. لو معاك السطور الخام، <span class="en">sns.barplot</span> بيعملها لوحده.</p>
+      <h3 class="sub">3D</h3>
+<pre>ax = fig.add_subplot(projection=<span class="s">"3d"</span>)                   <span class="c"># same methods, plus a third coordinate</span>
+ax.scatter(part[<span class="s">"unit_price"</span>], part[<span class="s">"quantity"</span>], part[<span class="s">"revenue"</span>])
+ax.view_init(elev=<span class="s">20</span>, azim=-<span class="s">60</span>)                         <span class="c"># camera height and rotation, in degrees</span></pre>
+      <div class="callout warn"><div class="ttl">⚠️ منظرها حلو، بس جرّب تقرا منها رقم</div>
+        مش هتعرف. المنظور بيبوّظ الارتفاعات، والنقط بتستخبى ورا بعض. في الشغل الحقيقي، نفس المعلومة أوضح في 2D،
+        والمتغير التالت بـ <span class="en">hue</span> أو <span class="en">col=</span>.</div>
+      <h3 class="sub">Racing bars</h3>
+      <p>لما بتحكي حكاية تغيّر مع الوقت في <b>talk</b>. في تقرير مكتوب، line chart.<br>
+        <span class="en">FuncAnimation(fig, draw, frames=n)</span> بينادي <span class="en">draw(i)</span> مرة لكل frame، و <span class="en">draw</span> بيرسم الشهر رقم i من الأول:</p>
+      <div class="widget" id="wRace"></div>
+<pre>cum = sales.pivot_table(index=sales[<span class="s">"order_date"</span>].dt.to_period(<span class="s">"M"</span>), columns=<span class="s">"product_name"</span>,
+                        values=<span class="s">"revenue"</span>, aggfunc=<span class="s">"sum"</span>).fillna(<span class="s">0</span>).cumsum()      <span class="c"># one row per month</span>
+<span class="k">def</span> draw(i):
+    ax.clear()
+    top = cum.iloc[i].nlargest(<span class="s">8</span>).sort_values()                              <span class="c"># top 8, biggest on top</span>
+    ax.barh(top.index, top.values, color=[color_of[p] <span class="k">for</span> p <span class="k">in</span> top.index])   <span class="c"># each product keeps its colour</span>
+    ax.set_xlim(<span class="s">0</span>, cum.values.max() * <span class="s">1.15</span>)                                  <span class="c"># fixed axis</span>
+anim = animation.FuncAnimation(fig, draw, frames=len(cum), interval=<span class="s">400</span>)
+anim.save(<span class="s">"figures/racing_bars.gif"</span>, writer=<span class="s">"pillow"</span>, fps=<span class="s">3</span>)                  <span class="c"># or HTML(anim.to_jshtml())</span></pre>
+      <p class="muted">فيه package اسمها <span class="en">bar_chart_race</span> بتعملها في سطر، بس مبقتش متصانة وبتبوظ مع pandas الحالية، فبنعملها بنفسنا: 15 سطر.</p>
+    </section>
+
+    <section class="sec" id="sns">
+      <div class="sec-head"><h2><span class="num">3</span>Seaborn</h2></div>
+      <div class="cards">
+        <div class="card"><b class="en">stripplot</b>كل سطر في كل مجموعة. ⚠️ في Accessories مئات النقط فوق بعض: overplotting. خفّفه بـ <span class="en">alpha</span> أو نقط أصغر، أو روح لـ box أو violin.</div>
+        <div class="card"><b class="en">swarmplot</b>strip بيبعد النقط عن بعض، فمفيش نقطة بتخبّي التانية. لمجموعة <b>صغيرة</b> بس: مع آلاف السطور المكان بيخلص.</div>
+        <div class="card"><b class="en">pointplot</b>متوسط بيتغيّر عبر مجموعات ليها ترتيب: الميل أسهل في المقارنة من ارتفاع الـ bars. Electronics بتنزل من 10,400 لخسارة 1,750، والباقيين بالكاد بيتحركوا.</div>
+        <div class="card"><b class="en">lmplot / regplot</b>خط مستقيم في scatter، خط لكل مجموعة. الميل = هامش الربح: 0.49 لـ Accessories، و 0.39 لـ Furniture، و 0.13 بس لـ Electronics.</div>
+        <div class="card"><b class="en">jointplot</b>العلاقة بين عمودين، وتوزيع كل واحد على الجنب، في figure واحدة.</div>
+        <div class="card"><b class="en">clustermap</b>heatmap بيرتّب الصفوف والأعمدة عشان الشبه يقعد جنب الشبه. <span class="en">z_score=1</span> بيقارن كل عمود على مقياسه. Alexandria والقناة: Electronics حوالي 84% من إيرادهم، والدلتا لوحدها عند 75%.</div>
+      </div>
+      <h3 class="sub"><span class="en">ecdfplot</span>: كام في المية تحت X؟</h3>
+      <p>لكل قيمة على x، المنحنى بيدّي نسبة السطور اللي عندها أو أقل. مفيش bins تختارها، والمجموعات المختلفة في الحجم بتتقارن بسهولة. حرّك الـ X:</p>
+      <div class="widget" id="wEcdf"></div>
+<pre>sns.ecdfplot(data=known, x=<span class="s">"revenue"</span>, hue=<span class="s">"segment"</span>, log_scale=<span class="k">True</span>)
+known.groupby(<span class="s">"segment"</span>)[<span class="s">"revenue"</span>].apply(<span class="k">lambda</span> r: (r &lt;= <span class="s">1000</span>).mean())</pre>
+    </section>
+
+    <section class="sec" id="sheet">
+      <div class="sec-head"><h2><span class="num">4</span>الخلاصة في كارت واحد</h2></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>الرسمة</th><th>الكود</th><th>إمتى</th></tr></thead>
+        <tbody>
+          <tr><td>رياضة في النص</td><td class="en">r"$\mu = 5$", transform=ax.transAxes</td><td>label محتاج معادلة</td></tr>
+          <tr><td>منطقة مضلّلة</td><td class="en">ax.axvspan(a, b), ax.axhspan(a, b)</td><td>فترة أو نطاق مهم</td></tr>
+          <tr><td>محور y تاني</td><td class="en">ax2 = ax.twinx()</td><td>وحدتين بيكمّلوا بعض</td></tr>
+          <tr><td>Stacked area</td><td class="en">ax.stackplot(x, ys, labels=...)</td><td>الإجمالي مع الوقت وأجزاؤه</td></tr>
+          <tr><td>Error bars</td><td class="en">ax.errorbar(x, y, yerr=...)</td><td>حسبت عدم التأكد بنفسك</td></tr>
+          <tr><td>Hexagons</td><td class="en">ax.hexbin(x, y, gridsize=30)</td><td>نقط أكتر من إن scatter يشيلها</td></tr>
+          <tr><td>3D</td><td class="en">fig.add_subplot(projection="3d")</td><td>البُعد التالت هو النقطة نفسها</td></tr>
+          <tr><td>Racing bars</td><td class="en">animation.FuncAnimation(fig, draw, frames=n)</td><td>talk عن تغيّر مع الوقت</td></tr>
+          <tr><td>كل سطر</td><td class="en">sns.stripplot, sns.swarmplot</td><td>مجموعات صغيرة، سطور فردية</td></tr>
+          <tr><td>متوسط واتجاه</td><td class="en">sns.pointplot</td><td>مقارنة الميل عبر مجموعات مترتّبة</td></tr>
+          <tr><td>النسبة تحت X</td><td class="en">sns.ecdfplot</td><td>"كام في المية تحت X؟"</td></tr>
+          <tr><td>خط اتجاه</td><td class="en">sns.lmplot, sns.regplot</td><td>خط مستقيم في scatter</td></tr>
+          <tr><td>علاقة + توزيعات</td><td class="en">sns.jointplot</td><td>الاتنين في figure واحدة</td></tr>
+          <tr><td>مجموعات شبه بعض</td><td class="en">sns.clustermap</td><td>أنهي صفوف بتتصرف زي بعض</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <nav class="pager" aria-label="التنقل بين الدروس"><a class="pg" href="/courses/da/plotly/"><span>→ الدرس اللي فات</span><b>Plotly</b></a><a class="pg all" href="/courses/da/"><span>كورس Data Analysis</span><b>كل الدروس</b></a><span class="pg next off"><span>الدرس الجاي ←</span><b>Mini EDA</b></span></nav>
+
+    <footer>
+      الداتا: NileCart، متجر وهمي في القاهرة، بالجنيه المصري.<br>
+      كل الأرقام في الدرس من نفس الداتا اللي في النوت بوك.
+    </footer>
+  </main>
+</div>
+
+<script src="../assets/data/vizlib.js"></script>
+<script>
+(() => {
+"use strict";
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const nf = v => Math.round(v).toLocaleString("en");
+function head(title, hint, badge = "جرّب بنفسك") { return `<div class="widget-head"><span class="badge">${badge}</span><h3>${title}</h3></div><p class="hint">${hint}</p>`; }
+function setup(cv, h) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 300;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + "px";
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.direction = "ltr";
+  return { ctx, w, h };
+}
+const redrawers = []; const onRedraw = f => redrawers.push(f);
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => redrawers.forEach(f => f()), 120); });
+const PAL = () => [cssv("--c1"), cssv("--c3"), cssv("--bad"), cssv("--c2"), cssv("--c4"), cssv("--muted")];
+function text(ctx, t, x, y, { col = "--muted", font = "11px Inter, sans-serif", align = "left", base = "alphabetic" } = {}) {
+  ctx.fillStyle = col.startsWith("--") ? cssv(col) : col; ctx.font = font; ctx.textAlign = align; ctx.textBaseline = base; ctx.fillText(t, x, y);
+}
+function axes(ctx, x0, y0, x1, y1) { ctx.strokeStyle = cssv("--line"); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke(); }
+function segPick(root, attr, onPick) {
+  $$(`[${attr}]`, root).forEach(b => b.onclick = () => { $$(`[${attr}]`, root).forEach(x => x.setAttribute("aria-pressed", x === b)); onPick(b.getAttribute(attr)); });
+}
+
+
+function chrome() {
+  $$(".codetabs").forEach(box => $$(".seg button", box).forEach(b => b.onclick = () => {
+    $$(".seg button", box).forEach(x => x.setAttribute("aria-pressed", x === b));
+    $$("pre", box).forEach(p => p.hidden = p.dataset.lib !== b.dataset.lib);
+  }));
+  const toc = $("#tocList"), links = {};
+  $$("section.sec").forEach(sec => {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + sec.id; a.textContent = $("h2", sec).textContent.replace(/^\d+/, "").trim();
+    li.appendChild(a); toc.appendChild(li); links[sec.id] = a;
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { Object.values(links).forEach(a => a.classList.remove("active")); links[e.target.id].classList.add("active"); } }), { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  window.addEventListener("scroll", () => { const h = document.documentElement; $("#progress").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%"; }, { passive: true });
+  new MutationObserver(() => redrawers.forEach(f => f())).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => redrawers.forEach(f => f()));
+}
+
+const V = window.VL, L = V.levels, N = V.revenue.length, ALL = [...Array(N).keys()];
+const YM = V.date.map(d => d.slice(0, 7)), MONTHS = [...new Set(YM)].sort();
+const MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const lab = m => MO[+m.slice(5) - 1] + " " + m.slice(0, 4);
+
+/* ---------- widget: which rare chart? ---------- */
+function pickWidget(root) {
+  const Q = [
+    ["label محتاج معادلة أو رمز", "Maths in text", 'ax.text(0.98, 0.95, r"$\\mu = 18{,}991$", transform=ax.transAxes)', "Matplotlib"],
+    ["فترة أو نطاق أهم من أي نقطة", "axvspan / axhspan", 'ax.axvspan(pd.Timestamp("2024-11-01"), pd.Timestamp("2024-12-31"), alpha=0.15)', "Matplotlib"],
+    ["مقياسين بوحدتين مختلفتين", "twinx", "ax2 = ax1.twinx()\nax2.plot(m.index, m[\"revenue\"])", "Matplotlib"],
+    ["الإجمالي مع الوقت ومتكوّن من إيه", "stackplot", "ax.stackplot(by_cat.index, by_cat.T.values, labels=by_cat.columns)", "Matplotlib"],
+    ["حسبت المتوسط وعدم التأكد بنفسي", "errorbar", 'ax.errorbar(stats.index, stats["mean"], yerr=stats["sem"], fmt="o", capsize=5)', "Matplotlib"],
+    ["نقط كتير قوي، الـ scatter بقى بقعة", "hexbin", 'ax.hexbin(x, y, gridsize=30, bins="log", mincnt=1)', "Matplotlib"],
+    ["البُعد التالت هو النقطة", "3D", 'ax = fig.add_subplot(projection="3d")\nax.scatter(x, y, z)', "Matplotlib"],
+    ["حكاية تغيّر مع الوقت في talk", "Racing bars", "anim = animation.FuncAnimation(fig, draw, frames=len(cum))", "Matplotlib"],
+    ["كل سطر في كل مجموعة", "stripplot / swarmplot", 'sns.stripplot(data=sales, x="category", y="revenue", alpha=0.3, jitter=0.25)', "Seaborn"],
+    ["متوسط بيتغيّر عبر مجموعات مترتّبة", "pointplot", 'sns.pointplot(data=big, x="discount", y="profit", hue="category")', "Seaborn"],
+    ["كام في المية تحت X؟", "ecdfplot", 'sns.ecdfplot(data=known, x="revenue", hue="segment", log_scale=True)', "Seaborn"],
+    ["خط مستقيم في scatter، لكل مجموعة", "lmplot / regplot", 'sns.lmplot(data=big, x="revenue", y="profit", col="category")', "Seaborn"],
+    ["علاقة + توزيع كل عمود", "jointplot", 'sns.jointplot(data=sales, x="revenue", y="profit")', "Seaborn"],
+    ["أنهي مجموعات بتتصرف زي بعض", "clustermap", 'sns.clustermap(share, z_score=1, cmap="RdBu_r", center=0, annot=True)', "Seaborn"],
+  ];
+  let qi = 0;
+  root.innerHTML = head("محتاج إيه؟", "14 احتياج، ولكل واحد الرسمة النادرة اللي بتجاوبه.") + `
+    <div class="qgrid">${Q.map((q, i) => `<button data-q="${i}" aria-pressed="${i === qi}">${q[0]}<small>${q[3]}</small></button>`).join("")}</div>
+    <div class="answer" data-s="ans"></div><div class="codeout" data-s="code"></div>`;
+  const show = () => { $("[data-s=ans]", root).innerHTML = `<div><b class="en">${Q[qi][1]}</b></div>`; $("[data-s=code]", root).textContent = Q[qi][2]; };
+  segPick(root, "data-q", v => { qi = +v; show(); }); show();
+}
+
+/* ---------- widget: twinx can make any line look bigger ---------- */
+function twinWidget(root) {
+  const cnt = MONTHS.map(m => YM.filter(x => x === m).length), rev = MONTHS.map(m => ALL.filter(i => YM[i] === m).reduce((a, i) => a + V.revenue[i], 0));
+  let rmax = Math.max(...rev) * 1.1, rmin = 0;
+  root.innerHTML = head("عدد السطور (bars) والإيراد (خط)", "نفس الداتا. غيّر حدود المحور اللي على اليمين، وشوف الخط بيقول حكاية تانية خالص.") + `
+    <div class="wgrid cols"><div><canvas></canvas></div><div class="controls">
+      <div class="ctl"><label>ax2.set_ylim(bottom) <output data-o="lo">0</output></label><input type="range" min="0" max="1500000" step="50000" value="0" data-r="lo"></div>
+      <div class="ctl"><label>ax2.set_ylim(top) <output data-o="hi"></output></label><input type="range" min="2000000" max="12000000" step="250000" value="${Math.round(rmax)}" data-r="hi"></div>
+      <div class="status" data-s="msg"></div></div></div>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const h = 250, { ctx, w } = setup(cv, h), pad = { l: 34, r: 50, t: 12, b: 26 }, cmax = Math.max(...cnt) * 1.1;
+    const bw = (w - pad.l - pad.r) / MONTHS.length, sx = k => pad.l + k * bw + bw / 2, syl = v => h - pad.b - v / cmax * (h - pad.t - pad.b), syr = v => h - pad.b - (v - rmin) / (rmax - rmin) * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    cnt.forEach((c, k) => { ctx.fillStyle = cssv("--muted"); ctx.globalAlpha = .45; ctx.fillRect(sx(k) - bw * .35, syl(c), bw * .7, syl(0) - syl(c)); }); ctx.globalAlpha = 1;
+    ctx.save(); ctx.beginPath(); ctx.rect(pad.l, pad.t, w - pad.l - pad.r, h - pad.t - pad.b); ctx.clip();
+    ctx.strokeStyle = cssv("--bad"); ctx.lineWidth = 2.2; ctx.beginPath(); rev.forEach((v, k) => k ? ctx.lineTo(sx(k), syr(v)) : ctx.moveTo(sx(k), syr(v))); ctx.stroke(); ctx.restore();
+    text(ctx, nf(cmax / 1.1), pad.l - 4, syl(cmax / 1.1) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" });
+    [rmin, rmax].forEach(v => text(ctx, (v / 1e6).toFixed(1) + "M", w - pad.r + 4, syr(v) + 3, { col: "--bad", font: "10px 'JetBrains Mono', monospace" }));
+    [0, 12, 23].forEach(k => text(ctx, lab(MONTHS[k]), sx(k), h - 8, { align: "center", font: "10px Inter, sans-serif" }));
+    $("[data-o=lo]", root).textContent = (rmin / 1e6).toFixed(2) + "M"; $("[data-o=hi]", root).textContent = (rmax / 1e6).toFixed(1) + "M";
+    $("[data-s=msg]", root).textContent = rmax > Math.max(...rev) * 2.5 ? "الإيراد بقى خط مفرود تحت: \"الأوردرات بتزيد والإيراد ثابت\". كدب." :
+      rmin > 600000 ? "قصّينا تحت المحور: الإيراد بقى بيطلع وينزل أضعاف الأوردرات. كدب برضه." : "المحورين متظبّطين على الداتا: الاتنين ماشيين مع بعض (correlation = 0.87).";
+  }
+  $("[data-r=lo]", root).oninput = e => { rmin = +e.target.value; draw(); };
+  $("[data-r=hi]", root).oninput = e => { rmax = +e.target.value; draw(); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: racing bars ---------- */
+function raceWidget(root) {
+  const P = L.product_name, cum = []; let run = P.map(() => 0);
+  MONTHS.forEach(m => { ALL.forEach(i => { if (YM[i] === m) run[V.product_name[i]] += V.revenue[i]; }); cum.push([...run]); });
+  const max = Math.max(...cum[cum.length - 1]), pal = ["#0F766E", "#E89B2D", "#D95D4A", "#152B3C", "#7C8B96", "#2563eb", "#9333ea", "#15803d", "#b45309", "#db2777", "#0891b2"];
+  let fi = 0, timer = null;
+  root.innerHTML = head("الإيراد التراكمي لكل منتج", "frame لكل شهر، أعلى 8 منتجات. كل منتج محتفظ بلونه، والمحور ثابت.") + `
+    <div class="optrow"><button class="btn primary" data-a="play">▶ play</button><div class="ctl" style="flex:1;min-width:180px"><label>frame <output data-o="f"></output></label><input type="range" min="0" max="${MONTHS.length - 1}" value="0" data-r="f"></div></div>
+    <canvas></canvas>`;
+  const cv = $("canvas", root);
+  function draw() {
+    const h = 280, { ctx, w } = setup(cv, h), pad = { l: 92, r: 70, t: 8, b: 8 }, top = cum[fi].map((v, k) => [P[k], v, k]).sort((a, b) => b[1] - a[1]).slice(0, 8), bh = (h - pad.t - pad.b) / 8;
+    top.forEach(([p, v, k], r) => { const y = pad.t + r * bh, L2 = v / (max * 1.05) * (w - pad.l - pad.r); ctx.fillStyle = pal[k % pal.length]; ctx.fillRect(pad.l, y + bh * .12, L2, bh * .76);
+      text(ctx, p, pad.l - 6, y + bh / 2, { col: "--ink", align: "right", base: "middle", font: "11.5px Inter, sans-serif" });
+      text(ctx, nf(v), pad.l + L2 + 5, y + bh / 2, { base: "middle", font: "10.5px 'JetBrains Mono', monospace" }); });
+    text(ctx, lab(MONTHS[fi]), w - 10, h - 14, { col: "--muted", align: "right", font: "bold 22px Inter, sans-serif" });
+    $("[data-o=f]", root).textContent = lab(MONTHS[fi]);
+  }
+  const set = i => { fi = i; $("[data-r=f]", root).value = i; draw(); };
+  $("[data-r=f]", root).oninput = e => set(+e.target.value);
+  $("[data-a=play]", root).onclick = e => { if (timer) { clearInterval(timer); timer = null; e.target.textContent = "▶ play"; return; }
+    if (fi >= MONTHS.length - 1) set(0); e.target.textContent = "⏸ pause";
+    timer = setInterval(() => { if (fi >= MONTHS.length - 1) { clearInterval(timer); timer = null; e.target.textContent = "▶ play"; return; } set(fi + 1); }, 450); };
+  draw(); onRedraw(draw);
+}
+
+/* ---------- widget: ECDF with a moving threshold ---------- */
+function ecdfWidget(root) {
+  const SEGS = ["Consumer", "Corporate", "Small Business"], vals = SEGS.map(s => ALL.filter(i => V.segment[i] === L.segment.indexOf(s)).map(i => V.revenue[i]).sort((a, b) => a - b));
+  let X = 1000;
+  root.innerHTML = head("sns.ecdfplot(x=\"revenue\", hue=\"segment\")", "حرّك الخط الرأسي: الأرقام تحت هي نسبة السطور اللي إيرادها X أو أقل.") + `
+    <div class="ctl"><label>X <output data-o="x">1,000</output></label><input type="range" min="1.7" max="5.5" step="0.01" value="3" data-r="x"></div>
+    <canvas></canvas><div class="stats" data-s="st" style="margin-top:.6rem"></div>`;
+  const cv = $("canvas", root), lx = [1.6, 5.6];
+  function draw() {
+    const h = 240, { ctx, w } = setup(cv, h), pad = { l: 36, r: 12, t: 10, b: 26 };
+    const sx = v => pad.l + (Math.log10(v) - lx[0]) / (lx[1] - lx[0]) * (w - pad.l - pad.r), sy = p => h - pad.b - p * (h - pad.t - pad.b);
+    axes(ctx, pad.l, pad.t, w - pad.r, h - pad.b);
+    [0, .5, 1].forEach(p => text(ctx, p, pad.l - 5, sy(p) + 3, { align: "right", font: "10px 'JetBrains Mono', monospace" }));
+    [100, 1000, 10000, 100000].forEach(v => text(ctx, v >= 1000 ? v / 1000 + "k" : v, sx(v), h - 8, { align: "center", font: "10px 'JetBrains Mono', monospace" }));
+    vals.forEach((a, k) => { ctx.strokeStyle = PAL()[k]; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx(a[0]), sy(0)); a.forEach((v, j) => { ctx.lineTo(sx(v), sy(j / a.length)); ctx.lineTo(sx(v), sy((j + 1) / a.length)); }); ctx.stroke(); });
+    ctx.strokeStyle = cssv("--ink"); ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(sx(X), pad.t); ctx.lineTo(sx(X), h - pad.b); ctx.stroke(); ctx.setLineDash([]);
+    $("[data-s=st]", root).innerHTML = SEGS.map((s, k) => `<div class="stat" style="border-inline-start:3px solid ${PAL()[k]}"><span>${s}: ≤ ${nf(X)}</span><b>${Math.round(vals[k].filter(v => v <= X).length / vals[k].length * 100)}%</b></div>`).join("");
+  }
+  $("[data-r=x]", root).oninput = e => { X = Math.round(10 ** +e.target.value); $("[data-o=x]", root).textContent = nf(X); draw(); };
+  draw(); onRedraw(draw);
+}
+
+function main() { pickWidget($("#wPick")); twinWidget($("#wTwin")); raceWidget($("#wRace")); ecdfWidget($("#wEcdf")); }
+
+window.addEventListener("DOMContentLoaded", () => { chrome(); main(); });
+})();
+</script>
+</body>
+</html>
